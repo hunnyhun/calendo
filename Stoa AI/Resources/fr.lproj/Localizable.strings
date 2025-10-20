@@ -1,0 +1,174 @@
+/* 
+  Localizable.strings
+  Stoa AI
+*/
+
+// MARK: - Common UI Elements
+"settings" = "Paramètres";
+"language" = "Langue";
+"done" = "Terminé";
+"cancel" = "Annuler";
+"signOut" = "Se Déconnecter";
+"appTitle" = "Calendo: Plan, Track & Achieve";
+"premium" = "Abonnement Premium";
+"freeAccount" = "Compte Gratuit";
+"anonymousUser" = "Utilisateur Anonyme";
+
+// MARK: - Onboarding
+"onboarding_welcome_title" = "Bienvenue dans StoicMind IA";
+"onboarding_welcome_description" = "Votre compagnon spirituel alimenté par l'intelligence artificielle. Obtenez des conseils, du soutien et de l'inspiration quotidienne dans votre parcours de foi.";
+"onboarding_chat_title" = "Discutez avec StoicMind IA";
+"onboarding_chat_description" = "Posez des questions sur la foi, cherchez des conseils ou ayez des conversations significatives. StoicMind IA est là pour écouter et fournir des réponses réfléchies.";
+"onboarding_quotes_title" = "Citations Spirituelles Quotidiennes";
+"onboarding_quotes_description" = "Recevez des citations inspirantes quotidiennes pour élever votre esprit et renforcer votre foi. Chaque citation est soigneusement sélectionnée pour vous guider dans votre parcours spirituel.";
+"onboarding_widget_title" = "Restez Connecté";
+"onboarding_widget_description" = "Ajoutez le widget StoicMind IA à votre écran d'accueil pour un accès instantané aux conseils spirituels quotidiens.";
+"onboarding_sample_quote" = "\"La foi, c'est faire le premier pas même quand on ne voit pas tout l'escalier.\"";
+"onboarding_sample_user_message" = "Je cherche ...";
+"onboarding_sample_ai_message" = "Mon enfant, laisse-moi te guider. Comment puis-je t'aider dans ton parcours spirituel ?";
+"onboarding_today_inspiration" = "Inspiration d'Aujourd'hui";
+"onboarding_widget_label" = "Widget";
+"onboarding_add_to_home_screen" = "Ajouter à l'Écran d'Accueil";
+"onboarding_widget_instructions" = "Appuyez longuement sur votre écran d'accueil, puis touchez le bouton + pour ajouter le widget StoicMind IA";
+"onboarding_previous" = "Précédent";
+"onboarding_next" = "Suivant";
+"onboarding_get_started" = "Commencer";
+
+// MARK: - Settings Screen
+"app" = "APPLICATION";
+"notificationPreferences" = "Préférences de Notification";
+"languageSettings" = "Langue";
+
+// MARK: - Auth Screen
+"signIn" = "Se Connecter";
+"signUp" = "S'Inscrire";
+"email" = "Email";
+"password" = "Mot de Passe";
+"forgotPassword" = "Mot de Passe Oublié ?";
+
+// MARK: - Daily Quote
+"dailyQuote" = "Citation Quotidienne";
+"shareQuote" = "Partager la Citation";
+"quotes" = "Citations";
+"previousQuotes" = "Citations Précédentes";
+"noPreviousQuotes" = "Aucune citation précédente disponible";
+"noQuoteAvailable" = "Aucune citation disponible aujourd'hui.";
+"fromNotification" = "Depuis la Notification";
+
+// MARK: - Chat
+"chat" = "Chat";
+"send" = "Envoyer";
+"messageHint" = "Tapez votre message...";
+"newChat" = "Nouveau Chat";
+"priest" = "Prêtre";
+"welcomeToChat" = "Bienvenue dans la Confession Numérique";
+"holySpirit" = "Au nom du Père, du Fils et du Saint-Esprit.";
+"confessSuggestion1" = "Comment puis-je transformer les obstacles quotidiens en opportunités de croissance ?";
+"confessSuggestion2" = "Je lutte contre la colère - que conseillerait Marc Aurèle ?";
+"confessSuggestion3" = "Aidez-moi à comprendre la discipline du désir vs. ce qui est sous mon contrôle";
+"messageLimitReached" = "Limite de messages atteinte";
+"upgradeToPremium" = "Passez à Premium pour des messages illimités";
+"confessThoughts" = "Confessez vos pensées...";
+"noChatsYet" = "Pas encore de chats";
+"newConversation" = "Nouvelle Conversation";
+
+// MARK: - Chat History Sections
+"Today" = "Aujourd'hui";
+"Yesterday" = "Hier";
+"Last Week" = "La Semaine Dernière";
+"Earlier" = "Plus Tôt";
+
+// MARK: - Sidebar
+"upgradeToPremiumButton" = "Passer à Premium";
+"dailySpiritualQuote" = "Citation Spirituelle Quotidienne";
+
+// MARK: - Paywall
+"unlockPremium" = "Débloquer Premium";
+"restorePurchases" = "Restaurer les Achats";
+
+// MARK: - Accessibility
+"openSettings" = "Ouvre les paramètres système pour changer la langue de l'application";
+
+/* Settings View */
+"account" = "Compte";
+"purchases" = "Achats";
+
+/* User Section */
+"anonymousUser" = "Utilisateur Anonyme";
+"premium" = "Premium";
+"freeAccount" = "Compte Gratuit";
+
+/* App Section */
+"notificationPreferences" = "Préférences de Notifications";
+"language" = "Langue";
+"openSettings" = "Ouvrir les Paramètres";
+
+/* Purchases Section */
+"restorePurchases" = "Restaurer les Achats";
+"restoreSuccessMessage" = "Vos achats ont été restaurés avec succès.";
+"restoreNoPurchasesFound" = "Aucun achat précédent trouvé.";
+"restoreFailedMessage" = "Échec de la restauration des achats. Veuillez réessayer.";
+
+/* Account Actions */
+"deleteAccount" = "Supprimer le Compte";
+"signOut" = "Se Déconnecter";
+
+/* Delete Account Alert */
+"deleteAccountTitle" = "Supprimer le Compte";
+"deleteAccountConfirmMessage" = "Êtes-vous sûr de vouloir supprimer votre compte ? Cette action ne peut pas être annulée et toutes vos données seront définitivement supprimées.";
+"deleteAccountFailedMessage" = "Échec de la suppression du compte.";
+
+/* Buttons */
+"cancelButton" = "Annuler";
+"deleteButton" = "Supprimer";
+"ok" = "OK";
+
+/* Errors */
+"errorTitle" = "Erreur";
+"unknownError" = "Une erreur inconnue s'est produite.";
+
+/* Sidebar Anonymous Prompt */
+"signUpOrLogIn" = "Inscrivez-vous ou connectez-vous";
+"signUpBenefitText" = "Sauvegardez votre chat, personnalisez l'expérience et les citations quotidiennes.";
+
+/* Daily Quote Anonymous Prompt */
+"signInToViewDailyQuotes" = "Connectez-vous pour voir les Citations Quotidiennes";
+
+/* Sidebar Anonymous History Prompt */
+"signInToViewHistory" = "Connectez-vous pour voir l'historique du chat.";
+
+/* Authentication View */
+"authWelcomeTitle" = "Bienvenue dans Votre Parcours Spirituel ! ✨";
+"authSubtitle" = "Commencez votre conversation divine avec StoicMind IA";
+"authDescription" = "Rejoignez des milliers de personnes découvrant la foi, l'espoir et les conseils à travers des conversations spirituelles significatives.";
+"continueWithGoogle" = "Continuer avec Google";
+"continueWithApple" = "Continuer avec Apple";
+"authSuccessTitle" = "Bienvenue dans la Communauté ! 🙏";
+"authSuccessMessage" = "Vous êtes maintenant connecté à StoicMind IA. Votre parcours spirituel vous attend avec des conversations illimitées, des conseils personnalisés et de l'inspiration quotidienne.";
+"subscriptionSuccessTitle" = "Premium Débloqué ! ⭐";
+"subscriptionSuccessMessage" = "Félicitations ! Vous avez maintenant accès à des messages illimités, des réponses plus rapides et des conseils spirituels prioritaires. Votre parcours amélioré commence maintenant !";
+
+/* Anonymous Settings Button */
+"settingsButtonLabel" = "Paramètres";
+
+/* Anonymous User Limits */
+"anonymousLimitTitle" = "Limite d'Utilisation Atteinte";
+"signUpOrLogInButton" = "S'Inscrire ou Se Connecter";
+"anonymousLimitMessage" = "Pour continuer à chatter, veuillez vous inscrire ou vous connecter.";
+
+/* Anonymous Limit Sheet */
+"signUpBenefitsTitle" = "Avantages de l'Inscription";
+"unlimitedMessages" = "Messages illimités";
+"chatHistory" = "Historique des conversations";
+"dailyQuotes" = "Citations quotidiennes";
+"cloudSync" = "Synchronisation cloud";
+"continueBrowsing" = "Continuer à naviguer";
+
+/* Premium Limit Sheet */
+"messageLimitReached" = "Limite de Messages Atteinte";
+"freeTierLimitMessage" = "Vous avez atteint votre limite de messages gratuits.";
+"premiumBenefitsTitle" = "Avantages Premium";
+"fasterResponses" = "Réponses plus rapides";
+"unlimitedQuotes" = "Citations illimitées";
+"prioritySupport" = "Support prioritaire";
+"maybeLater" = "Peut-être plus tard"; 

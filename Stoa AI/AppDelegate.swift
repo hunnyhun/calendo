@@ -1,0 +1,252 @@
+import SwiftUI
+import FirebaseCore
+import FirebaseAuth
+import FirebaseFirestore
+import FirebaseMessaging
+import GoogleSignIn
+import UserNotifications
+import FirebaseAppCheck
+
+class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDelegate, MessagingDelegate {
+    // Rule: Always add debug logs
+    
+    // Property to access notification quote from elsewhere
+    var latestQuote: String?
+    
+    // Store FCM token for access by NotificationManager
+    var fcmToken: String?
+
+    func application(_ application: UIApplication,
+                    didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil) -> Bool {
+        // Configure Firebase
+        FirebaseConfig.configure()
+        
+        // Set messaging delegate
+        Messaging.messaging().delegate = self
+        
+        // Set notification delegate
+        UNUserNotificationCenter.current().delegate = self
+        
+        // Register for app lifecycle notifications
+        NotificationCenter.default.addObserver(self, 
+                                           selector: #selector(handleApplicationBecameActive), 
+                                           name: UIApplication.didBecomeActiveNotification, 
+                                           object: nil)
+        
+        // Always reset badge count on app launch
+        print("📱 [AppDelegate] App launching, resetting badge count")
+        
+        // --- App Check Configuration ---
+        #if targetEnvironment(simulator)
+          // Use App Check debug provider on simulators.
+          let providerFactory = AppCheckDebugProviderFactory()
+          print("🔒 [AppCheck] Using Debug Provider Factory for Simulator")
+        #else
+          // Use App Attest provider on real devices.
+          // IMPORTANT: Requires App Attest capability added to your app in Xcode
+          // AND setup in your Apple Developer account & Firebase Console.
+          let providerFactory = DeviceCheckProviderFactory()
+          print("🔒 [AppCheck] Using DeviceCheck Provider Factory for Device (will use App Attest if available)")
+        #endif
+        AppCheck.setAppCheckProviderFactory(providerFactory)
+        // --- End App Check Configuration ---
+        
+        AppCheck.appCheck().token(forcingRefresh: false) { token, error in
+            if let error = error {
+                print("🔒❌ [AppCheck] Error fetching initial token: \(error.localizedDescription)")
+                // You might want to handle this, maybe retry later or disable features
+                return
+            }
+            if let token = token {
+                print("🔒✅ [AppCheck] Successfully fetched initial token: \(token.token.prefix(10))...")
+            } else {
+                print("🔒⚠️ [AppCheck] Fetched nil token without error.")
+            }
+        }
+        
+        UNUserNotificationCenter.current().setBadgeCount(0) { error in
+            if let error = error {
+                print("❌ [AppDelegate] Error resetting badge count on launch: \(error.localizedDescription)")
+            }
+        }
+        NotificationManager.shared.unreadNotificationCount = 0
+        NotificationManager.shared.saveUnreadNotificationCount()
+        
+        // If we have a token, update Firebase to show badge count as 0 AND register device
+        if let fcmToken = Messaging.messaging().fcmToken {
+            print("📱 [AppDelegate] FCM token available on app launch: \(fcmToken.prefix(10))...")
+            self.fcmToken = fcmToken
+            
+            // Always register device info, regardless of notification permission
+            // This ensures timezone and device data is collected for all users
+            print("📱 [AppDelegate] Registering device info for timezone/scheduling purposes")
+            NotificationManager.shared.updateDeviceToken(fcmToken, forceEnabled: NotificationManager.shared.isNotificationsEnabled)
+            
+            // Update badge count to 0
+            NotificationManager.shared.updateDeviceBadgeCountInFirestore(fcmToken: fcmToken, badgeCount: 0)
+            
+            // Run diagnostic after short delay to allow Firestore update to complete
+            DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) {
+                print("📱 [AppDelegate] Running badge count diagnostic")
+                NotificationManager.shared.verifyDeviceTokenAndBadgeCount()
+            }
+        } else {
+            print("📱 [AppDelegate] No FCM token available on app launch - will register when token is received")
+        }
+        
+        return true
+    }
+    
+    // Handle Google Sign-In URL
+    func application(_ app: UIApplication,
+                    open url: URL,
+                    options: [UIApplication.OpenURLOptionsKey: Any] = [:]) -> Bool {
+        // Debug log for URL handling
+        print("Debug: Handling URL: \(url.absoluteString)")
+        return GIDSignIn.sharedInstance.handle(url)
+    }
+    
+    // MARK: - Push Notification Handling
+    
+    // Get FCM token
+    func messaging(_ messaging: Messaging, didReceiveRegistrationToken fcmToken: String?) {
+        // Debug log
+        print("📱 [AppDelegate] Firebase registration token: \(fcmToken ?? "nil")")
+        
+        // Store token for access by other components
+        self.fcmToken = fcmToken
+        
+        // Store this token in Firestore for sending notifications to this device
+        if let token = fcmToken {
+            // Check if notifications are currently enabled according to system settings
+            UNUserNotificationCenter.current().getNotificationSettings { settings in
+                let isAuthorized = settings.authorizationStatus == .authorized
+                print("📱 [AppDelegate] Current notification authorization status: \(isAuthorized)")
+                
+                // Update NotificationManager status
+                DispatchQueue.main.async {
+                    NotificationManager.shared.isNotificationsEnabled = isAuthorized
+                    
+                    // Force enable notifications if authorized
+                    if isAuthorized {
+                        NotificationManager.shared.updateDeviceToken(token, forceEnabled: true)
+                    } else {
+                        NotificationManager.shared.updateDeviceToken(token)
+                    }
+                    
+                    // Run diagnostic after token is registered and updated
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) {
+                        print("📱 [AppDelegate] Running badge count diagnostic after token update")
+                        NotificationManager.shared.verifyDeviceTokenAndBadgeCount()
+                    }
+                }
+            }
+        }
+    }
+    
+    // Handle incoming notifications while app is in foreground
+    func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification, withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
+        // Debug log the notification
+        let userInfo = notification.request.content.userInfo
+        print("📱 [AppDelegate] Received notification while app in foreground: \(userInfo)")
+        
+        // Handle the notification with our manager
+        if let quote = NotificationManager.shared.handleReceivedNotification(userInfo) {
+            latestQuote = quote
+        }
+        
+        // Show notification with badge
+        completionHandler([.banner, .sound, .badge])
+    }
+    
+    // Handle notification response when user taps notification
+    func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse, withCompletionHandler completionHandler: @escaping () -> Void) {
+        let userInfo = response.notification.request.content.userInfo
+        print("📱 [AppDelegate] User tapped notification: \(userInfo)")
+        
+        // Extract badge count from notification if available
+        var badgeCount = 0
+        if let aps = userInfo["aps"] as? [String: Any], 
+           let badge = aps["badge"] as? Int {
+            badgeCount = badge
+            print("📱 [AppDelegate] Badge count from APS payload: \(badgeCount)")
+        } else if let data = userInfo["data"] as? [String: Any],
+                  let badgeString = data["badgeCount"] as? String,
+                  let badge = Int(badgeString) {
+            badgeCount = badge
+            print("📱 [AppDelegate] Badge count from data payload: \(badgeCount)")
+        }
+        
+        // Clear badge count when notification is tapped
+        UNUserNotificationCenter.current().setBadgeCount(0) { error in
+            if let error = error {
+                print("❌ [AppDelegate] Error resetting badge count on notification tap: \(error.localizedDescription)")
+            }
+        }
+        NotificationManager.shared.markNotificationsAsRead()
+        
+        // Handle the notification tap
+        if let notificationData = NotificationManager.shared.handleNotificationTap(userInfo) {
+            latestQuote = notificationData.quote
+            
+            // Post notification to open the quote view
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                NotificationCenter.default.post(
+                    name: Notification.Name("OpenDailyQuoteView"),
+                    object: nil,
+                    userInfo: [
+                        "quote": notificationData.quote,
+                        "source": notificationData.source,
+                        "fromNotification": true
+                    ]
+                )
+            }
+        }
+        
+        completionHandler()
+    }
+    
+    // Called when APNs has assigned the device a unique token
+    func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
+        Messaging.messaging().apnsToken = deviceToken
+    }
+    
+    // Called when APNs failed to register the device for push notifications
+    func application(_ application: UIApplication, didFailToRegisterForRemoteNotificationsWithError error: Error) {
+        // Debug log
+        print("❌ [AppDelegate] APNs registration failed: \(error.localizedDescription)")
+    }
+    
+    // Enforce portrait orientation for all view controllers
+    func application(_ application: UIApplication, supportedInterfaceOrientationsFor window: UIWindow?) -> UIInterfaceOrientationMask {
+        // Only allow portrait orientation
+        return .portrait
+    }
+    
+    // Handle app did become active notification
+    @objc func handleApplicationBecameActive(_ notification: Notification) {
+        // Reset badge count whenever app becomes active
+        print("📱 [AppDelegate] App became active, resetting badge count")
+        UNUserNotificationCenter.current().setBadgeCount(0) { error in
+            if let error = error {
+                print("❌ [AppDelegate] Error resetting badge count on app active: \(error.localizedDescription)")
+            }
+        }
+        NotificationManager.shared.unreadNotificationCount = 0
+        NotificationManager.shared.saveUnreadNotificationCount()
+        
+        // Ensure we update Firestore and register device if we have a token
+        if let token = self.fcmToken {
+            print("📱 [AppDelegate] Explicitly updating Firestore badge count to 0 and ensuring device registration")
+            NotificationManager.shared.updateDeviceToken(token, forceEnabled: NotificationManager.shared.isNotificationsEnabled)
+            NotificationManager.shared.updateDeviceBadgeCountInFirestore(fcmToken: token, badgeCount: 0)
+        } else if let token = Messaging.messaging().fcmToken {
+            print("📱 [AppDelegate] Using Messaging.fcmToken to update Firestore badge count to 0 and register device")
+            self.fcmToken = token
+            NotificationManager.shared.updateDeviceToken(token, forceEnabled: NotificationManager.shared.isNotificationsEnabled)
+            NotificationManager.shared.updateDeviceBadgeCountInFirestore(fcmToken: token, badgeCount: 0)
+        } else {
+            print("📱 [AppDelegate] No FCM token available to update Firestore badge count or register device")
+        }
+    }
+}

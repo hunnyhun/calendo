@@ -1,0 +1,294 @@
+{
+  "examples": [
+    {
+      "name": "Morning Meditation",
+      "goal": "Establish a daily meditation practice for mental clarity and stress reduction",
+      "category": "mindfulness",
+      "description": "A daily 10-minute meditation practice to start each day with mindfulness and intention",
+      "motivation": "To reduce stress, improve focus, and cultivate inner peace",
+      "tracking_method": "Check-in after completion with mood rating and reflection notes",
+      
+      "milestones": [
+        {
+          "id": "milestone_1",
+          "description": "Complete first week of meditation",
+          "completion_criteria": "7 successful meditation sessions within 7 days",
+          "reward_message": "Congratulations! You've built the foundation of your meditation practice.",
+          "target_days": 7
+        },
+        {
+          "id": "milestone_2",
+          "description": "Maintain 2-week meditation streak",
+          "completion_criteria": "14 consecutive days of meditation",
+          "reward_message": "Amazing! Meditation is becoming a natural part of your daily routine.",
+          "target_days": 14
+        },
+        {
+          "id": "milestone_3",
+          "description": "Complete 30-day meditation challenge",
+          "completion_criteria": "30 successful meditation sessions within 35 days",
+          "reward_message": "Incredible! You've successfully established a lasting meditation habit.",
+          "target_days": 30
+        }
+      ],
+      
+      "low_level_schedule": {
+        "span": "daily",
+        "span_interval": null,
+        "program": [
+          {
+            "steps": [
+              {
+                "id": "step_1",
+                "time": "07:00",
+                "instructions": "Find a quiet space and sit comfortably",
+                "feedback": "Great start! You're creating space for mindfulness.",
+                "duration_minutes": 2,
+                "difficulty": "easy"
+              },
+              {
+                "id": "step_2",
+                "time": "07:02",
+                "instructions": "Close your eyes and focus on your breath for 8 minutes",
+                "feedback": "Excellent! You're cultivating present-moment awareness.",
+                "duration_minutes": 8,
+                "difficulty": "medium"
+              }
+            ]
+          }
+        ]
+      },
+      
+      "reminders": [
+        {
+          "time": "06:55",
+          "message": "Time for your morning meditation! Find your quiet space.",
+          "frequency": "daily",
+          "type": "preparation"
+        },
+        {
+          "time": "07:10",
+          "message": "How did your meditation feel today? Take a moment to reflect.",
+          "frequency": "daily",
+          "type": "reflection"
+        }
+      ]
+    },
+    
+    {
+      "name": "Weekly Workout",
+      "goal": "Build consistent fitness routine with 3 weekly strength training sessions",
+      "category": "fitness",
+      "description": "Three structured workout sessions per week focusing on strength building and cardiovascular health",
+      "motivation": "To improve physical strength, energy levels, and overall health",
+      "tracking_method": "Log workout completion, exercises performed, and energy level",
+      
+      "milestones": [
+        {
+          "id": "milestone_1",
+          "description": "Complete first month of workouts",
+          "completion_criteria": "12 successful workout sessions within 30 days",
+          "reward_message": "Fantastic! You've established a solid fitness foundation.",
+          "target_days": 30
+        },
+        {
+          "id": "milestone_2",
+          "description": "Maintain 2-month consistency",
+          "completion_criteria": "24 successful workout sessions within 60 days",
+          "reward_message": "Outstanding! Your fitness routine is becoming second nature.",
+          "target_days": 60
+        },
+        {
+          "id": "milestone_3",
+          "description": "Complete 6-month fitness journey",
+          "completion_criteria": "72 successful workout sessions within 180 days",
+          "reward_message": "Incredible! You've transformed your fitness and built lasting habits.",
+          "target_days": 180
+        }
+      ],
+      
+      "low_level_schedule": {
+        "span": "weekly",
+        "span_interval": null,
+        "program": [
+          {
+            "steps": [
+              {
+                "id": "step_1",
+                "day": "mon",
+                "instructions": "Upper body strength training - 45 minutes",
+                "feedback": "Great start to the week! You're building upper body strength.",
+                "duration_minutes": 45,
+                "difficulty": "medium"
+              },
+              {
+                "id": "step_2",
+                "day": "wed",
+                "instructions": "Lower body and core workout - 45 minutes",
+                "feedback": "Excellent! You're strengthening your foundation.",
+                "duration_minutes": 45,
+                "difficulty": "medium"
+              },
+              {
+                "id": "step_3",
+                "day": "fri",
+                "instructions": "Full body circuit training - 40 minutes",
+                "feedback": "Outstanding! You're completing your weekly fitness goals.",
+                "duration_minutes": 40,
+                "difficulty": "hard"
+              }
+            ]
+          }
+        ]
+      },
+      
+      "reminders": [
+        {
+          "time": "18:00",
+          "message": "Time for your workout! Get ready to build strength.",
+          "frequency": "weekly",
+          "type": "preparation"
+        },
+        {
+          "time": "19:30",
+          "message": "How did your workout feel? You're getting stronger every session!",
+          "frequency": "weekly",
+          "type": "reflection"
+        }
+      ]
+    },
+    
+    {
+      "name": "Learn Spanish",
+      "goal": "Achieve conversational Spanish proficiency through structured learning",
+      "category": "learning",
+      "description": "A progressive language learning program with daily practice and weekly milestones",
+      "motivation": "To communicate with Spanish speakers and expand cultural understanding",
+      "tracking_method": "Track daily practice time, vocabulary learned, and speaking confidence",
+      
+      "milestones": [
+        {
+          "id": "milestone_1",
+          "description": "Complete basic vocabulary foundation",
+          "completion_criteria": "Learn 200 essential words and basic greetings",
+          "reward_message": "¡Excelente! You've built your Spanish vocabulary foundation.",
+          "target_days": 30
+        },
+        {
+          "id": "milestone_2",
+          "description": "Master present tense conversations",
+          "completion_criteria": "Hold 5-minute conversations using present tense",
+          "reward_message": "¡Fantástico! You're having real conversations in Spanish!",
+          "target_days": 60
+        },
+        {
+          "id": "milestone_3",
+          "description": "Achieve intermediate fluency",
+          "completion_criteria": "Complete 3-month course and pass intermediate assessment",
+          "reward_message": "¡Increíble! You've achieved conversational Spanish proficiency!",
+          "target_days": 90
+        }
+      ],
+      
+      "high_level_schedule": {
+        "program": [
+          {
+            "phase": "foundation",
+            "duration_weeks": 4,
+            "goal": "Build basic vocabulary and pronunciation",
+            "steps": [
+              {
+                "id": "phase_1_step_1",
+                "instructions": "Practice 10 new vocabulary words daily",
+                "feedback": "¡Muy bien! You're expanding your Spanish vocabulary.",
+                "success_criteria": "Correctly recall 10 words from previous day",
+                "duration_minutes": 15,
+                "difficulty": "easy"
+              },
+              {
+                "id": "phase_1_step_2",
+                "instructions": "Practice pronunciation with audio lessons",
+                "feedback": "¡Excelente pronunciación! Your Spanish sounds great.",
+                "success_criteria": "Complete pronunciation exercises with 80% accuracy",
+                "duration_minutes": 10,
+                "difficulty": "medium"
+              }
+            ]
+          },
+          {
+            "phase": "building",
+            "duration_weeks": 4,
+            "goal": "Develop basic conversation skills",
+            "steps": [
+              {
+                "id": "phase_2_step_1",
+                "instructions": "Practice daily conversations with language app",
+                "feedback": "¡Perfecto! You're building real conversation skills.",
+                "success_criteria": "Complete 5 conversation scenarios per week",
+                "duration_minutes": 20,
+                "difficulty": "medium"
+              },
+              {
+                "id": "phase_2_step_2",
+                "instructions": "Write simple sentences about your day",
+                "feedback": "¡Muy bien escrito! Your Spanish writing is improving.",
+                "success_criteria": "Write 3 sentences daily for 5 days per week",
+                "duration_minutes": 10,
+                "difficulty": "medium"
+              }
+            ]
+          },
+          {
+            "phase": "mastery",
+            "duration_weeks": 4,
+            "goal": "Achieve conversational fluency",
+            "steps": [
+              {
+                "id": "phase_3_step_1",
+                "instructions": "Have real conversations with native speakers",
+                "feedback": "¡Increíble! You're having authentic Spanish conversations!",
+                "success_criteria": "Complete 2 conversations per week with native speakers",
+                "duration_minutes": 30,
+                "difficulty": "hard"
+              }
+            ]
+          }
+        ]
+      },
+      
+      "low_level_schedule": {
+        "span": "daily",
+        "span_interval": null,
+        "program": [
+          {
+            "steps": [
+              {
+                "id": "daily_step_1",
+                "time": "19:00",
+                "instructions": "Complete daily Spanish lesson",
+                "feedback": "¡Muy bien! You're making consistent progress.",
+                "duration_minutes": 25,
+                "difficulty": "medium"
+              }
+            ]
+          }
+        ]
+      },
+      
+      "reminders": [
+        {
+          "time": "18:55",
+          "message": "¡Hora de estudiar español! Time for your Spanish lesson.",
+          "frequency": "daily",
+          "type": "preparation"
+        },
+        {
+          "time": "19:25",
+          "message": "¿Cómo te fue hoy? How did your Spanish practice go?",
+          "frequency": "daily",
+          "type": "reflection"
+        }
+      ]
+    }
+  ]
+}

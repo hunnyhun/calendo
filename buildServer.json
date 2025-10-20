@@ -1,0 +1,19 @@
+{
+	"name": "xcode build server",
+	"version": "0.2",
+	"bspVersion": "2.0",
+	"languages": [
+		"c",
+		"cpp",
+		"objective-c",
+		"objective-cpp",
+		"swift"
+	],
+	"argv": [
+		"/usr/local/bin/xcode-build-server"
+	],
+	"workspace": "/Users/ahmetkemalakbudak/Stoa AI/Stoa AI.xcodeproj/project.xcworkspace",
+	"build_root": "/Users/ahmetkemalakbudak/Library/Developer/Xcode/DerivedData/Stoa_AI-asygtcihzeevgchbjzyghwwdrgav",
+	"scheme": "Stoa AI",
+	"kind": "xcode"
+}

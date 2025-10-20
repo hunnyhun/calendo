@@ -1,0 +1,673 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		0030DD812E27F034004CE66A /* GoogleSignIn in Frameworks */ = {isa = PBXBuildFile; productRef = 0030DD802E27F034004CE66A /* GoogleSignIn */; };
+		0030DD832E27F034004CE66A /* GoogleSignInSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 0030DD822E27F034004CE66A /* GoogleSignInSwift */; };
+		0030DD862E27F07C004CE66A /* RevenueCat in Frameworks */ = {isa = PBXBuildFile; productRef = 0030DD852E27F07C004CE66A /* RevenueCat */; };
+		0030DD882E27F07C004CE66A /* RevenueCatUI in Frameworks */ = {isa = PBXBuildFile; productRef = 0030DD872E27F07C004CE66A /* RevenueCatUI */; };
+		0030DDE42E27F2BF004CE66A /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = 0030DDE32E27F2BF004CE66A /* FirebaseAnalytics */; };
+		0030DDE62E27F2BF004CE66A /* FirebaseAppCheck in Frameworks */ = {isa = PBXBuildFile; productRef = 0030DDE52E27F2BF004CE66A /* FirebaseAppCheck */; };
+		0030DDE82E27F2BF004CE66A /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 0030DDE72E27F2BF004CE66A /* FirebaseAuth */; };
+		0030DDEA2E27F2BF004CE66A /* FirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = 0030DDE92E27F2BF004CE66A /* FirebaseCore */; };
+		0030DDEC2E27F33D004CE66A /* FirebaseFunctions in Frameworks */ = {isa = PBXBuildFile; productRef = 0030DDEB2E27F33D004CE66A /* FirebaseFunctions */; };
+		0030DDEE2E27F372004CE66A /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = 0030DDED2E27F372004CE66A /* FirebaseFirestore */; };
+		0030DDF02E27F3C1004CE66A /* FirebaseMessaging in Frameworks */ = {isa = PBXBuildFile; productRef = 0030DDEF2E27F3C1004CE66A /* FirebaseMessaging */; };
+		00512EC12E2BE5F800A24AF1 /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 00512EC02E2BE5F800A24AF1 /* WidgetKit.framework */; };
+		00512EC32E2BE5F800A24AF1 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 00512EC22E2BE5F800A24AF1 /* SwiftUI.framework */; };
+		00512ED42E2BE5FB00A24AF1 /* StoaAIWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 00512EBE2E2BE5F800A24AF1 /* StoaAIWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		00923B992E5F636400057F95 /* Launch Screen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 00923B982E5F636400057F95 /* Launch Screen.storyboard */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		00512ED22E2BE5FB00A24AF1 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 00B3195C2E25538B009FBCD6 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 00512EBD2E2BE5F800A24AF1;
+			remoteInfo = StoaAIWidgetExtension;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		00512ED92E2BE5FB00A24AF1 /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				00512ED42E2BE5FB00A24AF1 /* StoaAIWidgetExtension.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		00512EBE2E2BE5F800A24AF1 /* StoaAIWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = StoaAIWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		00512EC02E2BE5F800A24AF1 /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
+		00512EC22E2BE5F800A24AF1 /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
+		00923B982E5F636400057F95 /* Launch Screen.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = "Launch Screen.storyboard"; sourceTree = "<group>"; };
+		00B319642E25538B009FBCD6 /* Stoa AI.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Stoa AI.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		00512ED52E2BE5FB00A24AF1 /* Exceptions for "StoaAIWidget" folder in "StoaAIWidgetExtension" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 00512EBD2E2BE5F800A24AF1 /* StoaAIWidgetExtension */;
+		};
+		00D3DB782E2E88FB001C332B /* Exceptions for "Stoa AI" folder in "Stoa AI" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 00B319632E25538B009FBCD6 /* Stoa AI */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
+/* Begin PBXFileSystemSynchronizedRootGroup section */
+		00512EC42E2BE5F800A24AF1 /* StoaAIWidget */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				00512ED52E2BE5FB00A24AF1 /* Exceptions for "StoaAIWidget" folder in "StoaAIWidgetExtension" target */,
+			);
+			path = StoaAIWidget;
+			sourceTree = "<group>";
+		};
+		00B319662E25538B009FBCD6 /* Stoa AI */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				00D3DB782E2E88FB001C332B /* Exceptions for "Stoa AI" folder in "Stoa AI" target */,
+			);
+			path = "Stoa AI";
+			sourceTree = "<group>";
+		};
+/* End PBXFileSystemSynchronizedRootGroup section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		00512EBB2E2BE5F800A24AF1 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				00512EC32E2BE5F800A24AF1 /* SwiftUI.framework in Frameworks */,
+				00512EC12E2BE5F800A24AF1 /* WidgetKit.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		00B319612E25538B009FBCD6 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				0030DD882E27F07C004CE66A /* RevenueCatUI in Frameworks */,
+				0030DD812E27F034004CE66A /* GoogleSignIn in Frameworks */,
+				0030DD832E27F034004CE66A /* GoogleSignInSwift in Frameworks */,
+				0030DDEE2E27F372004CE66A /* FirebaseFirestore in Frameworks */,
+				0030DDEC2E27F33D004CE66A /* FirebaseFunctions in Frameworks */,
+				0030DDE42E27F2BF004CE66A /* FirebaseAnalytics in Frameworks */,
+				0030DDE62E27F2BF004CE66A /* FirebaseAppCheck in Frameworks */,
+				0030DDE82E27F2BF004CE66A /* FirebaseAuth in Frameworks */,
+				0030DDEA2E27F2BF004CE66A /* FirebaseCore in Frameworks */,
+				0030DDF02E27F3C1004CE66A /* FirebaseMessaging in Frameworks */,
+				0030DD862E27F07C004CE66A /* RevenueCat in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		00512EBF2E2BE5F800A24AF1 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				00512EC02E2BE5F800A24AF1 /* WidgetKit.framework */,
+				00512EC22E2BE5F800A24AF1 /* SwiftUI.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		00B3195B2E25538B009FBCD6 = {
+			isa = PBXGroup;
+			children = (
+				00923B982E5F636400057F95 /* Launch Screen.storyboard */,
+				00B319662E25538B009FBCD6 /* Stoa AI */,
+				00512EC42E2BE5F800A24AF1 /* StoaAIWidget */,
+				00512EBF2E2BE5F800A24AF1 /* Frameworks */,
+				00B319652E25538B009FBCD6 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		00B319652E25538B009FBCD6 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				00B319642E25538B009FBCD6 /* Stoa AI.app */,
+				00512EBE2E2BE5F800A24AF1 /* StoaAIWidgetExtension.appex */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		00512EBD2E2BE5F800A24AF1 /* StoaAIWidgetExtension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 00512ED62E2BE5FB00A24AF1 /* Build configuration list for PBXNativeTarget "StoaAIWidgetExtension" */;
+			buildPhases = (
+				00512EBA2E2BE5F800A24AF1 /* Sources */,
+				00512EBB2E2BE5F800A24AF1 /* Frameworks */,
+				00512EBC2E2BE5F800A24AF1 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				00512EC42E2BE5F800A24AF1 /* StoaAIWidget */,
+			);
+			name = StoaAIWidgetExtension;
+			packageProductDependencies = (
+			);
+			productName = StoaAIWidgetExtension;
+			productReference = 00512EBE2E2BE5F800A24AF1 /* StoaAIWidgetExtension.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
+		00B319632E25538B009FBCD6 /* Stoa AI */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 00B3196F2E25538E009FBCD6 /* Build configuration list for PBXNativeTarget "Stoa AI" */;
+			buildPhases = (
+				00B319602E25538B009FBCD6 /* Sources */,
+				00B319612E25538B009FBCD6 /* Frameworks */,
+				00B319622E25538B009FBCD6 /* Resources */,
+				00512ED92E2BE5FB00A24AF1 /* Embed Foundation Extensions */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				00512ED32E2BE5FB00A24AF1 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				00B319662E25538B009FBCD6 /* Stoa AI */,
+			);
+			name = "Stoa AI";
+			packageProductDependencies = (
+				0030DD802E27F034004CE66A /* GoogleSignIn */,
+				0030DD822E27F034004CE66A /* GoogleSignInSwift */,
+				0030DD852E27F07C004CE66A /* RevenueCat */,
+				0030DD872E27F07C004CE66A /* RevenueCatUI */,
+				0030DDE32E27F2BF004CE66A /* FirebaseAnalytics */,
+				0030DDE52E27F2BF004CE66A /* FirebaseAppCheck */,
+				0030DDE72E27F2BF004CE66A /* FirebaseAuth */,
+				0030DDE92E27F2BF004CE66A /* FirebaseCore */,
+				0030DDEB2E27F33D004CE66A /* FirebaseFunctions */,
+				0030DDED2E27F372004CE66A /* FirebaseFirestore */,
+				0030DDEF2E27F3C1004CE66A /* FirebaseMessaging */,
+			);
+			productName = "Stoa AI";
+			productReference = 00B319642E25538B009FBCD6 /* Stoa AI.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		00B3195C2E25538B009FBCD6 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1640;
+				LastUpgradeCheck = 1640;
+				TargetAttributes = {
+					00512EBD2E2BE5F800A24AF1 = {
+						CreatedOnToolsVersion = 16.4;
+					};
+					00B319632E25538B009FBCD6 = {
+						CreatedOnToolsVersion = 16.4;
+					};
+				};
+			};
+			buildConfigurationList = 00B3195F2E25538B009FBCD6 /* Build configuration list for PBXProject "Stoa AI" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+				es,
+				it,
+				fr,
+				pt,
+				ro,
+				"es-419",
+				"pt-BR",
+			);
+			mainGroup = 00B3195B2E25538B009FBCD6;
+			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				0030DD7F2E27F034004CE66A /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */,
+				0030DD842E27F07C004CE66A /* XCRemoteSwiftPackageReference "purchases-ios-spm" */,
+				0030DDE22E27F2BF004CE66A /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
+			);
+			preferredProjectObjectVersion = 77;
+			productRefGroup = 00B319652E25538B009FBCD6 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				00B319632E25538B009FBCD6 /* Stoa AI */,
+				00512EBD2E2BE5F800A24AF1 /* StoaAIWidgetExtension */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		00512EBC2E2BE5F800A24AF1 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		00B319622E25538B009FBCD6 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				00923B992E5F636400057F95 /* Launch Screen.storyboard in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		00512EBA2E2BE5F800A24AF1 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		00B319602E25538B009FBCD6 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		00512ED32E2BE5FB00A24AF1 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 00512EBD2E2BE5F800A24AF1 /* StoaAIWidgetExtension */;
+			targetProxy = 00512ED22E2BE5FB00A24AF1 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		00512ED72E2BE5FB00A24AF1 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = XP5SR9YWYU;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = StoaAIWidget/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = CalendoWidget;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.4;
+				PRODUCT_BUNDLE_IDENTIFIER = com.hunnyhun.stoicism.StoaAIWidget;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		00512ED82E2BE5FB00A24AF1 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = XP5SR9YWYU;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = StoaAIWidget/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = CalendoWidget;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.4;
+				PRODUCT_BUNDLE_IDENTIFIER = com.hunnyhun.stoicism.StoaAIWidget;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		00B3196D2E25538E009FBCD6 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = XP5SR9YWYU;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.5;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		00B3196E2E25538E009FBCD6 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = XP5SR9YWYU;
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.5;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		00B319702E25538E009FBCD6 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = "Stoa AI/Stoa AI.entitlements";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = XP5SR9YWYU;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = Calendo;
+				INFOPLIST_KEY_CFBundleURLSchemes_0 = "com.googleusercontent.apps.647533876699-0fj8hphne8nb7gtme55j6odaafo0sb6v";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
+				INFOPLIST_KEY_NSUserNotificationUsageDescription = "We'd like to send you daily spiritual quotes to inspire your journey.";
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UIBackgroundModes = "remote-notification";
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.4;
+				PRODUCT_BUNDLE_IDENTIFIER = com.hunnyhun.stoicism;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		00B319712E25538E009FBCD6 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = "Stoa AI/Stoa AI.entitlements";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = XP5SR9YWYU;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = Calendo;
+				INFOPLIST_KEY_CFBundleURLSchemes_0 = "com.googleusercontent.apps.647533876699-0fj8hphne8nb7gtme55j6odaafo0sb6v";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
+				INFOPLIST_KEY_NSUserNotificationUsageDescription = "We'd like to send you daily spiritual quotes to inspire your journey.";
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UIBackgroundModes = "remote-notification";
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.4;
+				PRODUCT_BUNDLE_IDENTIFIER = com.hunnyhun.stoicism;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		00512ED62E2BE5FB00A24AF1 /* Build configuration list for PBXNativeTarget "StoaAIWidgetExtension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				00512ED72E2BE5FB00A24AF1 /* Debug */,
+				00512ED82E2BE5FB00A24AF1 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		00B3195F2E25538B009FBCD6 /* Build configuration list for PBXProject "Stoa AI" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				00B3196D2E25538E009FBCD6 /* Debug */,
+				00B3196E2E25538E009FBCD6 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		00B3196F2E25538E009FBCD6 /* Build configuration list for PBXNativeTarget "Stoa AI" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				00B319702E25538E009FBCD6 /* Debug */,
+				00B319712E25538E009FBCD6 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		0030DD7F2E27F034004CE66A /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/google/GoogleSignIn-iOS.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 9.0.0;
+			};
+		};
+		0030DD842E27F07C004CE66A /* XCRemoteSwiftPackageReference "purchases-ios-spm" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/RevenueCat/purchases-ios-spm.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 5.32.0;
+			};
+		};
+		0030DDE22E27F2BF004CE66A /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/firebase/firebase-ios-sdk.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 12.0.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		0030DD802E27F034004CE66A /* GoogleSignIn */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 0030DD7F2E27F034004CE66A /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */;
+			productName = GoogleSignIn;
+		};
+		0030DD822E27F034004CE66A /* GoogleSignInSwift */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 0030DD7F2E27F034004CE66A /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */;
+			productName = GoogleSignInSwift;
+		};
+		0030DD852E27F07C004CE66A /* RevenueCat */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 0030DD842E27F07C004CE66A /* XCRemoteSwiftPackageReference "purchases-ios-spm" */;
+			productName = RevenueCat;
+		};
+		0030DD872E27F07C004CE66A /* RevenueCatUI */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 0030DD842E27F07C004CE66A /* XCRemoteSwiftPackageReference "purchases-ios-spm" */;
+			productName = RevenueCatUI;
+		};
+		0030DDE32E27F2BF004CE66A /* FirebaseAnalytics */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 0030DDE22E27F2BF004CE66A /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAnalytics;
+		};
+		0030DDE52E27F2BF004CE66A /* FirebaseAppCheck */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 0030DDE22E27F2BF004CE66A /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAppCheck;
+		};
+		0030DDE72E27F2BF004CE66A /* FirebaseAuth */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 0030DDE22E27F2BF004CE66A /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAuth;
+		};
+		0030DDE92E27F2BF004CE66A /* FirebaseCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 0030DDE22E27F2BF004CE66A /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseCore;
+		};
+		0030DDEB2E27F33D004CE66A /* FirebaseFunctions */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = FirebaseFunctions;
+		};
+		0030DDED2E27F372004CE66A /* FirebaseFirestore */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = FirebaseFirestore;
+		};
+		0030DDEF2E27F3C1004CE66A /* FirebaseMessaging */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = FirebaseMessaging;
+		};
+/* End XCSwiftPackageProductDependency section */
+	};
+	rootObject = 00B3195C2E25538B009FBCD6 /* Project object */;
+}

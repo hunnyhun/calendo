@@ -1,0 +1,191 @@
+/* 
+  Localizable.strings
+  Stoa AI
+*/
+
+// MARK: - Common UI Elements
+"settings" = "Setări";
+"language" = "Limbă";
+"done" = "Gata";
+"cancel" = "Anulare";
+"signOut" = "Deconectare";
+"appTitle" = "Calendo: Plan, Track & Achieve";
+"premium" = "Abonament Premium";
+"freeAccount" = "Cont Gratuit";
+"anonymousUser" = "Utilizator Anonim";
+
+// MARK: - Onboarding
+"onboarding_welcome_title" = "Bun venit la StoicMind IA";
+"onboarding_welcome_description" = "Companionul tău spiritual alimentat de inteligența artificială. Primește îndrumare, sprijin și inspirație zilnică în călătoria ta de credință.";
+"onboarding_chat_title" = "Conversează cu StoicMind IA";
+"onboarding_chat_description" = "Pune întrebări despre credință, caută îndrumare sau ai conversații semnificative. StoicMind IA este aici să asculte și să ofere răspunsuri gândite.";
+"onboarding_quotes_title" = "Citate Spirituale Zilnice";
+"onboarding_quotes_description" = "Primește citate inspiraționale zilnice pentru a-ți ridica spiritul și a-ți întări credința. Fiecare citat este ales cu grijă pentru a te ghida în călătoria ta spirituală.";
+"onboarding_widget_title" = "Rămâi Conectat";
+"onboarding_widget_description" = "Adaugă widget-ul StoicMind IA pe ecranul tău principal pentru acces instantaneu la îndrumarea spirituală zilnică.";
+"onboarding_sample_quote" = "\"Credința înseamnă să faci primul pas chiar și atunci când nu vezi toată scara.\"";
+"onboarding_sample_user_message" = "Caut ...";
+"onboarding_sample_ai_message" = "Copilul meu, lasă-mă să te îndrumez. Cum te pot ajuta în călătoria ta spirituală?";
+"onboarding_today_inspiration" = "Inspirația de Astăzi";
+"onboarding_widget_label" = "Widget";
+"onboarding_add_to_home_screen" = "Adaugă pe Ecranul Principal";
+"onboarding_widget_instructions" = "Apasă lung pe ecranul tău principal, apoi atinge butonul + pentru a adăuga widget-ul StoicMind IA";
+"onboarding_previous" = "Anterior";
+"onboarding_next" = "Următorul";
+"onboarding_get_started" = "Începe";
+
+// MARK: - Settings Screen
+"app" = "APLICAȚIE";
+"notificationPreferences" = "Preferințe Notificări";
+"languageSettings" = "Limbă";
+
+// MARK: - Auth Screen
+"signIn" = "Autentificare";
+"signUp" = "Înregistrare";
+"email" = "Email";
+"password" = "Parolă";
+"forgotPassword" = "Ai uitat parola?";
+
+// MARK: - Daily Quote
+"dailyQuote" = "Citatul Zilei";
+"shareQuote" = "Distribuie Citatul";
+"quotes" = "Citate";
+"previousQuotes" = "Citate Anterioare";
+"noPreviousQuotes" = "Nu sunt disponibile citate anterioare";
+"noQuoteAvailable" = "Nu este disponibil niciun citat astăzi.";
+"fromNotification" = "Din Notificare";
+
+// MARK: - Chat
+"chat" = "Chat";
+"send" = "Trimite";
+"messageHint" = "Scrie mesajul tău...";
+"newChat" = "Chat Nou";
+"priest" = "Preot";
+"welcomeToChat" = "Bun venit la Spovedania Digitală";
+"holySpirit" = "În numele Tatălui, Fiului și Sfântului Duh.";
+"confessSuggestion1" = "Cum pot transforma obstacolele zilnice în oportunități de creștere?";
+"confessSuggestion2" = "Mă lupt cu mânia - ce ar sfătui Marcus Aurelius?";
+"confessSuggestion3" = "Ajută-mă să înțeleg disciplina dorinței vs. ce este sub controlul meu";
+"messageLimitReached" = "Limita de mesaje a fost atinsă";
+"upgradeToPremium" = "Upgrade la Premium pentru mesaje nelimitate";
+"confessThoughts" = "Spovedeште-ți gândurile...";
+"noChatsYet" = "Încă nu există chat-uri";
+"newConversation" = "Conversație Nouă";
+
+// MARK: - Chat History Sections
+"Today" = "Astăzi";
+"Yesterday" = "Ieri";
+"Last Week" = "Săptămâna Trecută";
+"Earlier" = "Mai Devreme";
+
+// MARK: - Sidebar
+"upgradeToPremiumButton" = "Upgrade la Premium";
+"dailySpiritualQuote" = "Citat Spiritual Zilnic";
+
+// MARK: - Paywall
+"unlockPremium" = "Deblochează Premium";
+"restorePurchases" = "Restaurează Achizițiile";
+
+// MARK: - Accessibility
+"openSettings" = "Deschide setările sistemului pentru a schimba limba aplicației";
+
+/* Settings View */
+"account" = "Cont";
+"purchases" = "Achizitii";
+
+/* User Section */
+"anonymousUser" = "Utilizator Anonim";
+"premium" = "Premium";
+"freeAccount" = "Cont Gratuit";
+
+/* App Section */
+"notificationPreferences" = "Preferințe Notificări";
+"language" = "Limbă";
+"openSettings" = "Deschide Setările";
+
+/* Purchases Section */
+"restorePurchases" = "Restaurează Achizițiile";
+"restoreSuccessMessage" = "Achizițiile tale au fost restaurate cu succes.";
+"restoreNoPurchasesFound" = "Nu au fost găsite achizitii anterioare.";
+"restoreFailedMessage" = "Nu s-au putut restaura achizițiile. Te rugăm să încerci din nou.";
+
+/* Account Actions */
+"deleteAccount" = "Șterge Contul";
+"signOut" = "Deconectare";
+
+/* Delete Account Alert */
+"deleteAccountTitle" = "Șterge Contul";
+"deleteAccountConfirmMessage" = "Ești sigur că vrei să-ți ștergi contul? Această acțiune nu poate fi anulată și toate datele tale vor fi șterse permanent.";
+"deleteAccountFailedMessage" = "Nu s-a putut șterge contul.";
+
+/* Buttons */
+"cancelButton" = "Anulare";
+"deleteButton" = "Șterge";
+"ok" = "OK";
+
+/* Errors */
+"errorTitle" = "Eroare";
+"unknownError" = "A apărut o eroare necunoscută.";
+
+/* Sidebar Anonymous Prompt */
+"signUpOrLogIn" = "Înregistrează-te sau autentifică-te";
+"signUpBenefitText" = "Salvează chat-ul, personalizează experiența și citatele zilnice.";
+
+/* Daily Quote Anonymous Prompt */
+"signInToViewDailyQuotes" = "Autentifică-te pentru a vedea Citatele Zilnice";
+
+/* Sidebar Anonymous History Prompt */
+"signInToViewHistory" = "Autentifică-te pentru a vedea istoricul chat-ului.";
+
+/* Authentication View */
+"authWelcomeTitle" = "Bun venit în Călătoria Ta Spirituală! ✨";
+"authSubtitle" = "Începe conversația ta divină cu StoicMind IA";
+"authDescription" = "Alătură-te miilor care descoperă credința, speranța și îndrumarea prin conversații spirituale semnificative.";
+"continueWithGoogle" = "Continuă cu Google";
+"continueWithApple" = "Continuă cu Apple";
+"authSuccessTitle" = "Bun venit în Comunitate! 🙏";
+"authSuccessMessage" = "Acum ești conectat la StoicMind IA. Călătoria ta spirituală te așteaptă cu conversații nelimitate, îndrumare personalizată și inspirație zilnică.";
+"subscriptionSuccessTitle" = "Premium Deblocat! ⭐";
+"subscriptionSuccessMessage" = "Felicitări! Acum ai acces la mesaje nelimitate, răspunsuri mai rapide și îndrumare spirituală prioritară. Călătoria ta îmbunătățită începe acum!";
+
+/* Anonymous Settings Button */
+"settingsButtonLabel" = "Setări";
+
+/* Anonymous User Limits */
+"anonymousLimitTitle" = "Limita de Utilizare Atinsă";
+"signUpOrLogInButton" = "Înregistrează-te sau Autentifică-te";
+"anonymousLimitMessage" = "Pentru a continua conversația, te rugăm să te înregistrezi sau să te autentifici.";
+
+/* Anonymous Limit Sheet */
+"signUpBenefitsTitle" = "Avantajele Înregistrării";
+"unlimitedMessages" = "Mesaje nelimitate";
+"chatHistory" = "Istoric conversații";
+"dailyQuotes" = "Citate zilnice";
+"cloudSync" = "Sincronizare cloud";
+"continueBrowsing" = "Continuă navigarea";
+
+/* Premium Limit Sheet */
+"messageLimitReached" = "Limita de Mesaje Atinsă";
+"freeTierLimitMessage" = "Ai atins limita de mesaje gratuite.";
+"premiumBenefitsTitle" = "Avantaje Premium";
+"fasterResponses" = "Răspunsuri mai rapide";
+"unlimitedQuotes" = "Citate nelimitate";
+"prioritySupport" = "Suport prioritar";
+"maybeLater" = "Poate mai târziu";
+
+/* Anonymous Limit Sheet */
+"signUpBenefitsTitle" = "Avantajele Înregistrării";
+"unlimitedMessages" = "Mesaje nelimitate";
+"chatHistory" = "Istoric conversații";
+"dailyQuotes" = "Citate zilnice";
+"cloudSync" = "Sincronizare cloud";
+"continueBrowsing" = "Continuă navigarea";
+
+/* Premium Limit Sheet */
+"messageLimitReached" = "Limita de Mesaje Atinsă";
+"freeTierLimitMessage" = "Ai atins limita de mesaje gratuite.";
+"premiumBenefitsTitle" = "Avantaje Premium";
+"fasterResponses" = "Răspunsuri mai rapide";
+"unlimitedQuotes" = "Citate nelimitate";
+"prioritySupport" = "Suport prioritar";
+"maybeLater" = "Poate mai târziu"; 

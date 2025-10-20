@@ -1,0 +1,243 @@
+/* 
+  Localizable.strings
+  Stoa AI
+*/
+
+// MARK: - Common UI Elements
+"settings" = "Settings";
+"language" = "Language";
+"done" = "Done";
+"cancel" = "Cancel";
+"signOut" = "Sign Out";
+"appTitle" = "Calendo: Plan, Track & Achieve";
+"premium" = "Premium Subscription";
+"freeAccount" = "Free Account";
+"anonymousUser" = "Anonymous User";
+"task_mode" = "Task";
+"task_management" = "Task Management";
+"my_tasks" = "My Tasks";
+
+// MARK: - Onboarding
+"onboarding_welcome_title" = "Welcome to Calendo";
+"onboarding_welcome_description" = "Your personal growth companion for building better habits and achieving your goals. Begin your journey of self-improvement with practical guidance and support.";
+"onboarding_chat_title" = "How to Use the Chat";
+"onboarding_chat_description" = "Ask questions about life's challenges • Seek guidance on difficult decisions • Get help with personal growth and habit building • Ask anything you want to learn";
+"onboarding_quotes_title" = "Daily Inspiration";
+"onboarding_quotes_description" = "Start each day with motivational quotes and practical insights. Get personalized guidance delivered to your phone.";
+"onboarding_profile_title" = "Tell Us About Yourself";
+"onboarding_profile_description" = "Help us personalize your experience with Stoa AI. This information helps us provide more relevant guidance.";
+"onboarding_goals_title" = "What Do You Want to Achieve?";
+"onboarding_goals_description" = "Select your main goals so we can tailor our guidance to your personal journey.";
+"onboarding_suffering_title" = "How Long Have You Been Working on This?";
+"onboarding_suffering_description" = "Understanding your journey helps us provide appropriate guidance and support.";
+"onboarding_sample_quote" = "\"The only way to do great work is to love what you do.\" - Steve Jobs";
+"onboarding_sample_user_message" = "I want to improve my...";
+"onboarding_sample_ai_message" = "Welcome! I'm here to help you build better habits and achieve your goals. How can I assist you today?";
+"onboarding_widget_title" = "Stay Connected to Growth";
+"onboarding_widget_description" = "Add the Calendo widget to your home screen for instant access to daily motivation and habit tracking.";
+"onboarding_today_inspiration" = "Today's Growth Insight";
+"onboarding_widget_label" = "Widget";
+"onboarding_add_to_home_screen" = "Add to Home Screen";
+"onboarding_widget_instructions" = "Press and hold on your home screen, then tap the + button to add the Calendo widget";
+"onboarding_previous" = "Previous";
+"onboarding_next" = "Next";
+"onboarding_get_started" = "Get Started";
+"onboarding_continue" = "Continue";
+"onboarding_skip" = "Skip";
+
+// MARK: - Onboarding Habits
+"onboarding_habits_title" = "Build Better Habits";
+"onboarding_habits_description" = "Create and track daily practices for personal growth • Check in, build streaks, and see your progress";
+"onboarding_habit_morning_reflection" = "Morning Reflection";
+"onboarding_habit_morning_reflection_sub" = "Daily • 10 min";
+"onboarding_habit_evening_review" = "Evening Review";
+"onboarding_habit_evening_review_sub" = "Daily • 5 min";
+"onboarding_habit_acts_of_kindness" = "Acts of Kindness";
+"onboarding_habit_acts_of_kindness_sub" = "Daily";
+"onboarding_habit_read_philosophy" = "Read Philosophy";
+"onboarding_habit_read_philosophy_sub" = "Daily • 20 min";
+
+// MARK: - Profile Setup
+"profile_name_placeholder" = "Your name";
+"profile_age_placeholder" = "Your age";
+"profile_optional" = "(Optional)";
+"profile_name_label" = "Name";
+"profile_age_label" = "Age";
+"profile_gender_label" = "Gender";
+
+// MARK: - Goals
+"goal_personal_growth" = "Personal Growth";
+"goal_stress_reduction" = "Stress Reduction";
+"goal_emotional_resilience" = "Emotional Resilience";
+"goal_mindfulness" = "Mindfulness & Present Moment";
+"goal_better_relationships" = "Better Relationships";
+"goal_personal_growth_desc" = "Develop wisdom, virtue, and character through personal growth principles";
+"goal_stress_reduction_desc" = "Learn to manage stress and find inner peace";
+"goal_emotional_resilience_desc" = "Build strength to handle life's challenges";
+"goal_mindfulness_desc" = "Practice presence and awareness in daily life";
+"goal_better_relationships_desc" = "Improve connections with others through wisdom";
+
+// MARK: - Suffering Duration
+"suffering_recently_started" = "Recently started";
+"suffering_few_months" = "A few months";
+"suffering_six_months_to_year" = "6 months to 1 year";
+"suffering_one_to_three_years" = "1-3 years";
+"suffering_several_years" = "Several years";
+"suffering_not_applicable" = "Not applicable to me";
+"suffering_recently_started_desc" = "I've just begun this journey";
+"suffering_few_months_desc" = "I've been working on this for a few months";
+"suffering_six_months_to_year_desc" = "I've been dealing with this for half a year to a year";
+"suffering_one_to_three_years_desc" = "This has been an ongoing challenge for 1-3 years";
+"suffering_several_years_desc" = "I've been facing this for many years";
+"suffering_not_applicable_desc" = "This question doesn't apply to my situation";
+
+// MARK: - Gender Options
+"gender_male" = "Male";
+"gender_female" = "Female";
+"gender_non_binary" = "Non-binary";
+"gender_prefer_not_to_say" = "Prefer not to say";
+
+// MARK: - Settings Screen
+"app" = "APP";
+"notificationPreferences" = "Notification Preferences";
+"languageSettings" = "Language";
+
+// MARK: - Auth Screen
+"signIn" = "Sign In";
+"signUp" = "Sign Up";
+"email" = "Email";
+"password" = "Password";
+"forgotPassword" = "Forgot Password?";
+
+// MARK: - Daily Quote
+"dailyQuote" = "Daily Quote";
+"shareQuote" = "Share Quote";
+"quotes" = "Quotes";
+"previousQuotes" = "Previous Quotes";
+"noPreviousQuotes" = "No previous quotes available";
+"noQuoteAvailable" = "No quote available today.";
+"fromNotification" = "From Notification";
+
+// MARK: - Chat
+"chat" = "Chat";
+"send" = "Send";
+"messageHint" = "Type your message...";
+"newChat" = "New Chat";
+"priest" = "Sage";
+"welcomeToChat" = "Welcome to Philosophical Reflection";
+"welcomeToStoicHabitMind" = "Welcome to Calendo";
+"holySpirit" = "Let us explore the depths of wisdom and virtue together.";
+"confessSuggestion1" = "How can I turn daily obstacles into opportunities for growth?";
+"confessSuggestion2" = "I'm struggling with anger - how can I manage it better?";
+"confessSuggestion3" = "Help me understand the discipline of desire vs. what's in my control";
+
+// Habit mode suggestions
+"habitSuggestion1" = "Help me create a morning reflection habit";
+"habitSuggestion2" = "I want to build a habit of reading personal development content daily";
+"habitSuggestion3" = "How can I develop a consistent evening review practice?";
+"messageLimitReached" = "Message limit reached";
+"upgradeToPremium" = "Upgrade to Premium for unlimited messages";
+"confessThoughts" = "Share your philosophical thoughts...";
+"noChatsYet" = "No chats yet";
+"newConversation" = "New Conversation";
+
+// MARK: - Chat History Sections
+"Today" = "Today";
+"Yesterday" = "Yesterday";
+"Last Week" = "Last Week";
+"Earlier" = "Earlier";
+
+// MARK: - Sidebar
+"upgradeToPremiumButton" = "Upgrade to Premium";
+"dailySpiritualQuote" = "Quotes";
+
+// MARK: - Paywall
+"unlockPremium" = "Unlock Premium";
+"restorePurchases" = "Restore Purchases";
+
+// MARK: - Accessibility
+"openSettings" = "Opens system settings to change app language"; 
+
+/* Settings View */
+"account" = "Account";
+"purchases" = "Purchases";
+
+/* User Section */
+"anonymousUser" = "Anonymous User";
+"premium" = "Premium";
+"freeAccount" = "Free Account";
+
+/* App Section */
+"notificationPreferences" = "Notification Preferences";
+"language" = "Language";
+"openSettings" = "Open Settings";
+
+/* Purchases Section */
+"restorePurchases" = "Restore Purchases";
+"restoreSuccessMessage" = "Your purchases have been successfully restored.";
+"restoreNoPurchasesFound" = "No previous purchases were found.";
+"restoreFailedMessage" = "Failed to restore purchases. Please try again.";
+
+/* Account Actions */
+"deleteAccount" = "Delete Account";
+"signOut" = "Sign Out";
+
+/* Delete Account Alert */
+"deleteAccountTitle" = "Delete Account";
+"deleteAccountConfirmMessage" = "Are you sure you want to delete your account? This action cannot be undone and all your data will be permanently deleted.";
+"deleteAccountFailedMessage" = "Failed to delete account.";
+
+/* Buttons */
+"cancelButton" = "Cancel";
+"deleteButton" = "Delete";
+"ok" = "OK";
+
+/* Errors */
+"errorTitle" = "Error";
+"unknownError" = "An unknown error occurred."; 
+
+/* Sidebar Anonymous Prompt */
+"signUpOrLogIn" = "Sign up or log in";
+"signUpBenefitText" = "Save your chats, personalize experience and daily philosophical quotes.";
+
+/* Daily Quote Anonymous Prompt */
+"signInToViewDailyQuotes" = "Sign in to view Daily Quotes"; 
+
+/* Sidebar Anonymous History Prompt */
+"signInToViewHistory" = "Sign in to view chat history.";
+
+/* Authentication View */
+"authWelcomeTitle" = "Welcome to Your Growth Journey! 🚀";
+"authSubtitle" = "Begin your quest for personal development with SmartAI";
+"authDescription" = "Join thousands building better habits and achieving their goals through meaningful conversations with your AI personal growth companion.";
+"continueWithGoogle" = "Continue with Google";
+"continueWithApple" = "Continue with Apple";
+"authSuccessTitle" = "Welcome to SmartAI! 📚";
+"authSuccessMessage" = "You're now connected to SmartAI Habit & Daily Planner. Your personal growth journey awaits with unlimited conversations, personalized guidance, and daily habit tracking.";
+"subscriptionSuccessTitle" = "Premium Unlocked! ⭐";
+"subscriptionSuccessMessage" = "Congratulations! You now have access to unlimited messages, faster responses, and priority guidance. Your enhanced journey of personal growth begins now!";
+
+/* Anonymous Settings Button */
+"settingsButtonLabel" = "Settings"; 
+
+/* Anonymous User Limits */
+"anonymousLimitTitle" = "Usage Limit Reached";
+"signUpOrLogInButton" = "Sign Up or Log In";
+"anonymousLimitMessage" = "To continue chatting, please sign up or log in.";
+
+/* Anonymous Limit Sheet */
+"signUpBenefitsTitle" = "Benefits of Signing Up";
+"unlimitedMessages" = "Unlimited messages";
+"chatHistory" = "Chat history";
+"dailyQuotes" = "Daily quotes";
+"cloudSync" = "Cloud sync";
+"continueBrowsing" = "Continue browsing";
+
+/* Premium Limit Sheet */
+"messageLimitReached" = "Message Limit Reached";
+"freeTierLimitMessage" = "You've reached your free tier message limit.";
+"premiumBenefitsTitle" = "Premium Benefits";
+"fasterResponses" = "Faster responses";
+"unlimitedQuotes" = "Unlimited quotes";
+"prioritySupport" = "Priority support";
+"maybeLater" = "Maybe later"; 

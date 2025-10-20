@@ -1,0 +1,11 @@
+theme: jekyll-theme-minimal
+title: StoicMind
+description: Policies and Documentation for StoicMind App
+show_downloads: false
+google_analytics:
+markdown: kramdown
+plugins:
+  - jekyll-relative-links
+relative_links:
+  enabled: true
+  collections: true 
