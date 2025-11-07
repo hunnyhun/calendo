@@ -1,0 +1,36 @@
+{
+    "name": "Apply to University",
+    "goal": "Complete university application",
+    "category": "Education",
+    "description": "Submit application for fall 2025 semester",
+    "task_schedule": {
+        "steps": [
+            {
+                "index": 1,
+                "title": "Submit Application",
+                "description": "Complete and submit the university application form",
+                "date": "2024-10-15",
+                "time": null,
+                "reminders": [
+                    {
+                        "offset": {
+                            "unit": "days",
+                            "value": 7
+                        },
+                        "time": "09:00",
+                        "message": "Application due in one week!"
+                    },
+                    {
+                        "offset": {
+                            "unit": "days",
+                            "value": 1
+                        },
+                        "time": "09:00",
+                        "message": "Application due tomorrow!"
+                    }
+                ]
+            }
+        ]
+    }
+}
+

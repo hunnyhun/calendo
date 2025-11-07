@@ -1,0 +1,205 @@
+{
+    "name": "3-Month Weekly Skill Development",
+    "goal": "Complete a 3-month program of weekly multi-day skill practice sessions",
+    "category": "Learning",
+    "description": "Practice a new skill across 3 different days each week for 3 months to develop expertise",
+    "difficulty": "intermediate",
+    "high_level_schedule": {
+        "milestones": [
+            {
+                "index": 0,
+                "description": "Complete 1 month of weekly skill practice",
+                "completion_criteria": "streak_of_months",
+                "completion_criteria_point": 1,
+                "reward_message": "Great job! You've completed your first month of skill practice!"
+            },
+            {
+                "index": 1,
+                "description": "Complete 2 months of weekly skill practice",
+                "completion_criteria": "streak_of_months",
+                "completion_criteria_point": 2,
+                "reward_message": "Fantastic! 2 months down. You're making excellent progress!"
+            },
+            {
+                "index": 2,
+                "description": "Complete 3 months of weekly skill practice",
+                "completion_criteria": "streak_of_months",
+                "completion_criteria_point": 3,
+                "reward_message": "Congratulations! You've completed the 3-month skill development program! You've built significant expertise!"
+            }
+        ]
+    },
+    "low_level_schedule": {
+        "span": "month",
+        "span_value": 1,
+        "habit_schedule": null,
+        "habit_repeat_count": 3,
+        "program": [
+            {
+                "days_indexed": [
+                    {
+                        "index": 0,
+                        "title": "Day 1: Theory and Learning",
+                        "content": [
+                            {
+                                "step": "Study theory and concepts for 45 minutes",
+                                "clock": "18:00"
+                            },
+                            {
+                                "step": "Take notes and review key points",
+                                "clock": "18:45"
+                            }
+                        ],
+                        "reminders": [
+                            {
+                                "time": "18:00",
+                                "message": "Day 1 - theory and learning time!"
+                            }
+                        ]
+                    },
+                    {
+                        "index": 1,
+                        "title": "Day 2: Practice Session",
+                        "content": [
+                            {
+                                "step": "Practice the skill hands-on for 45 minutes",
+                                "clock": "18:00"
+                            },
+                            {
+                                "step": "Review what you practiced",
+                                "clock": "18:45"
+                            }
+                        ],
+                        "reminders": [
+                            {
+                                "time": "18:00",
+                                "message": "Day 2 - practice session time!"
+                            }
+                        ]
+                    },
+                    {
+                        "index": 2,
+                        "title": "Day 3: Application and Review",
+                        "content": [
+                            {
+                                "step": "Apply the skill in a real project for 45 minutes",
+                                "clock": "18:00"
+                            },
+                            {
+                                "step": "Review progress and plan next week",
+                                "clock": "18:45"
+                            }
+                        ],
+                        "reminders": [
+                            {
+                                "time": "18:00",
+                                "message": "Day 3 - application and review time!"
+                            }
+                        ]
+                    }
+                ],
+                "weeks_indexed": [
+                    {
+                        "index": 0,
+                        "title": "Weekly Skill Practice",
+                        "content": [
+                            {
+                                "step": "Start week with theory day",
+                                "day": "Monday"
+                            },
+                            {
+                                "step": "Continue with practice day",
+                                "day": "Wednesday"
+                            },
+                            {
+                                "step": "Complete with application day",
+                                "day": "Friday"
+                            }
+                        ],
+                        "reminders": [
+                            {
+                                "time": "18:00",
+                                "message": "Keep up your weekly skill practice!"
+                            }
+                        ]
+                    }
+                ],
+                "months_indexed": [
+                    {
+                        "index": 0,
+                        "title": "Month 1: Foundation Building",
+                        "content": [
+                            {
+                                "step": "Begin your 3-month skill development program",
+                                "day": "start_of_month"
+                            },
+                            {
+                                "step": "Continue weekly practice routines",
+                                "day": "15"
+                            },
+                            {
+                                "step": "Review month 1 progress and skills learned",
+                                "day": "end_of_month"
+                            }
+                        ],
+                        "reminders": [
+                            {
+                                "time": "18:00",
+                                "message": "Month 1 - building your foundation!"
+                            }
+                        ]
+                    },
+                    {
+                        "index": 1,
+                        "title": "Month 2: Skill Advancement",
+                        "content": [
+                            {
+                                "step": "Continue your weekly skill practice into month 2",
+                                "day": "start_of_month"
+                            },
+                            {
+                                "step": "Maintain consistency across all practice days",
+                                "day": "15"
+                            },
+                            {
+                                "step": "Review month 2 progress and improvements",
+                                "day": "end_of_month"
+                            }
+                        ],
+                        "reminders": [
+                            {
+                                "time": "18:00",
+                                "message": "Month 2 - advancing your skills!"
+                            }
+                        ]
+                    },
+                    {
+                        "index": 2,
+                        "title": "Month 3: Mastery Development",
+                        "content": [
+                            {
+                                "step": "Continue your weekly skill practice into month 3",
+                                "day": "start_of_month"
+                            },
+                            {
+                                "step": "Focus on mastery and advanced techniques",
+                                "day": "15"
+                            },
+                            {
+                                "step": "Complete final practice session and celebrate your 3-month achievement!",
+                                "day": "end_of_month"
+                            }
+                        ],
+                        "reminders": [
+                            {
+                                "time": "18:00",
+                                "message": "Month 3 - final month! Complete your skill development!"
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    }
+}
+

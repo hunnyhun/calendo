@@ -1,0 +1,261 @@
+/* 
+  Localizable.strings
+  Stoa AI
+*/
+
+// MARK: - Common UI Elements
+"settings" = "Ayarlar";
+"language" = "Dil";
+"done" = "Tamam";
+"cancel" = "İptal";
+"signOut" = "Çıkış Yap";
+"appTitle" = "Calendo: Planla, Takip Et ve Başar";
+"premium" = "Premium Abonelik";
+"freeAccount" = "Ücretsiz Hesap";
+"anonymousUser" = "Anonim Kullanıcı";
+"task_mode" = "Görev";
+"task_management" = "Görev Yönetimi";
+"my_tasks" = "Görevlerim";
+
+// MARK: - Onboarding
+"onboarding_welcome_title" = "Calendo'ya Hoş Geldiniz";
+"onboarding_welcome_description" = "Daha iyi alışkanlıklar oluşturmak ve hedeflerinize ulaşmak için kişisel büyüme yol arkadaşınız. Pratik rehberlik ve destekle kendini geliştirme yolculuğunuza başlayın.";
+"onboarding_chat_title" = "Sohbet Nasıl Kullanılır";
+"onboarding_chat_description" = "Yaşamın zorlukları hakkında sorular sorun • Zor kararlar için rehberlik arayın • Kişisel gelişim ve alışkanlık oluşturmada yardım alın • Öğrenmek istediğiniz her şeyi sorun";
+"onboarding_quotes_title" = "Günlük İlham";
+"onboarding_quotes_description" = "Her günü motive edici alıntılar ve pratik içgörülerle başlatın. Telefonunuza kişiselleştirilmiş rehberlik alın.";
+"onboarding_profile_title" = "Kendiniz Hakkında Bilgi Verin";
+"onboarding_profile_description" = "Stoa AI ile deneyiminizi kişiselleştirmemize yardımcı olun. Bu bilgi, daha ilgili rehberlik sunmamıza yardımcı olur.";
+"onboarding_goals_title" = "Ne Elde Etmek İstiyorsunuz?";
+"onboarding_goals_description" = "Ana hedeflerinizi seçin, böylece rehberliğimizi kişisel yolculuğunuza göre uyarlayabiliriz.";
+"onboarding_suffering_title" = "Bu Üzerinde Ne Kadar Süredir Çalışıyorsunuz?";
+"onboarding_suffering_description" = "Yolculuğunuzu anlamak, uygun rehberlik ve destek sağlamamıza yardımcı olur.";
+"onboarding_sample_quote" = "\"Harika iş yapmanın tek yolu, yaptığınız şeyi sevmektir.\" - Steve Jobs";
+"onboarding_sample_user_message" = "...ı iyileştirmek istiyorum";
+"onboarding_sample_ai_message" = "Hoş geldiniz! Daha iyi alışkanlıklar oluşturmanıza ve hedeflerinize ulaşmanıza yardımcı olmak için buradayım. Bugün size nasıl yardımcı olabilirim?";
+"onboarding_widget_title" = "Büyümeyle Bağlantıda Kalın";
+"onboarding_widget_description" = "Günlük motivasyon ve alışkanlık takibine anında erişim için Calendo widget'ını ana ekranınıza ekleyin.";
+"onboarding_today_inspiration" = "Bugünün Büyüme İçgörüsü";
+"onboarding_widget_label" = "Widget";
+"onboarding_add_to_home_screen" = "Ana Ekrana Ekle";
+"onboarding_widget_instructions" = "Ana ekranınıza basılı tutun, ardından Calendo widget'ını eklemek için + düğmesine dokunun";
+"onboarding_previous" = "Önceki";
+"onboarding_next" = "Sonraki";
+"onboarding_get_started" = "Başlayın";
+"onboarding_continue" = "Devam Et";
+"onboarding_skip" = "Atla";
+
+// MARK: - Onboarding Habits
+"onboarding_habits_title" = "Daha İyi Alışkanlıklar Oluşturun";
+"onboarding_habits_description" = "Kişisel büyüme için günlük uygulamalar oluşturun ve takip edin • Giriş yapın, seriler oluşturun ve ilerlemenizi görün";
+"onboarding_habit_morning_reflection" = "Sabah Yansıması";
+"onboarding_habit_morning_reflection_sub" = "Günlük • 10 dk";
+"onboarding_habit_evening_review" = "Akşam Değerlendirmesi";
+"onboarding_habit_evening_review_sub" = "Günlük • 5 dk";
+"onboarding_habit_acts_of_kindness" = "İyilik Eylemleri";
+"onboarding_habit_acts_of_kindness_sub" = "Günlük";
+"onboarding_habit_read_philosophy" = "Felsefe Oku";
+"onboarding_habit_read_philosophy_sub" = "Günlük • 20 dk";
+
+// MARK: - Profile Setup
+"profile_name_placeholder" = "Adınız";
+"profile_age_placeholder" = "Yaşınız";
+"profile_optional" = "(İsteğe Bağlı)";
+"profile_name_label" = "Ad";
+"profile_age_label" = "Yaş";
+"profile_gender_label" = "Cinsiyet";
+
+// MARK: - Goals
+"goal_personal_growth" = "Kişisel Büyüme";
+"goal_stress_reduction" = "Stres Azaltma";
+"goal_emotional_resilience" = "Duygusal Dayanıklılık";
+"goal_mindfulness" = "Farkındalık ve Şimdiki An";
+"goal_better_relationships" = "Daha İyi İlişkiler";
+"goal_personal_growth_desc" = "Kişisel büyüme ilkeleri aracılığıyla bilgelik, erdem ve karakter geliştirin";
+"goal_stress_reduction_desc" = "Stresi yönetmeyi ve iç huzuru bulmayı öğrenin";
+"goal_emotional_resilience_desc" = "Yaşamın zorluklarını ele almak için güç oluşturun";
+"goal_mindfulness_desc" = "Günlük yaşamda varlık ve farkındalık pratiği yapın";
+"goal_better_relationships_desc" = "Bilgelik aracılığıyla başkalarıyla bağlantıları geliştirin";
+
+// MARK: - Suffering Duration
+"suffering_recently_started" = "Yakın zamanda başladı";
+"suffering_few_months" = "Birkaç ay";
+"suffering_six_months_to_year" = "6 ay ila 1 yıl";
+"suffering_one_to_three_years" = "1-3 yıl";
+"suffering_several_years" = "Birkaç yıl";
+"suffering_not_applicable" = "Bana uygulanmıyor";
+"suffering_recently_started_desc" = "Bu yolculuğa yeni başladım";
+"suffering_few_months_desc" = "Birkaç aydır bunun üzerinde çalışıyorum";
+"suffering_six_months_to_year_desc" = "Yarım yıldan bir yıla kadar bununla uğraşıyorum";
+"suffering_one_to_three_years_desc" = "Bu 1-3 yıldır süregelen bir zorluk";
+"suffering_several_years_desc" = "Yıllardır bununla karşı karşıyayım";
+"suffering_not_applicable_desc" = "Bu soru durumuma uygulanmıyor";
+
+// MARK: - Gender Options
+"gender_male" = "Erkek";
+"gender_female" = "Kadın";
+"gender_non_binary" = "İkili olmayan";
+"gender_prefer_not_to_say" = "Söylemeyi tercih etmiyorum";
+
+// MARK: - Settings Screen
+"app" = "UYGULAMA";
+"notificationPreferences" = "Bildirim Tercihleri";
+"languageSettings" = "Dil";
+
+// MARK: - Auth Screen
+"signIn" = "Giriş Yap";
+"signUp" = "Kayıt Ol";
+"email" = "E-posta";
+"password" = "Şifre";
+"forgotPassword" = "Şifremi Unuttum?";
+
+// MARK: - Daily Quote
+"dailyQuote" = "Günlük Alıntı";
+"shareQuote" = "Alıntıyı Paylaş";
+"quotes" = "Alıntılar";
+"previousQuotes" = "Önceki Alıntılar";
+"noPreviousQuotes" = "Önceki alıntı mevcut değil";
+"noQuoteAvailable" = "Bugün alıntı mevcut değil.";
+"fromNotification" = "Bildirimden";
+
+// MARK: - Reminders
+"reminders" = "Hatırlatıcılar";
+"previousReminders" = "Önceki Hatırlatıcılar";
+"noReminderAvailable" = "Bugün için hatırlatıcı mevcut değil.";
+"noPreviousReminders" = "Önceki hatırlatıcı mevcut değil.";
+"signInToViewDailyReminders" = "Günlük Hatırlatıcıları görüntülemek için giriş yapın";
+
+// MARK: - Chat
+"chat" = "Sohbet";
+"send" = "Gönder";
+"messageHint" = "Mesajınızı yazın...";
+"newChat" = "Yeni Sohbet";
+"priest" = "Bilge";
+"welcomeToChat" = "Felsefi Düşünceye Hoş Geldiniz";
+"welcomeToStoicHabitMind" = "Calendo'ya Hoş Geldiniz";
+"holySpirit" = "Bilgelik ve erdemin derinliklerini birlikte keşfedelim.";
+"confessSuggestion1" = "Günlük engelleri büyüme fırsatlarına nasıl dönüştürebilirim?";
+"confessSuggestion2" = "Öfkeyle mücadele ediyorum - bunu nasıl daha iyi yönetebilirim?";
+"confessSuggestion3" = "Arzu disiplini ile kontrolümde olan şey arasındaki farkı anlamama yardımcı olun";
+
+// Habit mode suggestions
+"habitSuggestion1" = "Sabah yansıması alışkanlığı oluşturmama yardımcı olun";
+"habitSuggestion2" = "Günlük olarak kişisel gelişim içeriği okuma alışkanlığı oluşturmak istiyorum";
+"habitSuggestion3" = "Tutarlı bir akşam değerlendirmesi pratiği nasıl geliştirebilirim?";
+
+// Task mode suggestions
+"I have an exam coming up" = "Yakında bir sınavım var";
+"I need to buy groceries" = "Market alışverişi yapmam gerekiyor";
+"I need to make a reservation" = "Rezervasyon yapmam gerekiyor";
+
+// Habit mode suggestions
+"Create a morning exercise habit" = "Sabah egzersiz alışkanlığı oluştur";
+"Help me build a daily reading routine" = "Günlük okuma rutini oluşturmama yardımcı ol";
+"I want to start meditating regularly" = "Düzenli olarak meditasyon yapmaya başlamak istiyorum";
+"messageLimitReached" = "Mesaj limiti aşıldı";
+"upgradeToPremium" = "Sınırsız mesajlar için Premium'a yükseltin";
+"confessThoughts" = "Felsefi düşüncelerinizi paylaşın...";
+"noChatsYet" = "Henüz sohbet yok";
+"newConversation" = "Yeni Konuşma";
+
+// MARK: - Chat History Sections
+"Today" = "Bugün";
+"Yesterday" = "Dün";
+"Last Week" = "Geçen Hafta";
+"Earlier" = "Daha Önce";
+
+// MARK: - Sidebar
+"upgradeToPremiumButton" = "Premium'a Yükselt";
+"dailySpiritualQuote" = "Alıntılar";
+
+// MARK: - Paywall
+"unlockPremium" = "Premium'u Aç";
+"restorePurchases" = "Satın Alımları Geri Yükle";
+
+// MARK: - Accessibility
+"openSettings" = "Uygulama dilini değiştirmek için sistem ayarlarını açar"; 
+
+/* Settings View */
+"account" = "Hesap";
+"purchases" = "Satın Alımlar";
+
+/* User Section */
+"anonymousUser" = "Anonim Kullanıcı";
+"premium" = "Premium";
+"freeAccount" = "Ücretsiz Hesap";
+
+/* App Section */
+"notificationPreferences" = "Bildirim Tercihleri";
+"language" = "Dil";
+"openSettings" = "Ayarları Aç";
+
+/* Purchases Section */
+"restorePurchases" = "Satın Alımları Geri Yükle";
+"restoreSuccessMessage" = "Satın alımlarınız başarıyla geri yüklendi.";
+"restoreNoPurchasesFound" = "Önceki satın alım bulunamadı.";
+"restoreFailedMessage" = "Satın alımları geri yükleme başarısız oldu. Lütfen tekrar deneyin.";
+
+/* Account Actions */
+"deleteAccount" = "Hesabı Sil";
+"signOut" = "Çıkış Yap";
+
+/* Delete Account Alert */
+"deleteAccountTitle" = "Hesabı Sil";
+"deleteAccountConfirmMessage" = "Hesabınızı silmek istediğinizden emin misiniz? Bu işlem geri alınamaz ve tüm verileriniz kalıcı olarak silinecektir.";
+"deleteAccountFailedMessage" = "Hesap silme başarısız oldu.";
+
+/* Buttons */
+"cancelButton" = "İptal";
+"deleteButton" = "Sil";
+"ok" = "Tamam";
+
+/* Errors */
+"errorTitle" = "Hata";
+"unknownError" = "Bilinmeyen bir hata oluştu."; 
+
+/* Sidebar Anonymous Prompt */
+"signUpOrLogIn" = "Kayıt olun veya giriş yapın";
+"signUpBenefitText" = "Sohbetlerinizi kaydedin, deneyimi kişiselleştirin ve günlük felsefi alıntılar alın.";
+
+/* Daily Quote Anonymous Prompt */
+"signInToViewDailyQuotes" = "Günlük alıntıları görüntülemek için giriş yapın"; 
+
+/* Sidebar Anonymous History Prompt */
+"signInToViewHistory" = "Sohbet geçmişini görüntülemek için giriş yapın.";
+
+/* Authentication View */
+"authWelcomeTitle" = "Büyüme Yolculuğunuza Hoş Geldiniz! 🚀";
+"authSubtitle" = "SmartAI ile kişisel gelişim arayışınıza başlayın";
+"authDescription" = "AI kişisel büyüme yol arkadaşınızla anlamlı konuşmalar aracılığıyla daha iyi alışkanlıklar oluşturan ve hedeflerine ulaşan binlerce kişiye katılın.";
+"continueWithGoogle" = "Google ile Devam Et";
+"continueWithApple" = "Apple ile Devam Et";
+"authSuccessTitle" = "SmartAI'ye Hoş Geldiniz! 📚";
+"authSuccessMessage" = "Artık SmartAI Alışkanlık ve Günlük Planlayıcı'ya bağlısınız. Kişisel büyüme yolculuğunuz sınırsız konuşmalar, kişiselleştirilmiş rehberlik ve günlük alışkanlık takibi ile bekliyor.";
+"subscriptionSuccessTitle" = "Premium Açıldı! ⭐";
+"subscriptionSuccessMessage" = "Tebrikler! Artık sınırsız mesajlara, daha hızlı yanıtlara ve öncelikli rehberliğe erişiminiz var. Kişisel büyümenizin geliştirilmiş yolculuğu şimdi başlıyor!";
+
+/* Anonymous Settings Button */
+"settingsButtonLabel" = "Ayarlar"; 
+
+/* Anonymous User Limits */
+"anonymousLimitTitle" = "Kullanım Limiti Aşıldı";
+"signUpOrLogInButton" = "Kayıt Ol veya Giriş Yap";
+"anonymousLimitMessage" = "Sohbet etmeye devam etmek için lütfen kayıt olun veya giriş yapın.";
+
+/* Anonymous Limit Sheet */
+"signUpBenefitsTitle" = "Kayıt Olmanın Avantajları";
+"unlimitedMessages" = "Sınırsız mesajlar";
+"chatHistory" = "Sohbet geçmişi";
+"dailyQuotes" = "Günlük alıntılar";
+"cloudSync" = "Bulut senkronizasyonu";
+"continueBrowsing" = "Gözatmaya devam et";
+
+/* Premium Limit Sheet */
+"messageLimitReached" = "Mesaj Limiti Aşıldı";
+"freeTierLimitMessage" = "Ücretsiz seviye mesaj limitinize ulaştınız.";
+"premiumBenefitsTitle" = "Premium Avantajları";
+"fasterResponses" = "Daha hızlı yanıtlar";
+"unlimitedQuotes" = "Sınırsız alıntılar";
+"prioritySupport" = "Öncelikli destek";
+"maybeLater" = "Belki sonra";
+

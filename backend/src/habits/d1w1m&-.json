@@ -1,0 +1,161 @@
+{
+    "name": "3-Month Weekly Journaling Program",
+    "goal": "Complete a 3-month program of weekly journaling to develop self-reflection skills",
+    "category": "Personal Development",
+    "description": "Journal for 15 minutes once per week for 3 months to build consistent reflection habits",
+    "difficulty": "beginner",
+    "high_level_schedule": {
+        "milestones": [
+            {
+                "index": 0,
+                "description": "Complete 1 month of weekly journaling",
+                "completion_criteria": "streak_of_months",
+                "completion_criteria_point": 1,
+                "reward_message": "Great job! You've completed your first month of journaling!"
+            },
+            {
+                "index": 1,
+                "description": "Complete 2 months of weekly journaling",
+                "completion_criteria": "streak_of_months",
+                "completion_criteria_point": 2,
+                "reward_message": "Fantastic! 2 months down. You're building a strong journaling habit!"
+            },
+            {
+                "index": 2,
+                "description": "Complete 3 months of weekly journaling",
+                "completion_criteria": "streak_of_months",
+                "completion_criteria_point": 3,
+                "reward_message": "Congratulations! You've completed the 3-month journaling program! You've developed a valuable self-reflection practice!"
+            }
+        ]
+    },
+    "low_level_schedule": {
+        "span": "month",
+        "span_value": 1,
+        "habit_schedule": null,
+        "habit_repeat_count": 3,
+        "program": [
+            {
+                "days_indexed": [
+                    {
+                        "index": 0,
+                        "title": "Weekly Journaling Session",
+                        "content": [
+                            {
+                                "step": "Find a quiet space with your journal",
+                                "clock": "20:00"
+                            },
+                            {
+                                "step": "Write for 15 minutes about your week",
+                                "clock": "20:05"
+                            },
+                            {
+                                "step": "Reflect on insights and close your journal",
+                                "clock": "20:20"
+                            }
+                        ],
+                        "reminders": [
+                            {
+                                "time": "20:00",
+                                "message": "Time for your weekly journaling session!"
+                            }
+                        ]
+                    }
+                ],
+                "weeks_indexed": [
+                    {
+                        "index": 0,
+                        "title": "Weekly Reflection",
+                        "content": [
+                            {
+                                "step": "Complete your weekly journaling session",
+                                "day": "Sunday"
+                            }
+                        ],
+                        "reminders": [
+                            {
+                                "time": "20:00",
+                                "message": "Weekly journaling time - reflect on your week!"
+                            }
+                        ]
+                    }
+                ],
+                "months_indexed": [
+                    {
+                        "index": 0,
+                        "title": "Month 1: Getting Started",
+                        "content": [
+                            {
+                                "step": "Begin your first month of weekly journaling",
+                                "day": "start_of_month"
+                            },
+                            {
+                                "step": "Continue weekly journaling sessions",
+                                "day": "15"
+                            },
+                            {
+                                "step": "Review month 1 journal entries",
+                                "day": "end_of_month"
+                            }
+                        ],
+                        "reminders": [
+                            {
+                                "time": "20:00",
+                                "message": "Month 1 - start your journaling journey!"
+                            }
+                        ]
+                    },
+                    {
+                        "index": 1,
+                        "title": "Month 2: Building Consistency",
+                        "content": [
+                            {
+                                "step": "Continue weekly journaling into month 2",
+                                "day": "start_of_month"
+                            },
+                            {
+                                "step": "Maintain your weekly journaling habit",
+                                "day": "15"
+                            },
+                            {
+                                "step": "Review month 2 journal entries and compare with month 1",
+                                "day": "end_of_month"
+                            }
+                        ],
+                        "reminders": [
+                            {
+                                "time": "20:00",
+                                "message": "Month 2 - building consistency!"
+                            }
+                        ]
+                    },
+                    {
+                        "index": 2,
+                        "title": "Month 3: Deepening Practice",
+                        "content": [
+                            {
+                                "step": "Continue weekly journaling into month 3",
+                                "day": "start_of_month"
+                            },
+                            {
+                                "step": "Deepen your reflection practice",
+                                "day": "15"
+                            },
+                            {
+                                "step": "Complete final journal entry and celebrate your 3-month achievement!",
+                                "day": "end_of_month"
+                            }
+                        ],
+                        "reminders": [
+                            {
+                                "time": "20:00",
+                                "message": "Month 3 - final month! Complete your journaling program!"
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    }
+}
+

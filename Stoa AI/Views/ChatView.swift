@@ -24,10 +24,11 @@ struct ChatView: View {
     @State private var shouldScrollToBottom = false
     @State private var lastScrollTime = Date()
     
+    // Navigation binding for bottom bar
+    @Binding var selectedFeature: Models.Feature
+    
     // State to control sheet presentations
     @State private var showAuthSheet = false
-    @State private var showAnonymousLimitSheet = false
-    @State private var showPremiumLimitSheet = false
     @State private var showSubscriptionSuccessAlert = false
     @State private var showHabitCreatedAlert = false
     @State private var createdHabitTitle = ""
@@ -49,15 +50,15 @@ struct ChatView: View {
         switch viewModel.currentChatMode {
         case .task:
             return [
-                "I have an exam coming up",
-                "I need to buy groceries",
-                "I need to make a reservation"
+                "I have an exam coming up".localized,
+                "I need to buy groceries".localized,
+                "I need to make a reservation".localized
             ]
         case .habit:
             return [
-                "Create a morning exercise habit",
-                "Help me build a daily reading routine",
-                "I want to start meditating regularly"
+                "Create a morning exercise habit".localized,
+                "Help me build a daily reading routine".localized,
+                "I want to start meditating regularly".localized
             ]
         }
     }
@@ -68,9 +69,10 @@ struct ChatView: View {
     }
     
     // Simple default initializer for preview
-    init(viewModel: ChatViewModel, showSidebarCallback: Binding<Bool> = .constant(false)) {
+    init(viewModel: ChatViewModel, showSidebarCallback: Binding<Bool> = .constant(false), selectedFeature: Binding<Models.Feature> = .constant(.chat)) {
         self.viewModel = viewModel
         self._showSidebarCallback = showSidebarCallback
+        self._selectedFeature = selectedFeature
     }
     
     // MARK: - Body
@@ -78,11 +80,8 @@ struct ChatView: View {
         mainContentView
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .modifier(SheetModifiers(
-                showAnonymousLimitSheet: $showAnonymousLimitSheet,
-                showPremiumLimitSheet: $showPremiumLimitSheet,
                 showAuthSheet: $showAuthSheet,
                 showPaywall: $showPaywall,
-                showingHabitModeRestriction: $viewModel.showingHabitModeRestriction,
                 viewModel: viewModel
             ))
             .modifier(AlertModifiers(
@@ -112,9 +111,22 @@ struct ChatView: View {
     // MARK: - Main Content View
     private var mainContentView: some View {
         ZStack {
+            // Main content that responds to keyboard
             mainVStack
+            
+            // Overlays
             sidebarOverlay
             bottomBlurOverlay
+            
+            // Navigation bar - hides when keyboard appears for better UX
+            VStack {
+                Spacer()
+                if !isTextFieldFocused {
+                    BottomNavigationBar(selectedFeature: $selectedFeature)
+                        .transition(.move(edge: .bottom).combined(with: .opacity))
+                }
+            }
+            .animation(.easeOut(duration: 0.3), value: isTextFieldFocused)
         }
     }
     
@@ -129,17 +141,31 @@ struct ChatView: View {
             chatModeToggle
             
             messagesListView
-                .onTapGesture {
-                    dismissKeyboard()
-                }
-            
-            inputArea
+                .gesture(
+                    TapGesture()
+                        .onEnded { _ in
+                            if isTextFieldFocused {
+                                dismissKeyboard()
+                            }
+                        }
+                )
         }
         .background(Color.clear)
         .overlay(darkModeShadow)
-        .safeAreaInset(edge: .bottom) {
-            Spacer().frame(height: 5)
+        .safeAreaInset(edge: .bottom, spacing: 0) {
+            // Input area - automatically adjusts with keyboard
+            inputArea
+                .transition(.move(edge: .bottom).combined(with: .opacity))
         }
+        .safeAreaInset(edge: .bottom, spacing: 0) {
+            // Reserve space for navigation bar (only when keyboard is hidden)
+            if !isTextFieldFocused {
+                Color.clear
+                    .frame(height: 54) // Height of navigation bar + padding (reduced further)
+                    .transition(.opacity)
+            }
+        }
+        .animation(.easeOut(duration: 0.3), value: isTextFieldFocused)
     }
     
     // MARK: - Chat Mode Toggle
@@ -335,7 +361,9 @@ struct ChatView: View {
             .onChange(of: shouldScrollToBottom) { _, shouldScroll in
                 if shouldScroll {
                     debugLog("Manual scroll to bottom triggered")
+                    withAnimation(.easeOut(duration: 0.25)) {
                     scrollToBottom(proxy)
+                    }
                     shouldScrollToBottom = false
                 }
             }
@@ -491,13 +519,12 @@ struct ChatView: View {
             }
             
             // Input container
-            HStack(alignment: .bottom, spacing: 8) {
+            HStack(alignment: .center, spacing: 8) {
                 inputTextField
             }
             .padding(.horizontal, 16)
-            .padding(.vertical, 16)
-            .padding(.bottom, 8) // Add bottom padding for spacing
-            
+            .padding(.top, 12)
+            .padding(.bottom, 12)
             
             // --- Add Character Count (Conditional) ---
             if messageText.count > 700 { // Only show after 700 characters
@@ -519,11 +546,9 @@ struct ChatView: View {
                 if colorScheme == .dark {
                     RoundedRectangle(cornerRadius: 24)
                         .stroke(Color.white.opacity(0.06), lineWidth: 0.5)
-                        .ignoresSafeArea(edges: .bottom)
                 }
             }
         )
-        .edgesIgnoringSafeArea(.bottom) // Ensure input area extends to bottom edge
     }
     
     // MARK: - Input Text Field
@@ -535,9 +560,10 @@ struct ChatView: View {
                 axis: .vertical
             )
                 .textFieldStyle(.plain)
-                .padding(.vertical, 10)
+                .font(.system(size: 17, weight: .medium))
+                .padding(.vertical, 14)
                 .padding(.horizontal, 16)
-                .padding(.trailing, 40)
+                .padding(.trailing, 48)
                 .background(
                     RoundedRectangle(cornerRadius: 12)
                         .fill(colorScheme == .dark ? Color(.systemGray6) : Color.white)
@@ -557,7 +583,9 @@ struct ChatView: View {
                 .onChange(of: viewModel.isLoading) { _, isLoading in
                     if isLoading {
                         debugLog("Loading started, dismissing keyboard")
+                        Task { @MainActor in
                         isTextFieldFocused = false
+                        }
                     }
                 }
                 .onChange(of: messageText) { _, newValue in
@@ -572,7 +600,10 @@ struct ChatView: View {
                 .onChange(of: isTextFieldFocused) { _, focused in
                     if focused {
                         debugLog("TextField focused, triggering scroll")
-                        shouldScrollToBottom = true
+                        // Slight delay to ensure keyboard animation completes before scrolling
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) {
+                            shouldScrollToBottom = true
+                        }
                     }
                 }
             
@@ -591,9 +622,7 @@ struct ChatView: View {
     
     // MARK: - Helper Methods
     private func scrollToBottom(_ proxy: ScrollViewProxy) {
-        withAnimation(.easeOut(duration: 0.3)) {
             proxy.scrollTo("bottomID", anchor: .bottom)
-        }
     }
     
     private func sendMessage() {
@@ -620,8 +649,8 @@ struct ChatView: View {
     
     // Function to dismiss keyboard
     private func dismissKeyboard() {
-        UIApplication.shared.endEditing()
         isTextFieldFocused = false
+        UIApplication.shared.endEditing()
         debugLog("Keyboard dismissed")
     }
     
@@ -780,14 +809,15 @@ struct ChatView: View {
             Image("logo")
                 .resizable()
                 .aspectRatio(contentMode: .fit)
-                .frame(width: 80, height: 80)
+                .frame(width: 96, height: 96)
             
             VStack(spacing: 4) {
                 Text("Welcome to Calendo")
-                    .font(.headline)
+                    .font(.title2)
+                    .fontWeight(.semibold)
                 
                 Text("Plan, Track & Achieve")
-                    .font(.subheadline)
+                    .font(.headline)
                     .foregroundColor(.gray)
             }
             
@@ -800,6 +830,8 @@ struct ChatView: View {
                         sendMessage()
                     }) {
                         Text(suggestionKey.localized)
+                            .font(.subheadline)
+                            .fontWeight(.medium)
                             .padding(.vertical, 8)
                             .padding(.horizontal, 16)
                             .background(Color.brandPrimary.opacity(0.2))
@@ -1237,13 +1269,13 @@ struct ChatModeToggle: View {
                     Group {
                         if isOn {
                             Text("Habit")
-                                .font(.caption)
+                                .font(.subheadline)
                                 .fontWeight(.bold)
                                 .foregroundColor(.black)
                                 .transition(.opacity)
                         } else {
                             Text("Task")
-                                .font(.caption)
+                                .font(.subheadline)
                                 .fontWeight(.bold)
                                 .foregroundColor(colorScheme == .dark ? .white.opacity(0.9) : .black.opacity(0.75))
                                 .transition(.opacity)
@@ -1332,61 +1364,21 @@ struct EnhancedBlinkingCursor: View {
 
 // MARK: - Sheet Modifiers
 struct SheetModifiers: ViewModifier {
-    @Binding var showAnonymousLimitSheet: Bool
-    @Binding var showPremiumLimitSheet: Bool
     @Binding var showAuthSheet: Bool
     @Binding var showPaywall: Bool
-    @Binding var showingHabitModeRestriction: Bool
     let viewModel: ChatViewModel
     
     func body(content: Content) -> some View {
         content
-            .sheet(isPresented: $showAnonymousLimitSheet) {
-                AnonymousLimitSheet(
-                    showAuthSheet: $showAuthSheet,
-                    message: viewModel.anonymousLimitAlertMessage
-                )
-            }
-            .sheet(isPresented: $showPremiumLimitSheet) {
-                PremiumLimitSheet(
-                    showPaywall: $showPaywall,
-                    message: viewModel.premiumLimitAlertMessage
-                )
-            }
             .sheet(isPresented: $showAuthSheet) {
                 AuthenticationView(onAuthenticationSuccess: {
                     viewModel.startNewChat()
                 })
             }
-            .sheet(isPresented: $showingHabitModeRestriction) {
-                AnonymousHabitLimitSheet(
-                    isPresented: $showingHabitModeRestriction,
-                    onSignUp: {
-                        showingHabitModeRestriction = false
-                        showAuthSheet = true
-                    },
-                    onDismiss: {
-                        showingHabitModeRestriction = false
-                        viewModel.currentChatMode = .task
-                    }
-                )
-            }
             .sheet(isPresented: $showPaywall) {
                 PaywallView(onPurchaseSuccess: {
                     // Handle purchase success
                 })
-            }
-            .onChange(of: viewModel.showAnonymousLimitAlert) { _, newValue in
-                if newValue {
-                    showAnonymousLimitSheet = true
-                    viewModel.dismissAnonymousLimitAlert()
-                }
-            }
-            .onChange(of: viewModel.showPremiumLimitAlert) { _, newValue in
-                if newValue {
-                    showPremiumLimitSheet = true
-                    viewModel.dismissPremiumLimitAlert()
-                }
             }
     }
 }

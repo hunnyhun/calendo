@@ -1,0 +1,69 @@
+{
+    "name": "Home Renovation Project",
+    "goal": "Complete kitchen renovation",
+    "category": "Home",
+    "description": "Plan and execute kitchen renovation project",
+    "task_schedule": {
+        "steps": [
+            {
+                "index": 1,
+                "title": "Get Quotes",
+                "description": "Get quotes from 3 different contractors",
+                "date": null,
+                "time": null,
+                "reminders": []
+            },
+            {
+                "index": 2,
+                "title": "Choose Contractor",
+                "description": "Select the best contractor for the job",
+                "date": null,
+                "time": null,
+                "reminders": []
+            },
+            {
+                "index": 3,
+                "title": "Sign Contract",
+                "description": "Review and sign the renovation contract",
+                "date": "2024-11-05",
+                "time": "15:00",
+                "reminders": [
+                    {
+                        "offset": {
+                            "unit": "days",
+                            "value": 1
+                        },
+                        "time": "10:00",
+                        "message": "Contract signing tomorrow"
+                    }
+                ]
+            },
+            {
+                "index": 4,
+                "title": "Order Materials",
+                "description": "Purchase cabinets, countertops, and fixtures",
+                "date": null,
+                "time": null,
+                "reminders": []
+            },
+            {
+                "index": 5,
+                "title": "Renovation Start",
+                "description": "Contractor begins renovation work",
+                "date": "2024-11-20",
+                "time": "08:00",
+                "reminders": [
+                    {
+                        "offset": {
+                            "unit": "days",
+                            "value": 1
+                        },
+                        "time": "20:00",
+                        "message": "Renovation starts tomorrow - clear the kitchen"
+                    }
+                ]
+            }
+        ]
+    }
+}
+

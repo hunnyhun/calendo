@@ -1,0 +1,69 @@
+{
+    "name": "Plan Vacation",
+    "goal": "Organize summer vacation trip",
+    "category": "Travel",
+    "description": "Plan and book all aspects of the vacation",
+    "task_schedule": {
+        "steps": [
+            {
+                "index": 1,
+                "title": "Book Flight",
+                "description": "Reserve flight tickets for the trip",
+                "date": "2024-10-20",
+                "time": null,
+                "reminders": [
+                    {
+                        "offset": {
+                            "unit": "days",
+                            "value": 3
+                        },
+                        "time": "10:00",
+                        "message": "Don't forget to book your flight!"
+                    }
+                ]
+            },
+            {
+                "index": 2,
+                "title": "Research Hotels",
+                "description": "Compare and select the best hotel options",
+                "date": null,
+                "time": null,
+                "reminders": []
+            },
+            {
+                "index": 3,
+                "title": "Book Accommodation",
+                "description": "Reserve hotel or Airbnb",
+                "date": "2024-10-25",
+                "time": null,
+                "reminders": [
+                    {
+                        "offset": {
+                            "unit": "days",
+                            "value": 2
+                        },
+                        "time": "14:00",
+                        "message": "Book your accommodation soon"
+                    }
+                ]
+            },
+            {
+                "index": 4,
+                "title": "Create Itinerary",
+                "description": "Plan daily activities and sightseeing",
+                "date": null,
+                "time": null,
+                "reminders": []
+            },
+            {
+                "index": 5,
+                "title": "Pack Luggage",
+                "description": "Prepare and pack all necessary items",
+                "date": null,
+                "time": null,
+                "reminders": []
+            }
+        ]
+    }
+}
+

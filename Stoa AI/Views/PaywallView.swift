@@ -7,21 +7,9 @@ struct PaywallView: View {
     @Environment(\.dismiss) private var dismiss
     var onPurchaseSuccess: (() -> Void)? = nil
     
-    private let userStatusManager = UserStatusManager.shared
-    
     var body: some View {
-        Group {
-            if userStatusManager.state.isAnonymous {
-                AuthenticationView(onAuthenticationSuccess: {
-                    // After successful authentication, dismiss this sheet.
-                    // User can re-open paywall from the UI as an authenticated user.
-                    dismiss()
-                })
-            } else {
-                PaywallViewControllerRepresentable(onPurchaseSuccess: onPurchaseSuccess)
-            }
-        }
-        .ignoresSafeArea()
+        PaywallViewControllerRepresentable(onPurchaseSuccess: onPurchaseSuccess)
+            .ignoresSafeArea()
     }
 }
 

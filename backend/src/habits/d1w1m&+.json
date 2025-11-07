@@ -1,0 +1,165 @@
+{
+    "name": "Monthly Goal Tracking",
+    "goal": "Build consistency by tracking daily activities across multiple months",
+    "category": "Productivity",
+    "description": "Track a daily activity for 1 week each month over multiple months",
+    "difficulty": "beginner",
+    "high_level_schedule": {
+        "milestones": [
+            {
+                "index": 0,
+                "description": "Complete 3 months of weekly tracking",
+                "completion_criteria": "streak_of_months",
+                "completion_criteria_point": 3,
+                "reward_message": "Great job! You've completed 3 months of consistent tracking!"
+            },
+            {
+                "index": 1,
+                "description": "Complete 6 months of weekly tracking",
+                "completion_criteria": "streak_of_months",
+                "completion_criteria_point": 6,
+                "reward_message": "Fantastic! 6 months of tracking. You're building consistency!"
+            },
+            {
+                "index": 2,
+                "description": "Complete 12 months of weekly tracking",
+                "completion_criteria": "streak_of_months",
+                "completion_criteria_point": 12,
+                "reward_message": "Incredible! A full year of tracking. You've mastered consistency!"
+            }
+        ]
+    },
+    "low_level_schedule": {
+        "span": "month",
+        "span_value": 1,
+        "habit_schedule": null,
+        "habit_repeat_count": null,
+        "program": [
+            {
+                "days_indexed": [
+                    {
+                        "index": 0,
+                        "title": "Daily Activity Tracking",
+                        "content": [
+                            {
+                                "step": "Log your daily activity",
+                                "clock": "21:00"
+                            },
+                            {
+                                "step": "Review your progress",
+                                "clock": "21:05"
+                            }
+                        ],
+                        "reminders": [
+                            {
+                                "time": "21:00",
+                                "message": "Time to track your daily activity!"
+                            }
+                        ]
+                    }
+                ],
+                "weeks_indexed": [
+                    {
+                        "index": 0,
+                        "title": "Weekly Tracking Period",
+                        "content": [
+                            {
+                                "step": "Start your weekly tracking cycle",
+                                "day": "Monday"
+                            },
+                            {
+                                "step": "Continue daily tracking throughout the week",
+                                "day": "Wednesday"
+                            },
+                            {
+                                "step": "Review weekly progress and prepare for next month",
+                                "day": "Sunday"
+                            }
+                        ],
+                        "reminders": [
+                            {
+                                "time": "21:00",
+                                "message": "Keep up your weekly tracking!"
+                            }
+                        ]
+                    }
+                ],
+                "months_indexed": [
+                    {
+                        "index": 0,
+                        "title": "Month 1: Foundation Building",
+                        "content": [
+                            {
+                                "step": "Begin your first week of tracking",
+                                "day": "start_of_month"
+                            },
+                            {
+                                "step": "Complete your weekly tracking cycle",
+                                "day": "7"
+                            },
+                            {
+                                "step": "Review month 1 progress",
+                                "day": "end_of_month"
+                            }
+                        ],
+                        "reminders": [
+                            {
+                                "time": "21:00",
+                                "message": "Month 1 - start your tracking journey!"
+                            }
+                        ]
+                    },
+                    {
+                        "index": 1,
+                        "title": "Month 2: Consistency Building",
+                        "content": [
+                            {
+                                "step": "Begin your second week of tracking",
+                                "day": "start_of_month"
+                            },
+                            {
+                                "step": "Complete your weekly tracking cycle",
+                                "day": "7"
+                            },
+                            {
+                                "step": "Review month 2 progress and compare with month 1",
+                                "day": "end_of_month"
+                            }
+                        ],
+                        "reminders": [
+                            {
+                                "time": "21:00",
+                                "message": "Month 2 - build on your consistency!"
+                            }
+                        ]
+                    },
+                    {
+                        "index": 2,
+                        "title": "Month 3: Habit Formation",
+                        "content": [
+                            {
+                                "step": "Begin your third week of tracking",
+                                "day": "start_of_month"
+                            },
+                            {
+                                "step": "Complete your weekly tracking cycle",
+                                "day": "7"
+                            },
+                            {
+                                "step": "Review 3-month progress and celebrate milestones",
+                                "day": "end_of_month"
+                            }
+                        ],
+                        "reminders": [
+                            {
+                                "time": "21:00",
+                                "message": "Month 3 - your habit is forming!"
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    }
+}
+

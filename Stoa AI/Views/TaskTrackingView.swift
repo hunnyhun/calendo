@@ -4,6 +4,7 @@ import FirebaseAuth
 // MARK: - Main Task Tracking View
 struct TaskTrackingView: View {
     @ObservedObject private var taskManager = TaskManager.shared
+    @StateObject private var importService = ImportService.shared
     let userStatusManager = UserStatusManager.shared
     var onNavigateBack: (() -> Void)? = nil
     
@@ -11,6 +12,9 @@ struct TaskTrackingView: View {
     @State private var showingTaskDetail: UserTask?
     @State private var selectedTab = 0
     @State private var showingAuthView = false
+    @State private var showingImportAlert = false
+    @State private var showingImportSheet = false
+    @State private var shareLink: URL?
     
     private var userStatus: Models.UserStatus {
         if userStatusManager.state.isAuthenticated {
@@ -49,32 +53,35 @@ struct TaskTrackingView: View {
                         .font(.largeTitle)
                         .fontWeight(.bold)
                         .foregroundColor(.primary)
-                    
-                    Text("Organize and complete your tasks")
-                        .font(.subheadline)
-                        .foregroundColor(.secondary)
                 }
                 
                 Spacer()
                 
+                HStack(spacing: 12) {
+                    // Import button
+                    Button(action: {
+                        checkClipboardForImport()
+                    }) {
+                        Image(systemName: "square.and.arrow.down")
+                            .font(.title2)
+                            .foregroundColor(.brandPrimary)
+                    }
+                    
+                    // Add button
                 Button(action: {
                     handleTaskCreation()
                 }) {
                     Image(systemName: "plus.circle.fill")
                         .font(.title2)
                         .foregroundColor(.brandPrimary)
+                    }
                 }
             }
             .padding(.horizontal, 20)
             .padding(.top, 10)
                 
-                // Tab selection
-                Picker("View", selection: $selectedTab) {
-                    Text("Active").tag(0)
-                    Text("All Tasks").tag(1)
-                    Text("Completed").tag(2)
-                }
-                .pickerStyle(SegmentedPickerStyle())
+                // Custom tab toggle
+                ViewTypeToggle(selectedTab: $selectedTab)
                 .padding(.horizontal, 20)
                 .padding(.vertical, 16)
                 
@@ -152,15 +159,66 @@ struct TaskTrackingView: View {
                     }
                 }
             }
+            .onReceive(NotificationCenter.default.publisher(for: Notification.Name("ImportFromDeepLink"))) { notification in
+                if let userInfo = notification.userInfo,
+                   let url = userInfo["url"] as? URL {
+                    Task {
+                        if await importService.parseFromURL(url) {
+                            if importService.importableTask != nil {
+                                showingImportSheet = true
+                            } else {
+                                showingImportAlert = true
+                            }
+                        } else {
+                            showingImportAlert = true
+                        }
+                    }
+                }
+            }
             .sheet(item: $showingTaskDetail) { task in
                 TaskDetailView(task: task, taskManager: taskManager)
             }
             .sheet(isPresented: $showingAuthView) {
                 AuthenticationView()
             }
+            .sheet(isPresented: $showingImportSheet) {
+                if let task = importService.importableTask {
+                    ImportTaskView(task: task, taskManager: taskManager) {
+                        importService.clearImport()
+                        showingImportSheet = false
+                    }
+                }
+            }
+            .alert("Import Error", isPresented: $showingImportAlert) {
+                Button("OK", role: .cancel) {
+                    importService.clearImport()
+                }
+            } message: {
+                Text(importService.importError ?? "Could not import task.")
+            }
         }
         
         // MARK: - Helper Functions
+        
+        func checkClipboardForImport() {
+            let pasteboard = UIPasteboard.general
+            if let clipboardText = pasteboard.string, !clipboardText.isEmpty {
+                Task {
+                    if await importService.parseFromText(clipboardText) {
+                        if importService.importableTask != nil {
+                            showingImportSheet = true
+                        } else {
+                            showingImportAlert = true
+                        }
+                    } else {
+                        showingImportAlert = true
+                    }
+                }
+            } else {
+                importService.importError = "Clipboard is empty. Please copy a shared task first."
+                showingImportAlert = true
+            }
+        }
         
         private func handleTaskCreation() {
             if canAccessTasks {
@@ -176,9 +234,16 @@ struct TaskTrackingView: View {
 struct ActiveTasksView: View {
     @ObservedObject var taskManager: TaskManager
     let onCreateTask: () -> Void
+    @State private var showingDeleteAlert: UserTask?
+    @State private var showingShareSheet = false
+    @State private var shareText = ""
+    @State private var shareLink: URL?
     
     private var activeTasks: [UserTask] {
-        taskManager.tasks.filter { !$0.isCompleted }
+        let filtered = taskManager.tasks.filter { $0.isActive && !$0.isCompleted }
+        print("🔍 [ActiveTasksView] activeTasks computed - Total tasks: \(taskManager.tasks.count), Active: \(filtered.count)")
+        print("🔍 [ActiveTasksView] Task states: \(taskManager.tasks.map { "\($0.name): isActive=\($0.isActive), isCompleted=\($0.isCompleted)" })")
+        return filtered
     }
     
     var body: some View {
@@ -200,13 +265,64 @@ struct ActiveTasksView: View {
                                 Task {
                                     await taskManager.toggleStepCompletion(task, stepId: stepId)
                                 }
+                            },
+                            onToggleActive: {
+                                Task {
+                                    await taskManager.toggleTaskActive(task)
+                                }
+                            },
+                            onDelete: {
+                                showingDeleteAlert = task
+                            },
+                            onShare: {
+                                Task { @MainActor in
+                                    let shareResult = await taskManager.shareTask(task)
+                                    shareText = shareResult.text
+                                    shareLink = shareResult.link
+                                    showingShareSheet = true
+                                }
                             }
                         )
+                        .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+                            Button(role: .destructive) {
+                                showingDeleteAlert = task
+                            } label: {
+                                Label("Delete", systemImage: "trash")
+                            }
+                            
+                            Button {
+                                Task {
+                                    await taskManager.toggleTaskActive(task)
+                                }
+                            } label: {
+                                Label(task.isActive ? "Deactivate" : "Activate", systemImage: task.isActive ? "pause.circle" : "play.circle")
+                            }
+                            .tint(.orange)
+                        }
                     }
                 }
             }
             .padding(.horizontal, 20)
             .padding(.vertical, 16)
+        }
+        .alert(item: $showingDeleteAlert) { task in
+            Alert(
+                title: Text("Delete Task"),
+                message: Text("Are you sure you want to delete \"\(task.name)\"? This action cannot be undone."),
+                primaryButton: .destructive(Text("Delete")) {
+                    Task {
+                        await taskManager.deleteTask(task)
+                    }
+                },
+                secondaryButton: .cancel()
+            )
+        }
+        .sheet(isPresented: $showingShareSheet) {
+            if let link = shareLink {
+                ShareSheet(activityItems: [shareText, link])
+            } else {
+                ShareSheet(activityItems: [shareText])
+            }
         }
     }
 }
@@ -215,6 +331,10 @@ struct ActiveTasksView: View {
 struct AllTasksView: View {
     @ObservedObject var taskManager: TaskManager
     @Binding var showingTaskDetail: UserTask?
+    @State private var showingDeleteAlert: UserTask?
+    @State private var showingShareSheet = false
+    @State private var shareText = ""
+    @State private var shareLink: URL?
     
     var body: some View {
         ScrollView {
@@ -225,12 +345,63 @@ struct AllTasksView: View {
                         stats: taskManager.getStats(for: task),
                         onTap: {
                             showingTaskDetail = task
+                        },
+                        onToggleActive: {
+                            Task {
+                                await taskManager.toggleTaskActive(task)
+                            }
+                        },
+                        onDelete: {
+                            showingDeleteAlert = task
+                        },
+                        onShare: {
+                            Task { @MainActor in
+                                let shareResult = await taskManager.shareTask(task)
+                                shareText = shareResult.text
+                                shareLink = shareResult.link
+                                showingShareSheet = true
+                            }
                         }
                     )
+                    .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+                        Button(role: .destructive) {
+                            showingDeleteAlert = task
+                        } label: {
+                            Label("Delete", systemImage: "trash")
+                        }
+                        
+                        Button {
+                            Task {
+                                await taskManager.toggleTaskActive(task)
+                            }
+                        } label: {
+                            Label(task.isActive ? "Deactivate" : "Activate", systemImage: task.isActive ? "pause.circle" : "play.circle")
+                        }
+                        .tint(.orange)
+                    }
                 }
             }
             .padding(.horizontal, 20)
             .padding(.vertical, 16)
+        }
+        .alert(item: $showingDeleteAlert) { task in
+            Alert(
+                title: Text("Delete Task"),
+                message: Text("Are you sure you want to delete \"\(task.name)\"? This action cannot be undone."),
+                primaryButton: .destructive(Text("Delete")) {
+                    Task {
+                        await taskManager.deleteTask(task)
+                    }
+                },
+                secondaryButton: .cancel()
+            )
+        }
+        .sheet(isPresented: $showingShareSheet) {
+            if let link = shareLink {
+                ShareSheet(activityItems: [shareText, link])
+            } else {
+                ShareSheet(activityItems: [shareText])
+            }
         }
     }
 }
@@ -239,6 +410,10 @@ struct AllTasksView: View {
 struct CompletedTasksView: View {
     @ObservedObject var taskManager: TaskManager
     @Binding var showingTaskDetail: UserTask?
+    @State private var showingDeleteAlert: UserTask?
+    @State private var showingShareSheet = false
+    @State private var shareText = ""
+    @State private var shareLink: URL?
     
     private var completedTasks: [UserTask] {
         taskManager.tasks.filter { $0.isCompleted }
@@ -273,13 +448,64 @@ struct CompletedTasksView: View {
                             stats: taskManager.getStats(for: task),
                             onTap: {
                                 showingTaskDetail = task
+                            },
+                            onToggleActive: {
+                                Task {
+                                    await taskManager.toggleTaskActive(task)
+                                }
+                            },
+                            onDelete: {
+                                showingDeleteAlert = task
+                            },
+                            onShare: {
+                                Task { @MainActor in
+                                    let shareResult = await taskManager.shareTask(task)
+                                    shareText = shareResult.text
+                                    shareLink = shareResult.link
+                                    showingShareSheet = true
+                                }
                             }
                         )
+                        .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+                            Button(role: .destructive) {
+                                showingDeleteAlert = task
+                            } label: {
+                                Label("Delete", systemImage: "trash")
+                            }
+                            
+                            Button {
+                                Task {
+                                    await taskManager.toggleTaskActive(task)
+                                }
+                            } label: {
+                                Label(task.isActive ? "Deactivate" : "Activate", systemImage: task.isActive ? "pause.circle" : "play.circle")
+                            }
+                            .tint(.orange)
+                        }
                     }
                 }
             }
             .padding(.horizontal, 20)
             .padding(.vertical, 16)
+        }
+        .alert(item: $showingDeleteAlert) { task in
+            Alert(
+                title: Text("Delete Task"),
+                message: Text("Are you sure you want to delete \"\(task.name)\"? This action cannot be undone."),
+                primaryButton: .destructive(Text("Delete")) {
+                    Task {
+                        await taskManager.deleteTask(task)
+                    }
+                },
+                secondaryButton: .cancel()
+            )
+        }
+        .sheet(isPresented: $showingShareSheet) {
+            if let link = shareLink {
+                ShareSheet(activityItems: [shareText, link])
+            } else {
+                ShareSheet(activityItems: [shareText])
+            }
         }
     }
 }
@@ -290,33 +516,84 @@ struct TaskCard: View {
     let stats: TaskStats
     let onToggleCompletion: () -> Void
     let onToggleStep: (String) -> Void
+    let onToggleActive: () -> Void
+    let onDelete: () -> Void
+    let onShare: () -> Void
     @State private var isExpanded = false
+    
+    // Convert string category to HabitCategory for display
+    private var displayCategory: HabitCategory {
+        guard let categoryString = task.category?.lowercased() else {
+            return .personalGrowth
+        }
+        switch categoryString {
+        case "physical", "fitness", "health":
+            return .physical
+        case "mental", "mindfulness", "meditation":
+            return .mindfulness
+        case "spiritual", "spirituality":
+            return .spiritual
+        case "social", "relationships":
+            return .social
+        case "productivity", "work", "career":
+            return .productivity
+        case "learning", "education", "study":
+            return .learning
+        default:
+            return .personalGrowth
+        }
+    }
+    
+    private var categoryIcon: some View {
+        Image(systemName: displayCategory.icon)
+            .font(.title2)
+            .foregroundColor(displayCategory.color)
+            .frame(width: 40, height: 40)
+            .background(displayCategory.color.opacity(0.1))
+            .clipShape(Circle())
+    }
     
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             // Header
-            HStack {
+            HStack(alignment: .top, spacing: 16) {
+                categoryIcon
+                
                 Button(action: onToggleCompletion) {
                     Image(systemName: task.isCompleted ? "checkmark.circle.fill" : "circle")
                         .font(.title2)
                         .foregroundColor(task.isCompleted ? .green : .gray)
                 }
+                .padding(.top, 2) // Align with text baseline
                 
                 VStack(alignment: .leading, spacing: 4) {
                     Text(task.name)
                         .font(.headline)
                         .foregroundColor(.primary)
                         .strikethrough(task.isCompleted)
+                        .fixedSize(horizontal: false, vertical: true)
                     
-                    if !task.steps.isEmpty {
+                    // Show category if available, otherwise show steps
+                    if task.category != nil {
+                        Text(displayCategory.rawValue)
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    } else if !task.steps.isEmpty {
                         Text("\(stats.completedSteps)/\(stats.totalSteps) steps")
                             .font(.caption)
                             .foregroundColor(.secondary)
+                    } else {
+                        // Invisible spacer to maintain height when no steps
+                        Text(" ")
+                            .font(.caption)
+                            .opacity(0)
                     }
                 }
+                .frame(minHeight: 44) // Ensure consistent minimum height
                 
                 Spacer()
                 
+                HStack(spacing: 12) {
                 Button(action: {
                     withAnimation(.easeInOut(duration: 0.3)) {
                         isExpanded.toggle()
@@ -326,15 +603,48 @@ struct TaskCard: View {
                         .foregroundColor(.secondary)
                         .font(.caption)
                 }
+                    .padding(.top, 2) // Align with text baseline
+                    
+                    Menu {
+                        Button(action: onToggleActive) {
+                            Label(task.isActive ? "Deactivate" : "Activate", systemImage: task.isActive ? "pause.circle" : "play.circle")
+                        }
+                        
+                        Button(action: onShare) {
+                            Label("Share", systemImage: "square.and.arrow.up")
+                        }
+                        
+                        Divider()
+                        
+                        Button(role: .destructive, action: onDelete) {
+                            Label("Delete", systemImage: "trash")
+                        }
+                    } label: {
+                        Image(systemName: "ellipsis.circle")
+                            .font(.title3)
+                            .foregroundColor(.secondary)
+                    }
+                    .padding(.top, 2) // Align with text baseline
+                }
             }
             
-            // Description
+            // Description - always reserve space to maintain consistent height
+            ZStack(alignment: .topLeading) {
+                // Invisible placeholder to maintain height
+                Text(" ")
+                    .font(.body)
+                    .opacity(0)
+                    .lineLimit(2)
+                
             if !task.description.isEmpty {
                 Text(task.description)
                     .font(.body)
                     .foregroundColor(.secondary)
                     .lineLimit(isExpanded ? nil : 2)
+                        .fixedSize(horizontal: false, vertical: !isExpanded)
+                }
             }
+            .frame(minHeight: isExpanded ? nil : 40) // Fixed minimum height when collapsed
             
             // Steps (if expanded and has steps)
             if isExpanded && !task.steps.isEmpty {
@@ -351,10 +661,26 @@ struct TaskCard: View {
                                     .font(.caption)
                             }
                             
-                            Text(step.description)
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text(step.displayTitle)
                                 .font(.body)
                                 .foregroundColor(step.isCompleted ? .secondary : .primary)
                                 .strikethrough(step.isCompleted)
+                                
+                                if let date = step.date {
+                                    HStack(spacing: 4) {
+                                        Image(systemName: "calendar")
+                                            .font(.caption2)
+                                        Text(date)
+                                            .font(.caption2)
+                                        if let time = step.time {
+                                            Text("• \(time)")
+                                                .font(.caption2)
+                                        }
+                                    }
+                                    .foregroundColor(.secondary)
+                                }
+                            }
                             
                             Spacer()
                         }
@@ -371,6 +697,7 @@ struct TaskCard: View {
                         .stroke(task.isCompleted ? Color.green.opacity(0.3) : Color.clear, lineWidth: 1)
                 )
         )
+        .opacity(task.isActive ? 1.0 : 0.6)
     }
 }
 
@@ -379,11 +706,41 @@ struct TaskSummaryCard: View {
     let task: UserTask
     let stats: TaskStats
     let onTap: () -> Void
+    let onToggleActive: () -> Void
+    let onDelete: () -> Void
+    let onShare: () -> Void
+    
+    // Convert string category to HabitCategory for display
+    private var displayCategory: HabitCategory {
+        guard let categoryString = task.category?.lowercased() else {
+            return .personalGrowth
+        }
+        switch categoryString {
+        case "physical", "fitness", "health":
+            return .physical
+        case "mental", "mindfulness", "meditation":
+            return .mindfulness
+        case "spiritual", "spirituality":
+            return .spiritual
+        case "social", "relationships":
+            return .social
+        case "productivity", "work", "career":
+            return .productivity
+        case "learning", "education", "study":
+            return .learning
+        default:
+            return .personalGrowth
+        }
+    }
     
     var body: some View {
         Button(action: onTap) {
             VStack(alignment: .leading, spacing: 12) {
                 HStack {
+                    Image(systemName: displayCategory.icon)
+                        .font(.title3)
+                        .foregroundColor(displayCategory.color)
+                    
                     Image(systemName: task.isCompleted ? "checkmark.circle.fill" : "circle")
                         .font(.title3)
                         .foregroundColor(task.isCompleted ? .green : .gray)
@@ -394,7 +751,11 @@ struct TaskSummaryCard: View {
                             .foregroundColor(.primary)
                             .strikethrough(task.isCompleted)
                         
-                        if !task.steps.isEmpty {
+                        if task.category != nil {
+                            Text(displayCategory.rawValue)
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                        } else if !task.steps.isEmpty {
                             Text("\(stats.completedSteps)/\(stats.totalSteps) steps")
                                 .font(.caption)
                                 .foregroundColor(.secondary)
@@ -403,6 +764,7 @@ struct TaskSummaryCard: View {
                     
                     Spacer()
                     
+                    HStack(spacing: 12) {
                     if task.isCompleted {
                         VStack(alignment: .trailing, spacing: 2) {
                             Text("Completed")
@@ -414,6 +776,27 @@ struct TaskSummaryCard: View {
                                     .font(.caption2)
                                     .foregroundColor(.secondary)
                             }
+                            }
+                        }
+                        
+                        Menu {
+                            Button(action: onToggleActive) {
+                                Label(task.isActive ? "Deactivate" : "Activate", systemImage: task.isActive ? "pause.circle" : "play.circle")
+                            }
+                            
+                            Button(action: onShare) {
+                                Label("Share", systemImage: "square.and.arrow.up")
+                            }
+                            
+                            Divider()
+                            
+                            Button(role: .destructive, action: onDelete) {
+                                Label("Delete", systemImage: "trash")
+                            }
+                        } label: {
+                            Image(systemName: "ellipsis.circle")
+                                .font(.title3)
+                                .foregroundColor(.secondary)
                         }
                     }
                 }
@@ -434,6 +817,7 @@ struct TaskSummaryCard: View {
                             .stroke(task.isCompleted ? Color.green.opacity(0.3) : Color.clear, lineWidth: 1)
                     )
             )
+            .opacity(task.isActive ? 1.0 : 0.6)
         }
         .buttonStyle(PlainButtonStyle())
     }

@@ -1,0 +1,177 @@
+{
+    "name": "Alternating Reading",
+    "goal": "Read scientific books and poetry on alternating weeks to expand knowledge and appreciation",
+    "category": "Learning",
+    "description": "Build a reading habit alternating between scientific books one week and poetry the next week",
+    "difficulty": "intermediate",
+    "high_level_schedule": {
+        "milestones": [
+            {
+                "index": 0,
+                "description": "Complete 4 weeks of alternating reading",
+                "completion_criteria": "streak_of_weeks",
+                "completion_criteria_point": 4,
+                "reward_message": "Great progress! You've completed your first month of alternating reading. Keep it up!"
+            },
+            {
+                "index": 1,
+                "description": "Complete 12 weeks of alternating reading",
+                "completion_criteria": "streak_of_weeks",
+                "completion_criteria_point": 12,
+                "reward_message": "Fantastic! 3 months of alternating reading. You're balancing knowledge and creativity!"
+            },
+            {
+                "index": 2,
+                "description": "Complete 26 weeks of alternating reading",
+                "completion_criteria": "streak_of_weeks",
+                "completion_criteria_point": 26,
+                "reward_message": "Incredible! 6 months of alternating reading. You've mastered both scientific and poetic reading!"
+            }
+        ]
+    },
+    "low_level_schedule": {
+        "span": "week",
+        "span_value": 2,
+        "habit_schedule": 180,
+        "habit_repeat_count": 13,
+        "program": [
+            {
+                "days_indexed": [
+                    {
+                        "index": 0,
+                        "title": "Daily Reading Session",
+                        "content": [
+                            {
+                                "step": "Choose a comfortable reading spot",
+                                "clock": "20:00"
+                            },
+                            {
+                                "step": "Read for 30 minutes without distractions",
+                                "clock": "20:05"
+                            },
+                            {
+                                "step": "Take brief notes on interesting points",
+                                "clock": "20:35"
+                            }
+                        ],
+                        "reminders": [
+                            {
+                                "time": "20:00",
+                                "message": "Time for your daily reading session!"
+                            }
+                        ]
+                    }
+                ],
+                "weeks_indexed": [
+                    {
+                        "index": 0,
+                        "title": "Week 1: Scientific Reading Week",
+                        "content": [
+                            {
+                                "step": "Read scientific books for 30 minutes daily",
+                                "day": "Monday"
+                            },
+                            {
+                                "step": "Read scientific books for 30 minutes daily",
+                                "day": "Tuesday"
+                            },
+                            {
+                                "step": "Read scientific books for 30 minutes daily",
+                                "day": "Wednesday"
+                            },
+                            {
+                                "step": "Read scientific books for 30 minutes daily",
+                                "day": "Thursday"
+                            },
+                            {
+                                "step": "Read scientific books for 30 minutes daily",
+                                "day": "Friday"
+                            },
+                            {
+                                "step": "Read scientific books for 30 minutes daily",
+                                "day": "Saturday"
+                            },
+                            {
+                                "step": "Read scientific books and review key concepts learned this week",
+                                "day": "Sunday"
+                            }
+                        ],
+                        "reminders": [
+                            {
+                                "time": "20:00",
+                                "message": "Scientific reading week - expand your knowledge!"
+                            }
+                        ]
+                    },
+                    {
+                        "index": 1,
+                        "title": "Week 2: Poetry Reading Week",
+                        "content": [
+                            {
+                                "step": "Read poetry for 30 minutes daily",
+                                "day": "Monday"
+                            },
+                            {
+                                "step": "Read poetry for 30 minutes daily",
+                                "day": "Tuesday"
+                            },
+                            {
+                                "step": "Read poetry for 30 minutes daily",
+                                "day": "Wednesday"
+                            },
+                            {
+                                "step": "Read poetry for 30 minutes daily",
+                                "day": "Thursday"
+                            },
+                            {
+                                "step": "Read poetry for 30 minutes daily",
+                                "day": "Friday"
+                            },
+                            {
+                                "step": "Read poetry for 30 minutes daily",
+                                "day": "Saturday"
+                            },
+                            {
+                                "step": "Read poetry and reflect on favorite verses from this week",
+                                "day": "Sunday"
+                            }
+                        ],
+                        "reminders": [
+                            {
+                                "time": "20:00",
+                                "message": "Poetry reading week - appreciate the beauty of words!"
+                            }
+                        ]
+                    }
+                ],
+                "months_indexed": [
+                    {
+                        "index": 0,
+                        "title": "Monthly Reading Progress",
+                        "content": [
+                            {
+                                "step": "Continue alternating between scientific and poetry reading weeks",
+                                "day": "start_of_month"
+                            },
+                            {
+                                "step": "Review scientific books and poetry collections read this month",
+                                "day": "15"
+                            },
+                            {
+                                "step": "Reflect on insights from both scientific and poetic readings",
+                                "day": "end_of_month"
+                            }
+                        ],
+                        "reminders": [
+                            {
+                                "time": "20:00",
+                                "message": "Keep up your monthly alternating reading habit!"
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    }
+}
+

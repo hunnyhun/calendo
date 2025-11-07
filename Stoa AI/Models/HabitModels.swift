@@ -1,4 +1,5 @@
 import Foundation
+import SwiftUI
 import FirebaseFirestore
 
 // MARK: - Habit Models
@@ -129,16 +130,16 @@ enum HabitCategory: String, CaseIterable, Codable {
         }
     }
     
-    var color: String {
+    var color: Color {
         switch self {
-        case .physical: return "green"
-        case .mental: return "blue"
-        case .spiritual: return "purple"
-        case .social: return "orange"
-        case .productivity: return "red"
-        case .mindfulness: return "pink"
-        case .learning: return "indigo"
-        case .personalGrowth: return "yellow"
+        case .physical: return Color.green
+        case .mental: return Color.blue
+        case .spiritual: return Color.purple
+        case .social: return Color.orange
+        case .productivity: return Color.red
+        case .mindfulness: return Color.pink
+        case .learning: return Color.indigo
+        case .personalGrowth: return Color.yellow
         }
     }
 }
@@ -259,72 +260,188 @@ struct HabitReminder: Codable {
 
 // MARK: - New Comprehensive Habit Models
 
-/// Represents a comprehensive habit with the new JSON structure
+/// Represents a comprehensive habit matching habit.json structure exactly
 struct ComprehensiveHabit: Codable, Identifiable {
-    let id: String
+    let id: String // Generated for Swift Identifiable, not in JSON
     let name: String
     let goal: String
-    let startDate: String? // ISO 8601 timestamp
-    let createdAt: String // ISO 8601 timestamp
-    let category: String?
+    let category: String
     let description: String
-    let motivation: String
-    let trackingMethod: String?
+    let difficulty: String // "beginner" | "intermediate" | "advanced"
     
-    let milestones: [HabitMilestone]
-    let lowLevelSchedule: HabitSchedule?
-    let highLevelSchedule: HabitHighLevelSchedule?
-    let reminders: [HabitReminderNew]
+    let lowLevelSchedule: HabitSchedule
+    let highLevelSchedule: HabitHighLevelSchedule
     
-    init(id: String = UUID().uuidString, name: String, goal: String, startDate: String? = nil, createdAt: String, category: String? = nil, description: String, motivation: String, trackingMethod: String? = nil, milestones: [HabitMilestone], lowLevelSchedule: HabitSchedule? = nil, highLevelSchedule: HabitHighLevelSchedule? = nil, reminders: [HabitReminderNew]) {
+    // Date tracking fields
+    let createdAt: String? // ISO 8601 string - when AI created/suggested the habit
+    let startDate: String? // ISO 8601 string - when user pushed it to calendar
+    
+    // Active state
+    let isActive: Bool // Whether the habit is currently active
+    
+    // Computed property to access milestones from highLevelSchedule
+    var milestones: [HabitMilestone] {
+        return highLevelSchedule.milestones
+    }
+    
+    // Check if habit is completable (has a finite duration)
+    var isCompletable: Bool {
+        return lowLevelSchedule.habitSchedule != nil
+    }
+    
+    // Check if habit is completed (has reached its end date)
+    var isCompleted: Bool {
+        guard isCompletable,
+              let habitSchedule = lowLevelSchedule.habitSchedule,
+              let startDateString = startDate else {
+            return false // Infinite habits or habits without start date cannot be completed
+        }
+        
+        // Parse start date
+        let formatter = ISO8601DateFormatter()
+        guard let startDate = formatter.date(from: startDateString) else {
+            return false
+        }
+        
+        // Calculate end date
+        let calendar = Calendar.current
+        guard let endDate = calendar.date(byAdding: .day, value: Int(habitSchedule), to: startDate) else {
+            return false
+        }
+        
+        // Check if current date is past the end date
+        return Date() >= endDate
+    }
+    
+    private enum CodingKeys: String, CodingKey {
+        case id, name, goal, category, description, difficulty
+        case lowLevelSchedule = "low_level_schedule"
+        case highLevelSchedule = "high_level_schedule"
+        case createdAt = "created_at"
+        case startDate = "start_date"
+        case isActive
+    }
+    
+    init(id: String = UUID().uuidString, name: String, goal: String, category: String, description: String, difficulty: String, lowLevelSchedule: HabitSchedule, highLevelSchedule: HabitHighLevelSchedule, createdAt: String? = nil, startDate: String? = nil, isActive: Bool = true) {
         self.id = id
         self.name = name
         self.goal = goal
-        self.startDate = startDate
-        self.createdAt = createdAt
         self.category = category
         self.description = description
-        self.motivation = motivation
-        self.trackingMethod = trackingMethod
-        self.milestones = milestones
+        self.difficulty = difficulty
         self.lowLevelSchedule = lowLevelSchedule
         self.highLevelSchedule = highLevelSchedule
-        self.reminders = reminders
+        self.createdAt = createdAt
+        self.startDate = startDate
+        self.isActive = isActive
+    }
+    
+    // Convenience initializer to parse from backend JSON
+    static func fromBackendJSON(_ data: [String: Any]) throws -> ComprehensiveHabit {
+        let jsonData = try JSONSerialization.data(withJSONObject: data)
+        let decoder = JSONDecoder()
+        decoder.dateDecodingStrategy = .iso8601 // Handle ISO8601 date strings
+        return try decoder.decode(ComprehensiveHabit.self, from: jsonData)
     }
 }
 
-/// Represents a habit milestone
+/// Represents a habit milestone matching habit.json structure
 struct HabitMilestone: Codable, Identifiable {
-    let id: String
+    let id: String // Generated for Swift Identifiable, not in JSON
+    let index: Int // Index in the milestones array
     let description: String
-    let completionCriteria: String
+    let completionCriteria: String // "streak_of_days" | "streak_of_weeks" | "streak_of_months" | "percentage"
+    let completionCriteriaPoint: Double // Number value for the criteria (can be fractional)
     let rewardMessage: String
-    let targetDays: Int?
     
     private enum CodingKeys: String, CodingKey {
-        case id, description
+        case id, index, description
         case completionCriteria = "completion_criteria"
+        case completionCriteriaPoint = "completion_criteria_point"
         case rewardMessage = "reward_message"
-        case targetDays = "target_days"
+    }
+    
+    init(id: String = UUID().uuidString, index: Int = 0, description: String, completionCriteria: String, completionCriteriaPoint: Double, rewardMessage: String) {
+        self.id = id
+        self.index = index
+        self.description = description
+        self.completionCriteria = completionCriteria
+        self.completionCriteriaPoint = completionCriteriaPoint
+        self.rewardMessage = rewardMessage
     }
 }
 
-/// Represents a low-level habit schedule (repetitive)
+/// Represents a low-level habit schedule (repetitive) matching habit.json structure
 struct HabitSchedule: Codable {
-    let span: String // "daily", "weekly", "monthly", "yearly", "every-n-days", etc.
-    let spanInterval: Int? // How many times to repeat (null = infinite)
+    let span: String // "day" | "week" | "month" | "year"
+    let spanValue: Double // Multiplier for the span (e.g., 1 for daily, 2 for every 2 weeks) - number type
+    let habitSchedule: Double? // Total duration in days (null = infinite) - number type
+    let habitRepeatCount: Double? // How many times the cycle repeats (null = infinite) - number type
     let program: [HabitProgramSchedule]
     
     private enum CodingKeys: String, CodingKey {
-        case span
-        case spanInterval = "span_interval"
-        case program
+        case span, program
+        case spanValue = "span_value"
+        case habitSchedule = "habit_schedule"
+        case habitRepeatCount = "habit_repeat_count"
     }
 }
 
-/// Represents a program within a schedule
+/// Represents a program within a schedule (new structure with indexed arrays)
 struct HabitProgramSchedule: Codable {
-    let steps: [HabitStep]
+    let daysIndexed: [DaysIndexedItem]
+    let weeksIndexed: [WeeksIndexedItem]
+    let monthsIndexed: [MonthsIndexedItem]
+    
+    private enum CodingKeys: String, CodingKey {
+        case daysIndexed = "days_indexed"
+        case weeksIndexed = "weeks_indexed"
+        case monthsIndexed = "months_indexed"
+    }
+}
+
+/// Days indexed item
+struct DaysIndexedItem: Codable {
+    let index: Int
+    let title: String
+    let content: [DayStepContent]
+    let reminders: [HabitReminderNew]
+}
+
+/// Weeks indexed item matching habit.json structure
+struct WeeksIndexedItem: Codable {
+    let index: Int
+    let title: String
+    let description: String
+    let content: [WeekStepContent]
+    let reminders: [HabitReminderNew]
+}
+
+/// Months indexed item matching habit.json structure
+struct MonthsIndexedItem: Codable {
+    let index: Int
+    let title: String
+    let description: String
+    let content: [MonthStepContent]
+    let reminders: [HabitReminderNew]
+}
+
+/// Step content for daily habits matching habit.json structure
+struct DayStepContent: Codable {
+    let step: String
+    let clock: String? // "00:00" format or null (if null, means anytime in day it can be done)
+}
+
+/// Step content for weekly habits matching habit.json structure
+struct WeekStepContent: Codable {
+    let step: String
+    let day: String // "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday"
+}
+
+/// Step content for monthly habits matching habit.json structure
+struct MonthStepContent: Codable {
+    let step: String
+    let day: String // "start_of_month" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9" | "10" | "11" | "12" | "13" | "14" | "15" | "16" | "17" | "18" | "19" | "20" | "21" | "22" | "23" | "24" | "25" | "26" | "27" | "28" | "end_of_month"
 }
 
 /// Represents a step in a habit schedule
@@ -351,7 +468,7 @@ struct HabitStep: Codable, Identifiable {
 
 /// Represents a high-level habit schedule (progressive)
 struct HabitHighLevelSchedule: Codable {
-    let program: [HabitPhase]
+    let milestones: [HabitMilestone]
 }
 
 /// Represents a phase in a high-level schedule
@@ -384,62 +501,20 @@ struct HabitPhaseStep: Codable, Identifiable {
     }
 }
 
-/// Represents a new habit reminder with additional fields
+/// Represents a habit reminder matching habit.json structure
 struct HabitReminderNew: Codable, Identifiable {
-    let id: String
-    let time: String // HH:MM format
-    let message: String
-    let frequency: String // "daily", "weekly", "monthly", "once"
-    let type: String // "preparation", "execution", "reflection", "motivation"
-    let daysBefore: Int? // Optional: how many days before to remind
+    let id: String // Generated for Swift Identifiable, not in JSON
+    let time: String? // "00:00" format or null
+    let message: String? // String or null
     
-    init(id: String = UUID().uuidString, time: String, message: String, frequency: String, type: String, daysBefore: Int? = nil) {
+    init(id: String = UUID().uuidString, time: String? = nil, message: String? = nil) {
         self.id = id
         self.time = time
         self.message = message
-        self.frequency = frequency
-        self.type = type
-        self.daysBefore = daysBefore
     }
     
     private enum CodingKeys: String, CodingKey {
-        case id, time, message, frequency, type
-        case daysBefore = "days_before"
-    }
-}
-
-extension Habit {
-    // JSON format that AI should use in responses
-    static func getAIJSONFormat() -> String {
-        return """
-        {
-          "ai_habit_suggestion": {
-            "title": "Morning Meditation",
-            "description": "Start each day with 10 minutes of mindful meditation to cultivate inner peace and clarity",
-            "category": "mindfulness",
-            "frequency": "daily",
-            "duration": "10 minutes",
-            "program": {
-              "duration_weeks": 8,
-              "phases": [
-                { "week_start": 1, "week_end": 2, "goal": "Establish routine", "instructions": "Focus on consistency, 5-10 minutes daily" },
-                { "week_start": 3, "week_end": 4, "goal": "Deepen practice", "instructions": "Full 10 minutes, focus on breath awareness" },
-                { "week_start": 5, "week_end": 6, "goal": "Build mindfulness", "instructions": "Add body scan and loving-kindness" },
-                { "week_start": 7, "week_end": 8, "goal": "Integrate insights", "instructions": "Apply mindfulness throughout daily activities" }
-              ]
-            },
-            "tracking_method": "Daily check-in with mood, focus level, and duration",
-            "motivation_strategy": "Start small, build momentum, celebrate weekly progress",
-            "reminders": [
-              { "time": "07:00", "message": "Time for your morning meditation 🧘", "frequency": "daily", "type": "main" },
-              { "time": "06:55", "message": "Prepare your meditation space", "frequency": "daily", "type": "preparation" },
-              { "time": "21:00", "message": "Reflect on today's mindfulness practice", "frequency": "daily", "type": "reflection" }
-            ],
-            "motivation": "To develop mental clarity and emotional resilience through daily practice",
-            "ai_reasoning": "Based on your request for stress management, daily meditation will help you build inner calm and focus"
-          }
-        }
-        """
+        case id, time, message
     }
 }
 
@@ -472,42 +547,156 @@ enum ChatMode: String, CaseIterable, Codable {
 struct UserTask: Codable, Identifiable {
     let id: String
     let name: String
+    let goal: String?
+    let category: String?
     let description: String
-    let createdAt: Date
+    let createdAt: String? // ISO 8601 string - when AI created/suggested the task
     let completedAt: Date?
     let isCompleted: Bool
-    let steps: [TaskStep]
-    let createdBy: String // User ID
-    let deadline: Date? // Optional task deadline
-    let startDate: Date? // When task should start
+    let taskSchedule: TaskSchedule?
+    let createdBy: String?
+    let startDate: String? // ISO 8601 string - when user pushed it to calendar
+    let isActive: Bool // Whether the task is currently active
     
-    init(id: String = UUID().uuidString, name: String, description: String, createdAt: Date = Date(), completedAt: Date? = nil, isCompleted: Bool = false, steps: [TaskStep] = [], createdBy: String, deadline: Date? = nil, startDate: Date? = nil) {
-        self.id = id
-        self.name = name
-        self.description = description
-        self.createdAt = createdAt
-        self.completedAt = completedAt
-        self.isCompleted = isCompleted
+    // Computed property for convenience - returns steps from taskSchedule
+    var steps: [TaskStep] {
+        return taskSchedule?.steps ?? []
+    }
+    
+    enum CodingKeys: String, CodingKey {
+        case id
+        case name
+        case goal
+        case category
+        case description
+        case createdAt
+        case completedAt
+        case isCompleted
+        case taskSchedule = "task_schedule"
+        case createdBy
+        case startDate
+        case isActive
+    }
+}
+
+/// Task schedule containing steps
+struct TaskSchedule: Codable {
+    let steps: [TaskStep]
+    
+    init(steps: [TaskStep] = []) {
         self.steps = steps
-        self.createdBy = createdBy
-        self.deadline = deadline
-        self.startDate = startDate
     }
 }
 
 /// Represents a step within a multi-step task
 struct TaskStep: Codable, Identifiable {
     let id: String
-    let description: String
+    let index: Int?
+    let title: String?
+    let description: String?
+    let date: String? // YYYY-MM-DD format or null
+    let time: String? // HH:MM format or null
     let isCompleted: Bool
-    let scheduledDate: Date? // Auto-calculated date for step completion
+    let scheduledDate: Date? // Computed from date+time for calendar display
+    let reminders: [TaskReminder]
     
-    init(id: String = UUID().uuidString, description: String, isCompleted: Bool = false, scheduledDate: Date? = nil) {
-        self.id = id
-        self.description = description
-        self.isCompleted = isCompleted
-        self.scheduledDate = scheduledDate
+    // Computed property to get Date from date string
+    var dateValue: Date? {
+        guard let dateString = date else { return nil }
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd"
+        formatter.timeZone = TimeZone.current
+        return formatter.date(from: dateString)
     }
+    
+    // Computed property to get full Date+Time
+    var scheduledDateTime: Date? {
+        guard let dateValue = dateValue else { return nil }
+        guard let timeString = time else { return dateValue }
+        
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd HH:mm"
+        formatter.timeZone = TimeZone.current
+        let dateTimeString = "\(date ?? "") \(timeString)"
+        return formatter.date(from: dateTimeString) ?? dateValue
+    }
+    
+    init(id: String = UUID().uuidString, index: Int? = nil, title: String? = nil, description: String? = nil, date: String? = nil, time: String? = nil, isCompleted: Bool = false, scheduledDate: Date? = nil, reminders: [TaskReminder] = []) {
+        self.id = id
+        self.index = index
+        self.title = title
+        self.description = description
+        self.date = date
+        self.time = time
+        self.isCompleted = isCompleted
+        self.reminders = reminders
+        
+        // Compute scheduledDate from date+time if not provided
+        if let scheduledDate = scheduledDate {
+        self.scheduledDate = scheduledDate
+        } else if let dateString = date {
+            let formatter = DateFormatter()
+            formatter.dateFormat = "yyyy-MM-dd"
+            formatter.timeZone = TimeZone.current
+            var computedDate = formatter.date(from: dateString)
+            
+            // Add time if available
+            if let timeString = time, let baseDate = computedDate {
+                let timeFormatter = DateFormatter()
+                timeFormatter.dateFormat = "HH:mm"
+                if let timeValue = timeFormatter.date(from: timeString) {
+                    let calendar = Calendar.current
+                    let timeComponents = calendar.dateComponents([.hour, .minute], from: timeValue)
+                    computedDate = calendar.date(bySettingHour: timeComponents.hour ?? 0, minute: timeComponents.minute ?? 0, second: 0, of: baseDate)
+                }
+            }
+            self.scheduledDate = computedDate
+        } else {
+            self.scheduledDate = nil
+        }
+    }
+    
+    // Display title (uses title if available, otherwise description)
+    var displayTitle: String {
+        return title ?? description ?? "Step"
+    }
+    
+    // Display description (uses description if available)
+    var displayDescription: String {
+        return description ?? title ?? ""
+    }
+}
+
+/// Task reminder structure
+struct TaskReminder: Codable, Identifiable {
+    let id: String
+    let offset: ReminderOffset
+    let time: String? // HH:MM format or null
+    let message: String? // Optional reminder message
+    
+    init(id: String = UUID().uuidString, offset: ReminderOffset, time: String? = nil, message: String? = nil) {
+        self.id = id
+        self.offset = offset
+        self.time = time
+        self.message = message
+    }
+}
+
+/// Reminder offset (days, weeks, or months before step date)
+struct ReminderOffset: Codable {
+    let unit: ReminderUnit
+    let value: Int // Positive number representing units before the step date
+    
+    init(unit: ReminderUnit, value: Int) {
+        self.unit = unit
+        self.value = value
+    }
+}
+
+enum ReminderUnit: String, Codable {
+    case days
+    case weeks
+    case months
 }
 
 /// Statistics for task completion

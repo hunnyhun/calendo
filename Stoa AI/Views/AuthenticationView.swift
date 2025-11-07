@@ -177,60 +177,35 @@ struct AuthenticationView: View {
     var body: some View {
         NavigationStack {
             ZStack {
-                // Philosophical Background
-                PhilosophicalBackground()
-                
-                // Philosophical Particles
-                PhilosophicalParticles()
+                // White Background
+                Color.white
+                    .ignoresSafeArea()
                 
                 // Main Content
                 VStack(spacing: 0) {
-                    // Cross and Title
-                    VStack(spacing: 40) { // Decreased spacing from 80 to 40 (half)
+                    // Logo and Title
+                    VStack(spacing: 32) {
                         // App Logo
                         Image("logo")
                             .resizable()
                             .aspectRatio(contentMode: .fit)
-                            .frame(height: 80)
+                            .frame(height: 100)
                             .clipShape(RoundedRectangle(cornerRadius: 16))
-                            .shadow(color: .white.opacity(0.3), radius: 10)
-                            .padding(.top, 40) // Reduced from 60 to 40 to move up
+                            .shadow(color: .black.opacity(0.1), radius: 10)
+                            .padding(.top, 60)
                         
-                        Text("appTitle".localized)
-                            .font(.custom("Avenir-Heavy", size: 44))
-                            .fontWeight(.bold)
-                            .foregroundStyle(.white)
-                            .shadow(color: .white.opacity(0.3), radius: 10)
+                        // Big Calendo Text
+                        Text("Calendo")
+                            .font(.system(size: 56, weight: .bold, design: .default))
+                            .foregroundColor(.black)
                     }
-                    .padding(.top, 40) // Reduced from 60 to 40 to move everything up
-                    
-                    // Welcome Text
-                    VStack(spacing: 12) {
-                        Text("authWelcomeTitle".localized)
-                            .font(.custom("Avenir-Heavy", size: 26))
-                            .foregroundStyle(.white)
-                            .multilineTextAlignment(.center)
-                            .shadow(color: .white.opacity(0.2), radius: 5)
-                        
-                        Text("authSubtitle".localized)
-                            .font(.custom("Avenir-Medium", size: 20))
-                            .foregroundStyle(.white.opacity(0.9))
-                            .multilineTextAlignment(.center)
-                        
-                        Text("authDescription".localized)
-                            .font(.custom("Avenir", size: 16))
-                            .foregroundStyle(.white.opacity(0.8))
-                            .multilineTextAlignment(.center)
-                            .padding(.horizontal, 20)
-                            .lineLimit(3)
-                    }
-                    .padding(.top, 20)
+                    .padding(.top, 40)
                     
                     // Error Message
                     if let error = errorMessage {
                         Text(error)
-                            .font(.custom("Avenir", size: 16))
-                            .foregroundColor(.red.opacity(0.8))
+                            .font(.system(size: 16, design: .default))
+                            .foregroundColor(.red)
                             .multilineTextAlignment(.center)
                             .padding()
                     }
@@ -242,19 +217,26 @@ struct AuthenticationView: View {
                         // Google Sign In
                         Button(action: handleGoogleSignIn) {
                             HStack {
-                                Image(systemName: "g.circle.fill")
-                                    .font(.title2)
+                                Image("googleicon")
+                                    .resizable()
+                                    .aspectRatio(contentMode: .fit)
+                                    .frame(width: 24, height: 24)
                                 Text("continueWithGoogle".localized)
-                                    .font(.custom("Avenir-Medium", size: 18))
+                                    .font(.system(size: 18, weight: .medium, design: .default))
                             }
                             .frame(maxWidth: .infinity)
                             .padding()
-                            .background(.ultraThinMaterial)
-                            .foregroundStyle(.white)
+                            .background(Color.white)
+                            .foregroundColor(.black)
                             .cornerRadius(25)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 25)
+                                    .stroke(Color.gray.opacity(0.3), lineWidth: 1)
+                            )
                             .shadow(color: .black.opacity(0.1), radius: 10)
                         }
                         .opacity(isLoading ? 0.6 : 1.0)
+                        .disabled(isLoading)
                         .animation(.easeInOut(duration: 0.2), value: isLoading)
                         
                         // Apple Sign In
@@ -263,16 +245,17 @@ struct AuthenticationView: View {
                                 Image(systemName: "apple.logo")
                                     .font(.title2)
                                 Text("continueWithApple".localized)
-                                    .font(.custom("Avenir-Medium", size: 18))
+                                    .font(.system(size: 18, weight: .medium, design: .default))
                             }
                             .frame(maxWidth: .infinity)
                             .padding()
-                            .background(.ultraThinMaterial)
-                            .foregroundStyle(.white)
+                            .background(Color.black)
+                            .foregroundColor(.white)
                             .cornerRadius(25)
                             .shadow(color: .black.opacity(0.1), radius: 10)
                         }
                         .opacity(isLoading ? 0.6 : 1.0)
+                        .disabled(isLoading)
                         .animation(.easeInOut(duration: 0.2), value: isLoading)
                     }
                     .padding(.horizontal, 30)
@@ -283,13 +266,13 @@ struct AuthenticationView: View {
                 if isLoading {
                     ZStack {
                         // Semi-transparent background
-                        Color.black.opacity(0.4)
+                        Color.black.opacity(0.2)
                             .ignoresSafeArea()
                             .transition(.opacity) // Fade in/out
                         
                         // Centered ProgressView
                         ProgressView()
-                            .progressViewStyle(CircularProgressViewStyle(tint: .white))
+                            .progressViewStyle(CircularProgressViewStyle(tint: .black))
                             .scaleEffect(2.0) // Make it larger
                     }
                     .animation(.easeInOut(duration: 0.3), value: isLoading) // Animate the overlay

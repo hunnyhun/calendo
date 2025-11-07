@@ -1,0 +1,261 @@
+{
+    "name": "Multi-Day Multi-Week Monthly Challenge",
+    "goal": "Complete a comprehensive multi-day, multi-week routine within one month",
+    "category": "Fitness",
+    "description": "Follow a structured program with multiple days per week across multiple weeks in one month",
+    "difficulty": "advanced",
+    "high_level_schedule": {
+        "milestones": [
+            {
+                "index": 0,
+                "description": "Complete first week of multi-day routine",
+                "completion_criteria": "streak_of_weeks",
+                "completion_criteria_point": 1,
+                "reward_message": "Great job! You've completed your first week of the monthly challenge!"
+            },
+            {
+                "index": 1,
+                "description": "Complete 2 weeks of multi-day routine",
+                "completion_criteria": "streak_of_weeks",
+                "completion_criteria_point": 2,
+                "reward_message": "Fantastic! 2 weeks down. You're halfway through the month!"
+            },
+            {
+                "index": 2,
+                "description": "Complete full month of multi-day, multi-week routine",
+                "completion_criteria": "streak_of_weeks",
+                "completion_criteria_point": 4,
+                "reward_message": "Incredible! You've completed the full monthly challenge! You're a champion!"
+            }
+        ]
+    },
+    "low_level_schedule": {
+        "span": "month",
+        "span_value": 1,
+        "habit_schedule": null,
+        "habit_repeat_count": null,
+        "program": [
+            {
+                "days_indexed": [
+                    {
+                        "index": 0,
+                        "title": "Day 1: Upper Body Focus",
+                        "content": [
+                            {
+                                "step": "Warm up with 5 minutes of light movement",
+                                "clock": "18:00"
+                            },
+                            {
+                                "step": "Complete upper body workout",
+                                "clock": "18:05"
+                            },
+                            {
+                                "step": "Cool down and stretch",
+                                "clock": "18:45"
+                            }
+                        ],
+                        "reminders": [
+                            {
+                                "time": "18:00",
+                                "message": "Day 1 - Upper body focus!"
+                            }
+                        ]
+                    },
+                    {
+                        "index": 1,
+                        "title": "Day 2: Lower Body Focus",
+                        "content": [
+                            {
+                                "step": "Warm up with 5 minutes of light movement",
+                                "clock": "18:00"
+                            },
+                            {
+                                "step": "Complete lower body workout",
+                                "clock": "18:05"
+                            },
+                            {
+                                "step": "Cool down and stretch",
+                                "clock": "18:45"
+                            }
+                        ],
+                        "reminders": [
+                            {
+                                "time": "18:00",
+                                "message": "Day 2 - Lower body focus!"
+                            }
+                        ]
+                    },
+                    {
+                        "index": 2,
+                        "title": "Day 3: Cardio Day",
+                        "content": [
+                            {
+                                "step": "Warm up with 5 minutes of light movement",
+                                "clock": "18:00"
+                            },
+                            {
+                                "step": "Complete cardio session",
+                                "clock": "18:05"
+                            },
+                            {
+                                "step": "Cool down and stretch",
+                                "clock": "18:45"
+                            }
+                        ],
+                        "reminders": [
+                            {
+                                "time": "18:00",
+                                "message": "Day 3 - Cardio day!"
+                            }
+                        ]
+                    },
+                    {
+                        "index": 3,
+                        "title": "Day 4: Active Recovery",
+                        "content": [
+                            {
+                                "step": "Light stretching or yoga",
+                                "clock": "18:00"
+                            },
+                            {
+                                "step": "Gentle movement and mobility work",
+                                "clock": "18:20"
+                            }
+                        ],
+                        "reminders": [
+                            {
+                                "time": "18:00",
+                                "message": "Day 4 - Active recovery day!"
+                            }
+                        ]
+                    }
+                ],
+                "weeks_indexed": [
+                    {
+                        "index": 0,
+                        "title": "Week 1: Foundation Building",
+                        "content": [
+                            {
+                                "step": "Start your monthly challenge with day 1 routine",
+                                "day": "Monday"
+                            },
+                            {
+                                "step": "Continue with days 2 and 3",
+                                "day": "Wednesday"
+                            },
+                            {
+                                "step": "Complete day 4 and review week 1",
+                                "day": "Friday"
+                            }
+                        ],
+                        "reminders": [
+                            {
+                                "time": "18:00",
+                                "message": "Week 1 - building your foundation!"
+                            }
+                        ]
+                    },
+                    {
+                        "index": 1,
+                        "title": "Week 2: Building Momentum",
+                        "content": [
+                            {
+                                "step": "Continue with day 1 routine",
+                                "day": "Monday"
+                            },
+                            {
+                                "step": "Continue with days 2 and 3",
+                                "day": "Wednesday"
+                            },
+                            {
+                                "step": "Complete day 4 and review week 2",
+                                "day": "Friday"
+                            }
+                        ],
+                        "reminders": [
+                            {
+                                "time": "18:00",
+                                "message": "Week 2 - building momentum!"
+                            }
+                        ]
+                    },
+                    {
+                        "index": 2,
+                        "title": "Week 3: Maintaining Consistency",
+                        "content": [
+                            {
+                                "step": "Continue with day 1 routine",
+                                "day": "Monday"
+                            },
+                            {
+                                "step": "Continue with days 2 and 3",
+                                "day": "Wednesday"
+                            },
+                            {
+                                "step": "Complete day 4 and review week 3",
+                                "day": "Friday"
+                            }
+                        ],
+                        "reminders": [
+                            {
+                                "time": "18:00",
+                                "message": "Week 3 - maintaining consistency!"
+                            }
+                        ]
+                    },
+                    {
+                        "index": 3,
+                        "title": "Week 4: Finishing Strong",
+                        "content": [
+                            {
+                                "step": "Continue with day 1 routine",
+                                "day": "Monday"
+                            },
+                            {
+                                "step": "Continue with days 2 and 3",
+                                "day": "Wednesday"
+                            },
+                            {
+                                "step": "Complete day 4 and celebrate monthly completion",
+                                "day": "Friday"
+                            }
+                        ],
+                        "reminders": [
+                            {
+                                "time": "18:00",
+                                "message": "Week 4 - finish strong!"
+                            }
+                        ]
+                    }
+                ],
+                "months_indexed": [
+                    {
+                        "index": 0,
+                        "title": "Monthly Challenge",
+                        "content": [
+                            {
+                                "step": "Begin your multi-day, multi-week monthly challenge",
+                                "day": "start_of_month"
+                            },
+                            {
+                                "step": "Continue through weeks 2 and 3",
+                                "day": "15"
+                            },
+                            {
+                                "step": "Complete week 4 and celebrate your monthly achievement",
+                                "day": "end_of_month"
+                            }
+                        ],
+                        "reminders": [
+                            {
+                                "time": "18:00",
+                                "message": "Monthly challenge - you've got this!"
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    }
+}
+

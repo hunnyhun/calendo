@@ -4,45 +4,88 @@ struct CalendarView: View {
     @StateObject private var calendarManager = CalendarManager.shared
     @State private var selectedScale: Models.CalendarScale = .daily
     @State private var selectedDate: Date?
+    @State private var selectedDailyDate: Date = Date()
     @State private var showDateDetail = false
     @State private var currentMonth = Date()
     @State private var currentNote = ""
     @State private var isEditingNote = false
+    @AppStorage("calendarShowHabitsFirst") private var showHabitsFirst: Bool = true // Default: habits first, tasks second - persists user preference
     
-    // Navigation callback to go back to chat
-    let onNavigateBack: (() -> Void)?
+    // Navigation binding for bottom bar
+    @Binding var selectedFeature: Models.Feature
     
     private let daysOfWeek = ["M", "T", "W", "T", "F", "S", "S"]
     
-    // Initializer with optional navigation callback
+    // Initializer with navigation binding
+    init(selectedFeature: Binding<Models.Feature> = .constant(.calendar)) {
+        self._selectedFeature = selectedFeature
+    }
+    
+    // Legacy initializer for backward compatibility
     init(onNavigateBack: (() -> Void)? = nil) {
-        self.onNavigateBack = onNavigateBack
+        self._selectedFeature = .constant(.calendar)
     }
     
     var body: some View {
-        VStack(spacing: 0) {
-            // Header with scale selector
-            headerView
+        ZStack(alignment: .topTrailing) {
+            VStack(spacing: 0) {
+                // Fixed header at top
+                headerView
+                    .padding(.horizontal, 15)
+                    .background(Color(.systemBackground))
+                
+                // Scrollable content
+                ScrollView {
+                    VStack(spacing: 0) {
+                        calendarContentView
+                            .padding(.horizontal, 15)
+                            .padding(.top, 20)
+                            .padding(.bottom, 20)
+                    }
+                }
+                
+                // Fixed Bottom Navigation Bar at bottom
+                BottomNavigationBar(selectedFeature: $selectedFeature)
+            }
             
-            // Calendar content based on selected scale
-            calendarContentView
-            
-            Spacer()
+            // Toggle button to swap habits and tasks - top right corner of screen
+            Button(action: {
+                withAnimation(.easeInOut(duration: 0.3)) {
+                    showHabitsFirst.toggle()
+                }
+            }) {
+                Image(systemName: "arrow.up.arrow.down")
+                    .font(.title3)
+                    .foregroundColor(.brandPrimary)
+                    .frame(width: 44, height: 44)
+                    .background(Color(.systemBackground))
+                    .clipShape(Circle())
+                    .shadow(color: .black.opacity(0.1), radius: 4, x: 0, y: 2)
+                    .rotationEffect(.degrees(showHabitsFirst ? 0 : 180))
+            }
+            .buttonStyle(PlainButtonStyle())
+            .padding(.top, 8) // Top of screen with minimal padding
+            .padding(.trailing, 15)
+            .allowsHitTesting(true)
         }
-        .padding(.horizontal, 15)
         .background(Color(.systemBackground))
         .task {
             print("📅 [CalendarView] Loading calendar data for month: \(currentMonth)")
             await calendarManager.loadCalendarData(for: currentMonth)
             print("📅 [CalendarView] Calendar data loaded: \(calendarManager.calendarData.count) days")
             
-            // For daily view, ensure today's data is loaded
+            // For daily view, ensure selected date's data is loaded
             if selectedScale == .daily {
-                await calendarManager.loadCalendarData(for: Date())
+                await calendarManager.loadCalendarData(for: selectedDailyDate)
+            }
+        }
+        .onChange(of: selectedDailyDate) { oldValue, newValue in
+            Task {
+                await calendarManager.loadCalendarData(for: newValue)
             }
         }
         .sheet(isPresented: $showDateDetail) {
-            let date = selectedScale == .daily ? Date() : (selectedDate ?? Date())
+            let date = selectedScale == .daily ? selectedDailyDate : (selectedDate ?? Date())
             DateDetailView(
                 date: date,
                 calendarData: calendarManager.getCalendarData(for: date),
@@ -63,20 +106,8 @@ struct CalendarView: View {
     // MARK: - Header View
     private var headerView: some View {
         VStack(spacing: 16) {
-            // Title and Back button
+            // Title - fixed position
             HStack {
-                Button(action: {
-                    onNavigateBack?()
-                }) {
-                    HStack(spacing: 8) {
-                        Image(systemName: "chevron.left")
-                            .font(.system(size: 18, weight: .semibold))
-                        Text("Back")
-                            .font(.headline)
-                    }
-                    .foregroundColor(.brandPrimary)
-                }
-                
                 Spacer()
                 
                 Text("Calendar")
@@ -85,29 +116,64 @@ struct CalendarView: View {
                     .foregroundColor(.primary)
                 
                 Spacer()
-                
-                // Empty space to balance the back button
-                HStack(spacing: 8) {
-                    Image(systemName: "chevron.left")
-                        .font(.system(size: 18, weight: .semibold))
-                        .opacity(0)
-                    Text("Back")
-                        .font(.headline)
-                        .opacity(0)
-                }
             }
+            .frame(height: 44) // Fixed height to maintain position
             
-            // Scale selector
-            Picker("Calendar Scale", selection: $selectedScale) {
-                ForEach(Models.CalendarScale.allCases.filter { $0 != .yearly }, id: \.self) { scale in
-                    Text(scale.displayName).tag(scale)
-                }
-            }
-            .pickerStyle(SegmentedPickerStyle())
+            // Custom scale selector toggle
+            CalendarScaleToggle(selectedScale: $selectedScale)
+                .frame(height: 44) // Fixed height for toggle
+                .padding(.bottom, 10)
             
-            // Month/Year navigation (hidden for daily view)
-            if selectedScale != .daily {
-                HStack {
+            // Date/Month/Year navigation (always same height for consistency)
+            HStack {
+                if selectedScale == .daily {
+                    // Daily date navigation
+                    Button(action: {
+                        withAnimation(.easeInOut(duration: 0.3)) {
+                            previousDay()
+                        }
+                    }) {
+                        Image(systemName: "chevron.left")
+                            .font(.title2)
+                            .foregroundColor(.brandPrimary)
+                    }
+                    
+                    Spacer()
+                    
+                    VStack(spacing: 4) {
+                        Text(isToday(selectedDailyDate) ? "Today" : selectedDailyDate.formatted(date: .abbreviated, time: .omitted))
+                            .font(.title2)
+                            .fontWeight(.bold)
+                            .id(selectedDailyDate)
+                            .transition(.asymmetric(
+                                insertion: .move(edge: .trailing).combined(with: .opacity),
+                                removal: .move(edge: .leading).combined(with: .opacity)
+                            ))
+                        
+                        Text(selectedDailyDate.formatted(.dateTime.weekday(.wide)))
+                            .font(.subheadline)
+                            .fontWeight(.semibold)
+                            .foregroundColor(.secondary)
+                            .id(selectedDailyDate)
+                            .transition(.asymmetric(
+                                insertion: .move(edge: .trailing).combined(with: .opacity),
+                                removal: .move(edge: .leading).combined(with: .opacity)
+                            ))
+                    }
+                    
+                    Spacer()
+                    
+                    Button(action: {
+                        withAnimation(.easeInOut(duration: 0.3)) {
+                            nextDay()
+                        }
+                    }) {
+                        Image(systemName: "chevron.right")
+                            .font(.title2)
+                            .foregroundColor(.brandPrimary)
+                    }
+                } else {
+                    // Weekly/Monthly navigation
                     Button(action: previousPeriod) {
                         Image(systemName: "chevron.left")
                             .font(.title2)
@@ -129,8 +195,12 @@ struct CalendarView: View {
                     }
                 }
             }
+            .frame(height: 44) // Fixed height always
         }
-        .padding(.vertical)
+        .padding(.top, 20)
+        .padding(.bottom, 16)
+        .frame(maxWidth: .infinity)
+        .frame(height: 44 + 16 + 44 + 10 + 16 + 44 + 20 + 16) // Fixed total height: title + spacing + toggle + toggleBottomPadding + spacing + nav + topPadding + bottomPadding = 210
     }
     
     // MARK: - Calendar Content View
@@ -149,125 +219,170 @@ struct CalendarView: View {
             }
         }
         .animation(.easeInOut(duration: 0.3), value: selectedScale)
+        .onChange(of: selectedScale) { oldValue, newValue in
+            // Reset to today when switching to daily view
+            if newValue == .daily && oldValue != .daily {
+                selectedDailyDate = Date()
+            }
+        }
     }
     
     // MARK: - Daily View
     private var dailyView: some View {
         VStack(spacing: 20) {
-            VStack(spacing: 4) {
-                Text("Today")
-                    .font(.title)
-                    .fontWeight(.bold)
-                
-                Text(Date().formatted(date: .complete, time: .omitted))
-                    .font(.subheadline)
-                    .foregroundColor(.secondary)
-            }
-            
-            if let dayData = calendarManager.getCalendarData(for: Date()) {
-                DaySummaryView(dayData: dayData)
+            // Content with animation
+            Group {
+                if let dayData = calendarManager.getCalendarData(for: selectedDailyDate) {
+                    DaySummaryView(dayData: dayData, showHabitsFirst: $showHabitsFirst)
+                        .id(selectedDailyDate) // Force view refresh on date change
+                        .transition(.asymmetric(
+                            insertion: .opacity.combined(with: .move(edge: .trailing)),
+                            removal: .opacity.combined(with: .move(edge: .leading))
+                        ))
+                        .onAppear {
+                            print("📅 [CalendarView] Found data for selected date: \(dayData.habitSteps.count) habit steps, \(dayData.taskItems.count) task items")
+                        }
+                        // Remove onTapGesture to prevent interference with card buttons
+                } else if calendarManager.isLoading {
+                    // Loading state
+                    VStack(spacing: 20) {
+                        ProgressView()
+                            .scaleEffect(1.5)
+                            .padding(.vertical, 40)
+                        
+                        Text("Loading habits...")
+                            .font(.subheadline)
+                            .foregroundColor(.secondary)
+                    }
+                    .frame(maxWidth: .infinity, minHeight: 200)
+                    .transition(.opacity)
+                } else {
+                    // Show empty state with section titles
+                    VStack(spacing: 20) {
+                        // Habits Section (Empty)
+                        VStack(alignment: .leading, spacing: 12) {
+                            VStack(alignment: .leading, spacing: 4) {
+                                HStack {
+                                    Image(systemName: "target")
+                                        .foregroundColor(.brandPrimary)
+                                    Text("Habits")
+                                        .font(.title2)
+                                        .fontWeight(.bold)
+                                    Spacer()
+                                    Text("0/0")
+                                        .font(.headline)
+                                        .foregroundColor(.secondary)
+                                }
+                            }
+                            
+                            Text("You have no habit steps for this day")
+                                .font(.subheadline)
+                                .foregroundColor(.secondary)
+                                .italic()
+                                .padding(.vertical, 8)
+                        }
+                        .padding()
+                        .background(Color(.systemGray6))
+                        .cornerRadius(12)
+                        
+                        // Tasks Section (Empty)
+                        VStack(alignment: .leading, spacing: 12) {
+                            VStack(alignment: .leading, spacing: 4) {
+                                HStack {
+                                    Image(systemName: "checklist")
+                                        .foregroundColor(.blue)
+                                    Text("Tasks")
+                                        .font(.title2)
+                                        .fontWeight(.bold)
+                                    Spacer()
+                                    Text("0/0")
+                                        .font(.headline)
+                                        .foregroundColor(.secondary)
+                                }
+                            }
+                            
+                            Text("You have no task steps for this day")
+                                .font(.subheadline)
+                                .foregroundColor(.secondary)
+                                .italic()
+                                .padding(.vertical, 8)
+                        }
+                        .padding()
+                        .background(Color(.systemGray6))
+                        .cornerRadius(12)
+                    }
+                    .id(selectedDailyDate)
+                    .transition(.asymmetric(
+                        insertion: .opacity.combined(with: .move(edge: .trailing)),
+                        removal: .opacity.combined(with: .move(edge: .leading))
+                    ))
                     .onTapGesture {
                         showDateDetail = true
                     }
-            } else {
-                // Show empty state with section titles
-                VStack(spacing: 20) {
-                    // Habits Section (Empty)
-                    VStack(alignment: .leading, spacing: 12) {
-                        VStack(alignment: .leading, spacing: 4) {
-                            HStack {
-                                Image(systemName: "target")
-                                    .foregroundColor(.brandPrimary)
-                                Text("Habits")
-                                    .font(.title2)
-                                    .fontWeight(.bold)
-                                Spacer()
-                                Text("0/0")
-                                    .font(.headline)
-                                    .foregroundColor(.secondary)
-                            }
-                        }
-                        
-                        Text("You have no habit steps for today")
-                            .font(.subheadline)
-                            .foregroundColor(.secondary)
-                            .italic()
-                            .padding(.vertical, 8)
+                    .onAppear {
+                        print("📅 [CalendarView] No data found for selected date")
                     }
-                    .padding()
-                    .background(Color(.systemGray6))
-                    .cornerRadius(12)
-                    
-                    // Tasks Section (Empty)
-                    VStack(alignment: .leading, spacing: 12) {
-                        VStack(alignment: .leading, spacing: 4) {
-                            HStack {
-                                Image(systemName: "checklist")
-                                    .foregroundColor(.blue)
-                                Text("Tasks")
-                                    .font(.title2)
-                                    .fontWeight(.bold)
-                                Spacer()
-                                Text("0/0")
-                                    .font(.headline)
-                                    .foregroundColor(.secondary)
-                            }
-                        }
-                        
-                        Text("You have no task steps for today")
-                            .font(.subheadline)
-                            .foregroundColor(.secondary)
-                            .italic()
-                            .padding(.vertical, 8)
-                    }
-                    .padding()
-                    .background(Color(.systemGray6))
-                    .cornerRadius(12)
-                }
-                .onTapGesture {
-                    showDateDetail = true
                 }
             }
+            .animation(.spring(response: 0.4, dampingFraction: 0.85), value: selectedDailyDate)
         }
-        .padding()
     }
     
     // MARK: - Weekly View
     private var weeklyView: some View {
         VStack(spacing: 20) {
-            // Week header
+            // Day names header
             HStack(spacing: 0) {
                 ForEach(daysOfWeek, id: \.self) { day in
                     Text(day)
                         .font(.system(size: 14, weight: .medium))
-                        .foregroundColor(.secondary)
+                        .foregroundColor(.black)
+                        .frame(width: 32, height: 32)
+                        .background(
+                            Circle()
+                                .fill(Color(hex: 0xDCEAF7))
+                        )
                         .frame(maxWidth: .infinity)
                 }
             }
-            .padding(.horizontal)
             
-            // Week grid
-            LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 7), spacing: 8) {
-                ForEach(weekDays, id: \.self) { date in
-                    WeekDayView(
+            // Calendar grid with equal spacing - single row with 7 day cells
+            LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 16), count: 7), spacing: 16) {
+                ForEach(weekDays.indices, id: \.self) { index in
+                    let date = weekDays[index]
+                    MonthDayView(
                         date: date,
                         calendarData: calendarManager.getCalendarData(for: date),
                         isSelected: selectedDate == date,
+                        isCurrentMonth: true, // All days in week are part of current week
                         onTap: {
                             selectedDate = date
                             showDateDetail = true
                         }
                     )
+                    .frame(maxWidth: .infinity)
+                    .aspectRatio(1, contentMode: .fit)
                 }
             }
-            .padding(.horizontal)
+            .padding(.horizontal, 12)
+            .padding(.vertical, 12)
+            .background(
+                RoundedRectangle(cornerRadius: 20)
+                    .fill(Color.brandBrightGreen)
+            )
+            .shadow(color: .black.opacity(0.1), radius: 8, x: 0, y: 4)
+            .id(currentMonth) // Force view refresh on month change
+            .transition(.asymmetric(
+                insertion: .opacity.combined(with: .move(edge: .trailing)),
+                removal: .opacity.combined(with: .move(edge: .leading))
+            ))
             
-            // Week summary
-            WeekSummaryView(weekDays: weekDays, calendarManager: calendarManager)
-                .onTapGesture {
-                    showDateDetail = true
-                }
+            // Week summary with habit cards
+            WeekSummaryCardsView(weekDays: weekDays, calendarManager: calendarManager, showHabitsFirst: $showHabitsFirst)
+                .id(currentMonth) // Force view refresh on month change
+                .transition(.opacity)
         }
+        .animation(.spring(response: 0.4, dampingFraction: 0.85), value: currentMonth)
     }
     
     // MARK: - Monthly View
@@ -288,47 +403,43 @@ struct CalendarView: View {
                 }
             }
             
-            // Calendar grid
-            VStack(spacing: 6) {
-                ForEach(0..<((monthDays.count + 6) / 7), id: \.self) { week in
-                    HStack(spacing: 0) {
-                        ForEach(0..<7, id: \.self) { day in
-                            let dateIndex = week * 7 + day
-                            if dateIndex < monthDays.count {
-                                let date = monthDays[dateIndex]
-                                MonthDayView(
-                                    date: date,
-                                    calendarData: calendarManager.getCalendarData(for: date),
-                                    isSelected: selectedDate == date,
-                                    isCurrentMonth: Calendar.current.isDate(date, equalTo: currentMonth, toGranularity: .month),
-                                    onTap: {
-                                        selectedDate = date
-                                        showDateDetail = true
-                                    }
-                                )
-                            } else {
-                                // Empty space for incomplete last row
-                                Spacer()
-                                    .frame(width: 32, height: 32)
-                                    .frame(maxWidth: .infinity)
-                            }
+            // Calendar grid with equal spacing
+            LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 16), count: 7), spacing: 16) {
+                ForEach(monthDays.indices, id: \.self) { index in
+                    let date = monthDays[index]
+                    MonthDayView(
+                        date: date,
+                        calendarData: calendarManager.getCalendarData(for: date),
+                        isSelected: selectedDate == date,
+                        isCurrentMonth: Calendar.current.isDate(date, equalTo: currentMonth, toGranularity: .month),
+                        onTap: {
+                            selectedDate = date
+                            showDateDetail = true
                         }
-                    }
+                    )
+                    .frame(maxWidth: .infinity)
+                    .aspectRatio(1, contentMode: .fit)
                 }
             }
-            .padding(.vertical, 8)
+            .padding(.horizontal, 12)
+            .padding(.vertical, 12)
             .background(
                 RoundedRectangle(cornerRadius: 20)
                     .fill(Color.brandBrightGreen)
             )
             .shadow(color: .black.opacity(0.1), radius: 8, x: 0, y: 4)
+            .id(currentMonth) // Force view refresh on month change
+            .transition(.asymmetric(
+                insertion: .opacity.combined(with: .move(edge: .trailing)),
+                removal: .opacity.combined(with: .move(edge: .leading))
+            ))
             
-            // Month summary
-            MonthSummaryView(monthDays: monthDays, calendarManager: calendarManager)
-                .onTapGesture {
-                    showDateDetail = true
-                }
+            // Month summary with habit cards
+            MonthSummaryCardsView(monthDays: monthDays, calendarManager: calendarManager, showHabitsFirst: $showHabitsFirst)
+                .id(currentMonth) // Force view refresh on month change
+                .transition(.opacity)
         }
+        .animation(.spring(response: 0.4, dampingFraction: 0.85), value: currentMonth)
     }
     
     
@@ -397,8 +508,27 @@ struct CalendarView: View {
     }
     
     // MARK: - Actions
+    private func previousDay() {
+        let calendar = Calendar.current
+        if let newDate = calendar.date(byAdding: .day, value: -1, to: selectedDailyDate) {
+            selectedDailyDate = newDate
+        }
+    }
+    
+    private func nextDay() {
+        let calendar = Calendar.current
+        if let newDate = calendar.date(byAdding: .day, value: 1, to: selectedDailyDate) {
+            selectedDailyDate = newDate
+        }
+    }
+    
+    private func isToday(_ date: Date) -> Bool {
+        Calendar.current.isDateInToday(date)
+    }
+    
     private func previousPeriod() {
         let calendar = Calendar.current
+        withAnimation(.spring(response: 0.4, dampingFraction: 0.85)) {
         switch selectedScale {
         case .daily, .weekly:
             if let newDate = calendar.date(byAdding: .weekOfYear, value: -1, to: currentMonth) {
@@ -411,6 +541,7 @@ struct CalendarView: View {
         case .yearly:
             // This case should never be reached since yearly is filtered out
             break
+            }
         }
         
         Task {
@@ -420,6 +551,7 @@ struct CalendarView: View {
     
     private func nextPeriod() {
         let calendar = Calendar.current
+        withAnimation(.spring(response: 0.4, dampingFraction: 0.85)) {
         switch selectedScale {
         case .daily, .weekly:
             if let newDate = calendar.date(byAdding: .weekOfYear, value: 1, to: currentMonth) {
@@ -432,6 +564,7 @@ struct CalendarView: View {
         case .yearly:
             // This case should never be reached since yearly is filtered out
             break
+            }
         }
         
         Task {
@@ -444,64 +577,186 @@ struct CalendarView: View {
 
 struct DaySummaryView: View {
     let dayData: Models.CalendarDayData
+    @Binding var showHabitsFirst: Bool
+    @State private var expandedHabits: Set<String> = []
     
-    var body: some View {
-        VStack(spacing: 20) {
-            // Habits Section
-            VStack(alignment: .leading, spacing: 12) {
-                VStack(alignment: .leading, spacing: 4) {
-                    HStack {
-                        Image(systemName: "target")
-                            .foregroundColor(.brandPrimary)
-                        Text("Habits")
-                            .font(.title2)
-                            .fontWeight(.bold)
-                        Spacer()
-                        Text("\(dayData.habitsCompleted)/\(dayData.totalHabits)")
-                            .font(.headline)
-                            .foregroundColor(.secondary)
-                    }
-                    
-                    Text(dayData.habitSteps.isEmpty ? "You have no steps" : "Scheduled Habits")
-                        .font(.subheadline)
+    // Habit colors array - bright, high-contrast colors for visibility
+    private let habitColors: [Color] = [
+        Color(red: 0.2, green: 0.8, blue: 0.4),      // Bright Green
+        Color(red: 0.4, green: 0.3, blue: 0.9),      // Bright Purple
+        Color(red: 0.0, green: 0.7, blue: 1.0),      // Bright Blue
+        Color(red: 1.0, green: 0.3, blue: 0.5),     // Bright Pink
+        Color(red: 1.0, green: 0.4, blue: 0.2),     // Bright Orange
+        Color(red: 0.6, green: 0.2, blue: 0.8),     // Bright Violet
+        Color(red: 0.2, green: 0.6, blue: 0.9),     // Bright Cyan
+        Color(red: 0.9, green: 0.2, blue: 0.3)      // Bright Red
+    ]
+    
+    // Helper function to get consistent color for a habit
+    // Uses a stable hash based on habitId to ensure same habit always gets same color
+    private func getColorForHabit(habitId: String) -> Color {
+        // Create a stable hash from the habitId string
+        var hash: Int = 0
+        for char in habitId.utf8 {
+            hash = ((hash << 5) &- hash) &+ Int(char)
+            hash = hash & hash // Convert to 32bit
+        }
+        let positiveHash = abs(hash)
+        let colorIndex = positiveHash % habitColors.count
+        return habitColors[colorIndex]
+    }
+    
+    // Computed property for sorted habits
+    private var sortedHabits: [(String, [Models.CalendarHabitStep])] {
+        let groupedHabits = Dictionary(grouping: dayData.habitSteps) { $0.habitId }
+        return groupedHabits.sorted { habit1, habit2 in
+            let name1 = habit1.value.first?.habitName ?? ""
+            let name2 = habit2.value.first?.habitName ?? ""
+            return name1 < name2
+        }
+    }
+    
+    // Computed property for displayed habit cards count
+    private var displayedHabitCardsCount: Int {
+        sortedHabits.count
+    }
+    
+    // Habits Section View
+    private var habitsSection: some View {
+        VStack(alignment: .leading, spacing: 16) {
+                HStack {
+                    Image(systemName: "target")
+                        .foregroundColor(.brandPrimary)
+                    Text("Habits")
+                        .font(.title2)
+                        .fontWeight(.bold)
+                    Spacer()
+                    // Show count of displayed habit cards
+                    Text("\(displayedHabitCardsCount)/\(displayedHabitCardsCount)")
+                        .font(.headline)
                         .foregroundColor(.secondary)
                 }
                 
                 if !dayData.habitSteps.isEmpty {
-                    VStack(alignment: .leading, spacing: 8) {
-                        ForEach(dayData.habitSteps.prefix(3)) { step in
-                            HStack {
-                                Circle()
-                                    .fill(step.isCompleted ? Color.green : Color.gray)
-                                    .frame(width: 8, height: 8)
-                                
-                                VStack(alignment: .leading, spacing: 2) {
-                                    Text(step.habitName)
-                                        .font(.subheadline)
-                                        .fontWeight(.medium)
-                                    Text(step.stepDescription)
-                                        .font(.caption)
-                                        .foregroundColor(.secondary)
+                    ForEach(Array(sortedHabits.enumerated()), id: \.element.0) { index, habitTuple in
+                        let (habitId, steps) = habitTuple
+                        if let firstStep = steps.first {
+                            let cardColor = getColorForHabit(habitId: habitId)
+                            let completedCount = steps.filter { $0.isCompleted }.count
+                            let isExpanded = expandedHabits.contains(habitId)
+                            
+                            // Determine indexed day title - show if available (for daily view)
+                            let allTitles = steps.compactMap { $0.title }.filter { !$0.isEmpty }
+                            let uniqueTitles = Set(allTitles)
+                            // Show title if all steps share the same indexed day title
+                            let indexedDayTitle = uniqueTitles.count == 1 ? uniqueTitles.first : nil
+                            
+                            // Make entire card clickable
+                            Button(action: {
+                                withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
+                                    if isExpanded {
+                                        expandedHabits.remove(habitId)
+                                    } else {
+                                        expandedHabits.insert(habitId)
+                                    }
                                 }
-                                
-                                Spacer()
-                                
-                                if let time = step.time {
-                                    Text(time)
-                                        .font(.caption)
-                                        .foregroundColor(.white)
-                                        .padding(.horizontal, 6)
-                                        .padding(.vertical, 2)
-                                        .background(Color.green)
-                                        .cornerRadius(4)
+                            }) {
+                                VStack(alignment: .leading, spacing: 12) {
+                                    // Habit header
+                                    HStack {
+                                        Text(firstStep.habitName)
+                                            .font(.headline)
+                                            .fontWeight(.bold)
+                                            .foregroundColor(.primary)
+                                        
+                                        Spacer()
+                                        
+                                        Text("\(completedCount)/\(steps.count)")
+                                            .font(.subheadline)
+                                            .fontWeight(.semibold)
+                                            .foregroundColor(cardColor)
+                                        
+                                        Image(systemName: isExpanded ? "chevron.up" : "chevron.down")
+                                            .font(.subheadline)
+                                            .fontWeight(.semibold)
+                                            .foregroundColor(cardColor)
+                                            .padding(.leading, 8)
+                                    }
+                                    
+                                    // Display indexed day title if available (for daily view)
+                                    if let indexedTitle = indexedDayTitle {
+                                        Text(indexedTitle)
+                                            .font(.subheadline)
+                                            .fontWeight(.medium)
+                                            .foregroundColor(cardColor)
+                                            .padding(.top, 2)
+                                    }
+                                    
+                                    // Habit steps - expandable
+                                    if isExpanded {
+                                        VStack(alignment: .leading, spacing: 8) {
+                                            ForEach(steps) { step in
+                                                HStack(spacing: 12) {
+                                                    Circle()
+                                                        .fill(step.isCompleted ? cardColor : Color.gray.opacity(0.3))
+                                                        .frame(width: 10, height: 10)
+                                                    
+                                                    VStack(alignment: .leading, spacing: 2) {
+                                                        Text(step.stepDescription)
+                                                            .font(.subheadline)
+                                                            .foregroundColor(.primary)
+                                                            .strikethrough(step.isCompleted)
+                                                        
+                                                        if let difficulty = step.difficulty {
+                                                            Text(difficulty.capitalized)
+                                                                .font(.caption2)
+                                                                .foregroundColor(.secondary)
+                                                        }
+                                                    }
+                                                    
+                                                    Spacer()
+                                                    
+                                                    if let time = step.time {
+                                                        Text(time)
+                                                            .font(.caption)
+                                                            .fontWeight(.medium)
+                                                            .foregroundColor(.white)
+                                                            .padding(.horizontal, 8)
+                                                            .padding(.vertical, 4)
+                                                            .background(cardColor)
+                                                            .cornerRadius(6)
+                                                    }
+                                                }
+                                            }
+                                        }
+                                        .transition(.asymmetric(
+                                            insertion: .opacity.combined(with: .move(edge: .top)),
+                                            removal: .opacity.combined(with: .move(edge: .top))
+                                        ))
+                                    }
                                 }
+                                .padding()
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                                .background(
+                                    RoundedRectangle(cornerRadius: 12)
+                                        .fill(cardColor.opacity(0.15))
+                                        .overlay(
+                                            RoundedRectangle(cornerRadius: 12)
+                                                .stroke(cardColor.opacity(0.3), lineWidth: 1.5)
+                                        )
+                                )
                             }
-                        }
-                        
-                        if dayData.habitSteps.count > 3 {
-                            Text("+ \(dayData.habitSteps.count - 3) more")
-                                .font(.caption)
-                                .foregroundColor(.secondary)
+                            .buttonStyle(PlainButtonStyle())
+                            .contentShape(Rectangle()) // Make entire card area tappable
+                            .transition(.asymmetric(
+                                insertion: .move(edge: .bottom).combined(with: .opacity),
+                                removal: .scale.combined(with: .opacity)
+                            ))
+                            .animation(
+                                .spring(response: 0.5, dampingFraction: 0.8)
+                                .delay(Double(index) * 0.1),
+                                value: dayData.date
+                            )
                         }
                     }
                 } else {
@@ -510,77 +765,97 @@ struct DaySummaryView: View {
                         .foregroundColor(.secondary)
                         .italic()
                         .padding(.vertical, 8)
+                        .frame(maxWidth: .infinity, alignment: .leading)
                 }
             }
             .padding()
-            .background(Color(.systemGray6))
-            .cornerRadius(12)
-            
-            // Tasks Section
-            VStack(alignment: .leading, spacing: 12) {
-                VStack(alignment: .leading, spacing: 4) {
-                    HStack {
-                        Image(systemName: "checklist")
-                            .foregroundColor(.blue)
-                        Text("Tasks")
-                            .font(.title2)
-                            .fontWeight(.bold)
-                        Spacer()
-                    }
-                    
-                    Text(dayData.taskItems.isEmpty ? "You have no steps" : "Scheduled Tasks")
-                        .font(.subheadline)
+    }
+    
+    // Computed property for displayed task items count
+    private var displayedTaskItemsCount: Int {
+        min(dayData.taskItems.count, 3) // Daily view shows up to 3 items
+    }
+    
+    // Tasks Section View
+    private var tasksSection: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            VStack(alignment: .leading, spacing: 4) {
+                HStack {
+                    Image(systemName: "checklist")
+                        .foregroundColor(.blue)
+                    Text("Tasks")
+                        .font(.title2)
+                        .fontWeight(.bold)
+                    Spacer()
+                    // Show count of displayed task items
+                    Text("\(displayedTaskItemsCount)/\(displayedTaskItemsCount)")
+                        .font(.headline)
                         .foregroundColor(.secondary)
                 }
                 
-                if !dayData.taskItems.isEmpty {
-                    VStack(alignment: .leading, spacing: 8) {
-                        ForEach(dayData.taskItems.prefix(3)) { item in
-                            HStack {
-                                Circle()
-                                    .fill(item.isCompleted ? Color.green : Color.gray)
-                                    .frame(width: 8, height: 8)
-                                
-                                VStack(alignment: .leading, spacing: 2) {
-                                    Text(item.taskName)
-                                        .font(.subheadline)
-                                        .fontWeight(.medium)
-                                    Text(item.description)
-                                        .font(.caption)
-                                        .foregroundColor(.secondary)
-                                }
-                                
-                                Spacer()
-                                
-                                if let daysRemaining = item.daysRemaining {
-                                    Text("\(daysRemaining)d")
-                                        .font(.caption)
-                                        .foregroundColor(.white)
-                                        .padding(.horizontal, 6)
-                                        .padding(.vertical, 2)
-                                        .background(Color.orange)
-                                        .cornerRadius(4)
-                                }
+                Text(dayData.taskItems.isEmpty ? "You have no steps" : "Scheduled Tasks")
+                    .font(.subheadline)
+                    .foregroundColor(.secondary)
+            }
+            
+            if !dayData.taskItems.isEmpty {
+                VStack(alignment: .leading, spacing: 8) {
+                    ForEach(dayData.taskItems.prefix(3)) { item in
+                        HStack {
+                            Circle()
+                                .fill(item.isCompleted ? Color.green : Color.gray)
+                                .frame(width: 8, height: 8)
+                            
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text(item.taskName)
+                                    .font(.subheadline)
+                                    .fontWeight(.medium)
+                                Text(item.description)
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                            }
+                            
+                            Spacer()
+                            
+                            if let daysRemaining = item.daysRemaining {
+                                Text("\(daysRemaining)d")
+                                    .font(.caption)
+                                    .foregroundColor(.white)
+                                    .padding(.horizontal, 6)
+                                    .padding(.vertical, 2)
+                                    .background(Color.orange)
+                                    .cornerRadius(4)
                             }
                         }
-                        
-                        if dayData.taskItems.count > 3 {
-                            Text("+ \(dayData.taskItems.count - 3) more")
-                                .font(.caption)
-                                .foregroundColor(.secondary)
-                        }
                     }
-                } else {
-                    Text("You have no task steps for today")
-                        .font(.subheadline)
-                        .foregroundColor(.secondary)
-                        .italic()
-                        .padding(.vertical, 8)
+                    
+                    if dayData.taskItems.count > 3 {
+                        Text("+ \(dayData.taskItems.count - 3) more")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    }
                 }
+            } else {
+                Text("You have no task steps for today")
+                    .font(.subheadline)
+                    .foregroundColor(.secondary)
+                    .italic()
+                    .padding(.vertical, 8)
             }
-            .padding()
-            .background(Color(.systemGray6))
-            .cornerRadius(12)
+        }
+        .padding()
+    }
+    
+    var body: some View {
+        VStack(spacing: 20) {
+            // Reorder sections based on toggle
+            if showHabitsFirst {
+                habitsSection
+                tasksSection
+            } else {
+                tasksSection
+                habitsSection
+            }
             
             // Quote indicator
             if dayData.hasQuote {
@@ -627,10 +902,10 @@ struct DaySummaryView: View {
                 .cornerRadius(12)
             }
         }
-        .padding()
-        .background(Color(.systemBackground))
-        .cornerRadius(12)
-        .shadow(color: .black.opacity(0.1), radius: 4, x: 0, y: 2)
+        .onChange(of: dayData.date) { _, _ in
+            // Reset expanded habits when date changes
+            expandedHabits.removeAll()
+        }
     }
 }
 
@@ -692,7 +967,7 @@ struct MonthDayView: View {
         Button(action: onTap) {
             VStack(spacing: 2) {
                 Text("\(Calendar.current.component(.day, from: date))")
-                    .font(.system(size: 16, weight: .medium))
+                    .font(.system(size: 14, weight: .medium))
                     .foregroundColor(.white)
                 
                 // Visual indicators for habits and tasks
@@ -712,21 +987,15 @@ struct MonthDayView: View {
                                 .frame(width: 4, height: 4)
                         }
                         
-                        // Deadline indicator (orange)
-                        if data.taskItems.contains(where: { $0.itemType == .deadline }) {
-                            Circle()
-                                .fill(Color.orange)
-                                .frame(width: 4, height: 4)
-                        }
                     }
                 }
             }
-            .frame(width: 32, height: 32)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
             .background(
                 Circle()
                     .fill(isCurrentDay ? Color.brandCurrentDay : Color(hex: 0x12D70C))
             )
-            .frame(maxWidth: .infinity)
+            .clipShape(Circle())
             .opacity(isCurrentMonth ? 1.0 : 0.5)
         }
         .buttonStyle(PlainButtonStyle())
@@ -949,39 +1218,155 @@ struct DateDetailView: View {
 struct HabitStepRow: View {
     let step: Models.CalendarHabitStep
     let onComplete: () -> Void
+    @State private var isExpanded = false
     
     var body: some View {
-        HStack(spacing: 12) {
-            Button(action: onComplete) {
-                Image(systemName: step.isCompleted ? "checkmark.circle.fill" : "circle")
-                    .foregroundColor(step.isCompleted ? .green : .gray)
-                    .font(.title2)
-            }
-            .buttonStyle(PlainButtonStyle())
-            
-            VStack(alignment: .leading, spacing: 4) {
-                Text(step.habitName)
-                    .font(.subheadline)
-                    .fontWeight(.medium)
+        VStack(alignment: .leading, spacing: 8) {
+            HStack(spacing: 12) {
+                Button(action: onComplete) {
+                    Image(systemName: step.isCompleted ? "checkmark.circle.fill" : "circle")
+                        .foregroundColor(step.isCompleted ? .green : .gray)
+                        .font(.title2)
+                }
+                .buttonStyle(PlainButtonStyle())
                 
-                Text(step.stepDescription)
-                    .font(.caption)
-                    .foregroundColor(.secondary)
+                VStack(alignment: .leading, spacing: 4) {
+                    HStack(spacing: 8) {
+                        Text(step.habitName)
+                            .font(.subheadline)
+                            .fontWeight(.medium)
+                        
+                        if let phase = step.phase {
+                            Text(phase.capitalized)
+                                .font(.caption2)
+                                .padding(.horizontal, 6)
+                                .padding(.vertical, 2)
+                                .background(Color.blue.opacity(0.2))
+                                .foregroundColor(.blue)
+                                .cornerRadius(4)
+                        }
+                    }
+                    
+                    Text(step.stepDescription)
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                        .lineLimit(isExpanded ? nil : 2)
+                    
+                    if !isExpanded && (step.difficulty != nil || step.durationMinutes != nil) {
+                        HStack(spacing: 8) {
+                            if let difficulty = step.difficulty {
+                                DifficultyBadge(difficulty: difficulty)
+                            }
+                            
+                            if let duration = step.durationMinutes {
+                                Label("\(duration)m", systemImage: "clock")
+                                    .font(.caption2)
+                                    .foregroundColor(.secondary)
+                            }
+                        }
+                    }
+                }
+                
+                Spacer()
+                
+                VStack(alignment: .trailing, spacing: 4) {
+                    if let time = step.time {
+                        Text(time)
+                            .font(.caption)
+                            .fontWeight(.medium)
+                            .foregroundColor(.white)
+                            .padding(.horizontal, 8)
+                            .padding(.vertical, 4)
+                            .background(Color.green)
+                            .cornerRadius(8)
+                    }
+                    
+                    if step.feedback != nil || step.durationMinutes != nil {
+                        Button(action: {
+                            withAnimation(.easeInOut(duration: 0.2)) {
+                                isExpanded.toggle()
+                            }
+                        }) {
+                            Image(systemName: isExpanded ? "chevron.up" : "chevron.down")
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                        }
+                        .buttonStyle(PlainButtonStyle())
+                    }
+                }
             }
             
-            Spacer()
-            
-            if let time = step.time {
-                Text(time)
-                    .font(.caption)
-                    .foregroundColor(.white)
-                    .padding(.horizontal, 8)
-                    .padding(.vertical, 4)
-                    .background(Color.green)
-                    .cornerRadius(8)
+            if isExpanded {
+                VStack(alignment: .leading, spacing: 8) {
+                    if let difficulty = step.difficulty {
+                        HStack(spacing: 8) {
+                            Text("Difficulty:")
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                            DifficultyBadge(difficulty: difficulty)
+                        }
+                    }
+                    
+                    if let duration = step.durationMinutes {
+                        HStack(spacing: 8) {
+                            Text("Duration:")
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                            Label("\(duration) minutes", systemImage: "clock")
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                        }
+                    }
+                    
+                    if let feedback = step.feedback {
+                        Text(feedback)
+                            .font(.caption)
+                            .italic()
+                            .foregroundColor(.secondary)
+                            .padding(8)
+                            .background(Color(.systemGray6))
+                            .cornerRadius(6)
+                    }
+                }
+                .padding(.leading, 40)
+                .transition(.opacity.combined(with: .move(edge: .top)))
             }
         }
-        .padding(.vertical, 4)
+        .padding(.vertical, 8)
+        .padding(.horizontal, 4)
+        .background(step.isCompleted ? Color.green.opacity(0.05) : Color.clear)
+        .cornerRadius(8)
+    }
+}
+
+struct DifficultyBadge: View {
+    let difficulty: String
+    
+    var body: some View {
+        let (color, text) = difficultyInfo
+        Text(text)
+            .font(.caption2)
+            .fontWeight(.medium)
+            .padding(.horizontal, 6)
+            .padding(.vertical, 2)
+            .background(color.opacity(0.2))
+            .foregroundColor(color)
+            .cornerRadius(4)
+    }
+    
+    private var difficultyInfo: (Color, String) {
+        switch difficulty.lowercased() {
+        case "easy":
+            return (.green, "Easy")
+        case "medium":
+            return (.orange, "Medium")
+        case "hard":
+            return (.red, "Hard")
+        case "expert":
+            return (.purple, "Expert")
+        default:
+            return (.gray, difficulty.capitalized)
+        }
     }
 }
 
@@ -1090,8 +1475,6 @@ struct WeekSummaryView: View {
                 }
             }
             .padding()
-            .background(Color(.systemGray6))
-            .cornerRadius(12)
             
             // Tasks Section
             VStack(alignment: .leading, spacing: 12) {
@@ -1122,8 +1505,6 @@ struct WeekSummaryView: View {
                 }
             }
             .padding()
-            .background(Color(.systemGray6))
-            .cornerRadius(12)
         }
         .padding()
     }
@@ -1183,8 +1564,6 @@ struct MonthSummaryView: View {
                 }
             }
             .padding()
-            .background(Color(.systemGray6))
-            .cornerRadius(12)
             
             // Tasks Section
             VStack(alignment: .leading, spacing: 12) {
@@ -1215,15 +1594,650 @@ struct MonthSummaryView: View {
                 }
             }
             .padding()
-            .background(Color(.systemGray6))
-            .cornerRadius(12)
         }
         .padding()
     }
 }
 
+// MARK: - Week Summary Cards View
+struct WeekSummaryCardsView: View {
+    let weekDays: [Date]
+    let calendarManager: CalendarManager
+    @Binding var showHabitsFirst: Bool
+    @State private var expandedHabits: Set<String> = []
+    
+    // Habit colors array - bright, high-contrast colors for visibility
+    private let habitColors: [Color] = [
+        Color(red: 0.2, green: 0.8, blue: 0.4),      // Bright Green
+        Color(red: 0.4, green: 0.3, blue: 0.9),      // Bright Purple
+        Color(red: 0.0, green: 0.7, blue: 1.0),      // Bright Blue
+        Color(red: 1.0, green: 0.3, blue: 0.5),     // Bright Pink
+        Color(red: 1.0, green: 0.4, blue: 0.2),     // Bright Orange
+        Color(red: 0.6, green: 0.2, blue: 0.8),     // Bright Violet
+        Color(red: 0.2, green: 0.6, blue: 0.9),     // Bright Cyan
+        Color(red: 0.9, green: 0.2, blue: 0.3)      // Bright Red
+    ]
+    
+    private func getColorForHabit(habitId: String) -> Color {
+        var hash: Int = 0
+        for char in habitId.utf8 {
+            hash = ((hash << 5) &- hash) &+ Int(char)
+            hash = hash & hash
+        }
+        let positiveHash = abs(hash)
+        let colorIndex = positiveHash % habitColors.count
+        return habitColors[colorIndex]
+    }
+    
+    // Collect all unique habits from the week
+    private var weekHabits: [(String, String, [Date], Int, String?)] { // (habitId, habitName, dates, totalSteps, indexedWeekTitle)
+        var habitMap: [String: (String, [Date], Int, Set<String>)] = [:]
+        
+        for date in weekDays {
+            if let dayData = calendarManager.getCalendarData(for: date) {
+                for step in dayData.habitSteps {
+                    if habitMap[step.habitId] == nil {
+                        habitMap[step.habitId] = (step.habitName, [], 0, [])
+                    }
+                    habitMap[step.habitId]?.1.append(date)
+                    habitMap[step.habitId]?.2 += 1
+                    if let title = step.title, !title.isEmpty {
+                        habitMap[step.habitId]?.3.insert(title)
+                    }
+                }
+            }
+        }
+        
+        return habitMap.map { (id, data) in
+            // If all steps share the same indexed week title, use it; otherwise nil
+            let uniqueTitles = data.3
+            let indexedWeekTitle = uniqueTitles.count == 1 ? uniqueTitles.first : nil
+            return (id, data.0, data.1, data.2, indexedWeekTitle)
+        }.sorted { $0.1 < $1.1 }
+    }
+    
+    // Habits Section View
+    private var habitsSection: some View {
+        VStack(spacing: 16) {
+            // Header
+            HStack {
+                Image(systemName: "target")
+                    .foregroundColor(.brandPrimary)
+                Text("Habits")
+                    .font(.title2)
+                    .fontWeight(.bold)
+                Spacer()
+                // Show count of displayed habit cards
+                Text("\(weekHabits.count)/\(weekHabits.count)")
+                    .font(.headline)
+                    .foregroundColor(.secondary)
+            }
+            .padding(.horizontal)
+            
+            if weekHabits.isEmpty {
+                Text("No habits scheduled this week")
+                    .font(.subheadline)
+                    .foregroundColor(.secondary)
+                    .italic()
+                    .padding()
+            } else {
+                // Habit cards
+                ForEach(Array(weekHabits.enumerated()), id: \.element.0) { index, habitTuple in
+                    let (habitId, habitName, dates, totalSteps, indexedWeekTitle) = habitTuple
+                    let cardColor = getColorForHabit(habitId: habitId)
+                    let isExpanded = expandedHabits.contains(habitId)
+                    
+                    Button(action: {
+                        withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
+                            if isExpanded {
+                                expandedHabits.remove(habitId)
+                            } else {
+                                expandedHabits.insert(habitId)
+                            }
+                        }
+                    }) {
+                        VStack(alignment: .leading, spacing: 8) {
+                            // Habit header
+                            HStack {
+                                Text(habitName)
+                                    .font(.headline)
+                                    .fontWeight(.semibold)
+                                    .foregroundColor(.primary)
+                                
+                                Spacer()
+                                
+                                Text("\(totalSteps) step\(totalSteps == 1 ? "" : "s")")
+                                    .font(.caption)
+                                    .foregroundColor(cardColor)
+                                
+                                Image(systemName: isExpanded ? "chevron.up" : "chevron.down")
+                                    .font(.caption)
+                                    .foregroundColor(cardColor)
+                            }
+                            
+                            // Display indexed week title if available (for weekly view)
+                            if let weekTitle = indexedWeekTitle {
+                                Text(weekTitle)
+                                    .font(.subheadline)
+                                    .fontWeight(.medium)
+                                    .foregroundColor(cardColor)
+                                    .padding(.top, 2)
+                            }
+                            
+                            // Days with activity
+                            if isExpanded {
+                                VStack(alignment: .leading, spacing: 4) {
+                                    ForEach(dates, id: \.self) { date in
+                                        HStack(spacing: 8) {
+                                            Circle()
+                                                .fill(cardColor.opacity(0.3))
+                                                .frame(width: 6, height: 6)
+                                            
+                                            Text(date.formatted(.dateTime.weekday(.abbreviated)))
+                                                .font(.caption)
+                                                .foregroundColor(.secondary)
+                                            
+                                            if let dayData = calendarManager.getCalendarData(for: date) {
+                                                let daySteps = dayData.habitSteps.filter { $0.habitId == habitId }
+                                                if !daySteps.isEmpty {
+                                                    Text("• \(daySteps.count) step\(daySteps.count == 1 ? "" : "s")")
+                                                        .font(.caption2)
+                                                        .foregroundColor(.secondary)
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                                .padding(.top, 4)
+                                .transition(.opacity.combined(with: .move(edge: .top)))
+                            } else {
+                                // Show day count summary
+                                Text("\(dates.count) day\(dates.count == 1 ? "" : "s")")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                            }
+                        }
+                        .padding(12)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .background(
+                            RoundedRectangle(cornerRadius: 10)
+                                .fill(cardColor.opacity(0.12))
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 10)
+                                        .stroke(cardColor.opacity(0.25), lineWidth: 1)
+                                )
+                        )
+                    }
+                    .buttonStyle(PlainButtonStyle())
+                }
+                .padding(.horizontal)
+            }
+        }
+    }
+    
+    // Tasks Section View
+    private var tasksSection: some View {
+        VStack(spacing: 16) {
+            // Collect all unique tasks from the week
+            let weekTasks = collectWeekTasks()
+            
+            // Header
+            HStack {
+                Image(systemName: "checklist")
+                    .foregroundColor(.blue)
+                Text("Tasks")
+                    .font(.title2)
+                    .fontWeight(.bold)
+                Spacer()
+                // Show count of displayed task cards
+                Text("\(weekTasks.count)/\(weekTasks.count)")
+                    .font(.headline)
+                    .foregroundColor(.secondary)
+            }
+            .padding(.horizontal)
+            
+            if weekTasks.isEmpty {
+                Text("No tasks scheduled this week")
+                    .font(.subheadline)
+                    .foregroundColor(.secondary)
+                    .italic()
+                    .padding()
+            } else {
+                // Task cards
+                ForEach(weekTasks, id: \.taskId) { task in
+                    TaskCardView(task: task, calendarManager: calendarManager)
+                }
+                .padding(.horizontal)
+            }
+        }
+    }
+    
+    var body: some View {
+        VStack(spacing: 16) {
+            // Reorder sections based on toggle
+            if showHabitsFirst {
+                habitsSection
+                tasksSection
+            } else {
+                tasksSection
+                habitsSection
+            }
+        }
+    }
+    
+    // Collect all unique tasks from the week
+    private func collectWeekTasks() -> [(taskId: String, taskName: String, dates: [Date], totalItems: Int)] {
+        var taskMap: [String: (String, [Date], Int)] = [:]
+        
+        for date in weekDays {
+            if let dayData = calendarManager.getCalendarData(for: date) {
+                for item in dayData.taskItems {
+                    if taskMap[item.taskId] == nil {
+                        taskMap[item.taskId] = (item.taskName, [], 0)
+                    }
+                    if !taskMap[item.taskId]!.1.contains(where: { Calendar.current.isDate($0, inSameDayAs: date) }) {
+                        taskMap[item.taskId]?.1.append(date)
+                    }
+                    taskMap[item.taskId]?.2 += 1
+                }
+            }
+        }
+        
+        return taskMap.map { (id, data) in
+            (taskId: id, taskName: data.0, dates: data.1, totalItems: data.2)
+        }.sorted { $0.taskName < $1.taskName }
+    }
+}
+
+// MARK: - Month Summary Cards View
+struct MonthSummaryCardsView: View {
+    let monthDays: [Date]
+    let calendarManager: CalendarManager
+    @Binding var showHabitsFirst: Bool
+    @State private var expandedHabits: Set<String> = []
+    
+    // Habit colors array - bright, high-contrast colors for visibility
+    private let habitColors: [Color] = [
+        Color(red: 0.2, green: 0.8, blue: 0.4),      // Bright Green
+        Color(red: 0.4, green: 0.3, blue: 0.9),      // Bright Purple
+        Color(red: 0.0, green: 0.7, blue: 1.0),      // Bright Blue
+        Color(red: 1.0, green: 0.3, blue: 0.5),     // Bright Pink
+        Color(red: 1.0, green: 0.4, blue: 0.2),     // Bright Orange
+        Color(red: 0.6, green: 0.2, blue: 0.8),     // Bright Violet
+        Color(red: 0.2, green: 0.6, blue: 0.9),     // Bright Cyan
+        Color(red: 0.9, green: 0.2, blue: 0.3)      // Bright Red
+    ]
+    
+    private func getColorForHabit(habitId: String) -> Color {
+        var hash: Int = 0
+        for char in habitId.utf8 {
+            hash = ((hash << 5) &- hash) &+ Int(char)
+            hash = hash & hash
+        }
+        let positiveHash = abs(hash)
+        let colorIndex = positiveHash % habitColors.count
+        return habitColors[colorIndex]
+    }
+    
+    // Collect all unique habits from the month
+    private var monthHabits: [(String, String, [Date], Int, String?)] { // (habitId, habitName, dates, totalSteps, indexedMonthTitle)
+        var habitMap: [String: (String, [Date], Int, Set<String>)] = [:]
+        
+        for date in monthDays {
+            if let dayData = calendarManager.getCalendarData(for: date) {
+                for step in dayData.habitSteps {
+                    if habitMap[step.habitId] == nil {
+                        habitMap[step.habitId] = (step.habitName, [], 0, [])
+                    }
+                    if !habitMap[step.habitId]!.1.contains(where: { Calendar.current.isDate($0, inSameDayAs: date) }) {
+                        habitMap[step.habitId]?.1.append(date)
+                    }
+                    habitMap[step.habitId]?.2 += 1
+                    if let title = step.title, !title.isEmpty {
+                        habitMap[step.habitId]?.3.insert(title)
+                    }
+                }
+            }
+        }
+        
+        return habitMap.map { (id, data) in
+            // If all steps share the same indexed month title, use it; otherwise nil
+            let uniqueTitles = data.3
+            let indexedMonthTitle = uniqueTitles.count == 1 ? uniqueTitles.first : nil
+            return (id, data.0, data.1, data.2, indexedMonthTitle)
+        }.sorted { $0.1 < $1.1 }
+    }
+    
+    // Habits Section View
+    private var habitsSection: some View {
+        VStack(spacing: 16) {
+            // Header
+            HStack {
+                Image(systemName: "target")
+                    .foregroundColor(.brandPrimary)
+                Text("Habits")
+                    .font(.title2)
+                    .fontWeight(.bold)
+                Spacer()
+                // Show count of displayed habit cards
+                Text("\(monthHabits.count)/\(monthHabits.count)")
+                    .font(.headline)
+                    .foregroundColor(.secondary)
+            }
+            .padding(.horizontal)
+            
+            if monthHabits.isEmpty {
+                Text("No habits scheduled this month")
+                    .font(.subheadline)
+                    .foregroundColor(.secondary)
+                    .italic()
+                    .padding()
+            } else {
+                // Habit cards (minimal info)
+                ForEach(Array(monthHabits.enumerated()), id: \.element.0) { index, habitTuple in
+                    let (habitId, habitName, dates, totalSteps, indexedMonthTitle) = habitTuple
+                    let cardColor = getColorForHabit(habitId: habitId)
+                    let isExpanded = expandedHabits.contains(habitId)
+                    
+                    Button(action: {
+                        withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
+                            if isExpanded {
+                                expandedHabits.remove(habitId)
+                            } else {
+                                expandedHabits.insert(habitId)
+                            }
+                        }
+                    }) {
+                        VStack(alignment: .leading, spacing: 4) {
+                            HStack {
+                                // Habit name
+                                Text(habitName)
+                                    .font(.subheadline)
+                                    .fontWeight(.medium)
+                                    .foregroundColor(.primary)
+                                
+                                Spacer()
+                                
+                                // Minimal info
+                                if isExpanded {
+                                    VStack(alignment: .trailing, spacing: 2) {
+                                        Text("\(dates.count) day\(dates.count == 1 ? "" : "s")")
+                                            .font(.caption2)
+                                            .foregroundColor(.secondary)
+                                        Text("\(totalSteps) total")
+                                            .font(.caption2)
+                                            .foregroundColor(.secondary)
+                                    }
+                                } else {
+                                    Text("\(dates.count) day\(dates.count == 1 ? "" : "s")")
+                                        .font(.caption)
+                                        .foregroundColor(cardColor)
+                                }
+                                
+                                Image(systemName: isExpanded ? "chevron.up" : "chevron.down")
+                                    .font(.caption2)
+                                    .foregroundColor(cardColor)
+                            }
+                            
+                            // Display indexed month title if available (for monthly view)
+                            if let monthTitle = indexedMonthTitle {
+                                Text(monthTitle)
+                                    .font(.caption)
+                                    .fontWeight(.medium)
+                                    .foregroundColor(cardColor)
+                            }
+                        }
+                        .padding(10)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .background(
+                            RoundedRectangle(cornerRadius: 8)
+                                .fill(cardColor.opacity(0.1))
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 8)
+                                        .stroke(cardColor.opacity(0.2), lineWidth: 1)
+                                )
+                        )
+                    }
+                    .buttonStyle(PlainButtonStyle())
+                }
+                .padding(.horizontal)
+            }
+        }
+    }
+    
+    // Tasks Section View
+    private var tasksSection: some View {
+        VStack(spacing: 16) {
+            // Collect all unique tasks from the month
+            let monthTasks = collectMonthTasks()
+            
+            // Header
+            HStack {
+                Image(systemName: "checklist")
+                    .foregroundColor(.blue)
+                Text("Tasks")
+                    .font(.title2)
+                    .fontWeight(.bold)
+                Spacer()
+                // Show count of displayed task cards
+                Text("\(monthTasks.count)/\(monthTasks.count)")
+                    .font(.headline)
+                    .foregroundColor(.secondary)
+            }
+            .padding(.horizontal)
+            
+            if monthTasks.isEmpty {
+                Text("No tasks scheduled this month")
+                    .font(.subheadline)
+                    .foregroundColor(.secondary)
+                    .italic()
+                    .padding()
+            } else {
+                // Task cards
+                ForEach(monthTasks, id: \.taskId) { task in
+                    TaskCardView(task: task, calendarManager: calendarManager)
+                }
+                .padding(.horizontal)
+            }
+        }
+    }
+    
+    var body: some View {
+        VStack(spacing: 16) {
+            // Reorder sections based on toggle
+            if showHabitsFirst {
+                habitsSection
+                tasksSection
+            } else {
+                tasksSection
+                habitsSection
+            }
+        }
+    }
+    
+    // Collect all unique tasks from the month
+    private func collectMonthTasks() -> [(taskId: String, taskName: String, dates: [Date], totalItems: Int)] {
+        var taskMap: [String: (String, [Date], Int)] = [:]
+        
+        for date in monthDays {
+            if let dayData = calendarManager.getCalendarData(for: date) {
+                for item in dayData.taskItems {
+                    if taskMap[item.taskId] == nil {
+                        taskMap[item.taskId] = (item.taskName, [], 0)
+                    }
+                    if !taskMap[item.taskId]!.1.contains(where: { Calendar.current.isDate($0, inSameDayAs: date) }) {
+                        taskMap[item.taskId]?.1.append(date)
+                    }
+                    taskMap[item.taskId]?.2 += 1
+                }
+            }
+        }
+        
+        return taskMap.map { (id, data) in
+            (taskId: id, taskName: data.0, dates: data.1, totalItems: data.2)
+        }.sorted { $0.taskName < $1.taskName }
+    }
+}
+
+// MARK: - Task Card View
+struct TaskCardView: View {
+    let task: (taskId: String, taskName: String, dates: [Date], totalItems: Int)
+    let calendarManager: CalendarManager
+    @State private var isExpanded = false
+    
+    private let taskColor = Color.blue
+    
+    var body: some View {
+        Button(action: {
+            withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
+                isExpanded.toggle()
+            }
+        }) {
+            VStack(alignment: .leading, spacing: 8) {
+                // Task header
+                HStack {
+                    Text(task.taskName)
+                        .font(.headline)
+                        .fontWeight(.semibold)
+                        .foregroundColor(.primary)
+                    
+                    Spacer()
+                    
+                    Text("\(task.totalItems) item\(task.totalItems == 1 ? "" : "s")")
+                        .font(.caption)
+                        .foregroundColor(taskColor)
+                    
+                    Image(systemName: isExpanded ? "chevron.up" : "chevron.down")
+                        .font(.caption)
+                        .foregroundColor(taskColor)
+                }
+                
+                // Days with activity
+                if isExpanded {
+                    VStack(alignment: .leading, spacing: 4) {
+                        ForEach(task.dates, id: \.self) { date in
+                            HStack(spacing: 8) {
+                                Circle()
+                                    .fill(taskColor.opacity(0.3))
+                                    .frame(width: 6, height: 6)
+                                
+                                Text(date.formatted(.dateTime.weekday(.abbreviated)))
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                                
+                                if let dayData = calendarManager.getCalendarData(for: date) {
+                                    let dayItems = dayData.taskItems.filter { $0.taskId == task.taskId }
+                                    if !dayItems.isEmpty {
+                                        Text("• \(dayItems.count) item\(dayItems.count == 1 ? "" : "s")")
+                                            .font(.caption2)
+                                            .foregroundColor(.secondary)
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    .padding(.top, 4)
+                    .transition(.opacity.combined(with: .move(edge: .top)))
+                } else {
+                    // Show day count summary
+                    Text("\(task.dates.count) day\(task.dates.count == 1 ? "" : "s")")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                }
+            }
+            .padding(12)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(
+                RoundedRectangle(cornerRadius: 10)
+                    .fill(taskColor.opacity(0.12))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 10)
+                            .stroke(taskColor.opacity(0.25), lineWidth: 1)
+                    )
+            )
+        }
+        .buttonStyle(PlainButtonStyle())
+    }
+}
+
+// MARK: - Calendar Scale Toggle (Custom Three-Option Toggle)
+struct CalendarScaleToggle: View {
+    @Binding var selectedScale: Models.CalendarScale
+    @Environment(\.colorScheme) private var colorScheme
+    
+    private let scales: [Models.CalendarScale] = [.daily, .weekly, .monthly]
+    
+    // Helper computed properties
+    private var backgroundColor: Color {
+        colorScheme == .dark ? Color.white.opacity(0.08) : Color.black.opacity(0.06)
+    }
+    
+    private var strokeColor: Color {
+        colorScheme == .dark ? Color.white.opacity(0.15) : Color.black.opacity(0.08)
+    }
+    
+    // Calculate the selected index for animation
+    private var selectedIndex: Int {
+        scales.firstIndex(of: selectedScale) ?? 0
+    }
+    
+    private func textColor(for scale: Models.CalendarScale) -> Color {
+        if selectedScale == scale {
+            return .white
+        } else {
+            return colorScheme == .dark ? .white.opacity(0.7) : .black.opacity(0.7)
+        }
+    }
+    
+    var body: some View {
+        GeometryReader { geometry in
+            let buttonWidth = geometry.size.width / CGFloat(scales.count)
+            
+            ZStack {
+                // Background track
+                RoundedRectangle(cornerRadius: 18)
+                    .fill(backgroundColor)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 18)
+                            .stroke(strokeColor, lineWidth: 1)
+                    )
+                
+                // Sliding background indicator
+        HStack(spacing: 0) {
+                    RoundedRectangle(cornerRadius: 18)
+                        .fill(Color.brandPrimary)
+                        .frame(width: buttonWidth)
+                        .offset(x: CGFloat(selectedIndex) * buttonWidth)
+                        .animation(.spring(response: 0.3, dampingFraction: 0.8), value: selectedIndex)
+                    
+                    Spacer()
+                }
+                
+                // Buttons overlay
+                HStack(spacing: 0) {
+                    ForEach(Array(scales.enumerated()), id: \.element) { index, scale in
+                        Button(action: {
+            withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
+                selectedScale = scale
+            }
+        }) {
+            Text(scale.displayName)
+                .font(.subheadline)
+                .fontWeight(.semibold)
+                .foregroundColor(textColor(for: scale))
+                .frame(maxWidth: .infinity)
+                                .frame(height: 44)
+                .contentShape(Rectangle())
+        }
+        .buttonStyle(PlainButtonStyle())
+    }
+                }
+            }
+        }
+        .frame(height: 44)
+    }
+}
+
 #Preview {
-    CalendarView(onNavigateBack: {
-        print("Navigate back to chat")
-    })
+    CalendarView(selectedFeature: .constant(.calendar))
 }

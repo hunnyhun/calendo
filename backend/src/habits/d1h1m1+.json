@@ -1,0 +1,121 @@
+{
+    "name": "Daily Savings",
+    "goal": "Build financial discipline by saving $10 daily and depositing monthly",
+    "category": "Finance",
+    "description": "Save $10 every day in a piggy bank and deposit the accumulated savings to your bank account at the end of each month",
+    "difficulty": "beginner",
+    "high_level_schedule": {
+        "milestones": [
+            {
+                "index": 0,
+                "description": "Complete 30 days of daily savings",
+                "completion_criteria": "streak_of_days",
+                "completion_criteria_point": 30,
+                "reward_message": "Great job! You've saved $300 in your first month. Keep building your savings!"
+            },
+            {
+                "index": 1,
+                "description": "Complete 90 days of daily savings",
+                "completion_criteria": "streak_of_days",
+                "completion_criteria_point": 90,
+                "reward_message": "Fantastic! 90 days of saving. You've built a strong financial habit!"
+            },
+            {
+                "index": 2,
+                "description": "Complete 180 days of daily savings",
+                "completion_criteria": "streak_of_days",
+                "completion_criteria_point": 180,
+                "reward_message": "Incredible! 6 months of daily savings. You're building real wealth!"
+            }
+        ]
+    },
+    "low_level_schedule": {
+        "span": "day",
+        "span_value": 1,
+        "habit_schedule": null,
+        "habit_repeat_count": null,
+        "program": [
+            {
+                "days_indexed": [
+                    {
+                        "index": 0,
+                        "title": "Daily Savings",
+                        "content": [
+                            {
+                                "step": "Set aside $10 from your daily budget",
+                                "clock": "20:00"
+                            },
+                            {
+                                "step": "Put $10 into your piggy bank",
+                                "clock": "20:05"
+                            },
+                            {
+                                "step": "Track your daily savings progress",
+                                "clock": "20:10"
+                            }
+                        ],
+                        "reminders": [
+                            {
+                                "time": "20:00",
+                                "message": "Time to save $10 for your future!"
+                            }
+                        ]
+                    }
+                ],
+                "weeks_indexed": [
+                    {
+                        "index": 0,
+                        "title": "Weekly Savings Progress",
+                        "content": [
+                            {
+                                "step": "Continue daily $10 savings",
+                                "day": "Monday"
+                            },
+                            {
+                                "step": "Review your weekly savings total (should be $70)",
+                                "day": "Sunday"
+                            }
+                        ],
+                        "reminders": [
+                            {
+                                "time": "20:00",
+                                "message": "Keep up your weekly savings habit!"
+                            }
+                        ]
+                    }
+                ],
+                "months_indexed": [
+                    {
+                        "index": 0,
+                        "title": "Monthly Bank Deposit",
+                        "content": [
+                            {
+                                "step": "Continue daily $10 savings throughout the month",
+                                "day": "start_of_month"
+                            },
+                            {
+                                "step": "Count your savings progress (should be around $150)",
+                                "day": "15"
+                            },
+                            {
+                                "step": "Open piggy bank, count total savings, and deposit to bank account",
+                                "day": "end_of_month"
+                            }
+                        ],
+                        "reminders": [
+                            {
+                                "time": "20:00",
+                                "message": "Keep saving daily!"
+                            },
+                            {
+                                "time": "20:00",
+                                "message": "End of month - time to deposit your savings to the bank!"
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    }
+}
+

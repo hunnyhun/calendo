@@ -10,7 +10,7 @@ struct HabitSuggestionCard: View {
     
     // Convert string category to HabitCategory for display
     private var displayCategory: HabitCategory {
-        let categoryString = habit.category?.lowercased() ?? "personal growth"
+        let categoryString = habit.category.lowercased()
         switch categoryString {
         case "physical", "fitness", "health":
             return .physical
@@ -31,32 +31,26 @@ struct HabitSuggestionCard: View {
     
     // Derive frequency from schedule
     private var displayFrequency: HabitFrequency {
-        if let lowLevelSchedule = habit.lowLevelSchedule {
-            switch lowLevelSchedule.span {
-            case "daily":
+        switch habit.lowLevelSchedule.span {
+        case "day":
+            if habit.lowLevelSchedule.spanValue == 1.0 {
                 return .daily
-            case "weekly":
-                return .weekly
-            case "every-n-days":
-                if let interval = lowLevelSchedule.spanInterval {
-                    return .custom(days: interval)
-                }
-                return .daily
-            default:
-                return .daily
+            } else {
+                return .custom(days: Int(habit.lowLevelSchedule.spanValue))
             }
+        case "week":
+            return .weekly
+        default:
+            return .daily
         }
-        return .daily
     }
     
-    // Derive duration from schedule
+    // Derive duration from schedule (check first step in days_indexed)
+    // Note: The new structure doesn't have duration_minutes, so we return nil
+    // This could be extracted from step descriptions if needed in the future
     private var displayDuration: String? {
-        if let lowLevelSchedule = habit.lowLevelSchedule,
-           let firstProgram = lowLevelSchedule.program.first,
-           let firstStep = firstProgram.steps.first,
-           let durationMinutes = firstStep.durationMinutes {
-            return "\(durationMinutes) minutes"
-        }
+        // Duration information is not available in the new habit.json structure
+        // Return nil to hide the duration label
         return nil
     }
     
@@ -75,11 +69,11 @@ struct HabitSuggestionCard: View {
         VStack(alignment: .leading, spacing: 8) {
             HStack {
                 Image(systemName: displayCategory.icon)
-                    .foregroundColor(Color(displayCategory.color))
+                    .foregroundColor(displayCategory.color)
                     .font(.title3)
                 
                 Text(habit.name)
-                    .font(.headline)
+                    .font(.title3)
                     .fontWeight(.semibold)
                     .foregroundColor(.primary)
             }
@@ -131,7 +125,6 @@ struct HabitSuggestionCard: View {
         VStack(alignment: .leading, spacing: 8) {
             descriptionSection
             trackingMethodSection
-            motivationSection
             remindersSection
         }
         .padding(.horizontal, 16)
@@ -151,72 +144,105 @@ struct HabitSuggestionCard: View {
         }
     }
     
+    // Tracking method is no longer in the new structure
+    // This section can be removed or show goal instead
     @ViewBuilder
     private var trackingMethodSection: some View {
-        if let trackingMethod = habit.trackingMethod {
-            VStack(alignment: .leading, spacing: 4) {
-                Text("Tracking Method")
-                    .font(.subheadline)
-                    .fontWeight(.medium)
-                    .foregroundColor(.primary)
-                
-                Text(trackingMethod)
-                    .font(.body)
-                    .foregroundColor(.secondary)
-            }
+        VStack(alignment: .leading, spacing: 4) {
+            Text("Goal")
+                .font(.subheadline)
+                .fontWeight(.medium)
+                .foregroundColor(.primary)
+            
+            Text(habit.goal)
+                .font(.body)
+                .foregroundColor(.secondary)
         }
     }
     
     
+    // Motivation is no longer in the new structure
+    // Use description or goal instead
     @ViewBuilder
     private var motivationSection: some View {
-        if !habit.motivation.isEmpty {
-            VStack(alignment: .leading, spacing: 4) {
-                Text("Why This Matters")
-                    .font(.subheadline)
-                    .fontWeight(.medium)
-                    .foregroundColor(.primary)
-                
-                Text(habit.motivation)
-                    .font(.body)
-                    .foregroundColor(.secondary)
-            }
-        }
+        // Section removed as motivation field doesn't exist in new structure
+        EmptyView()
     }
     
+    // Reminders are now inside indexed items, collect them from all sources
     @ViewBuilder
     private var remindersSection: some View {
-        if !habit.reminders.isEmpty {
+        let allReminders = collectAllReminders()
+        if !allReminders.isEmpty {
             VStack(alignment: .leading, spacing: 4) {
                 HStack {
                     Image(systemName: "bell")
                         .foregroundColor(.orange)
                         .font(.caption)
                     
-                    Text("Reminders (\(habit.reminders.count))")
+                    Text("Reminders (\(allReminders.count))")
                         .font(.subheadline)
                         .fontWeight(.medium)
                         .foregroundColor(.primary)
                 }
                 
-                remindersList(habit.reminders)
+                remindersList(allReminders)
             }
         }
+    }
+    
+    // Collect all reminders from days_indexed, weeks_indexed, and months_indexed
+    private func collectAllReminders() -> [HabitReminderNew] {
+        var reminders: [HabitReminderNew] = []
+        
+        if let firstProgram = habit.lowLevelSchedule.program.first {
+            // Collect from days_indexed
+            for dayItem in firstProgram.daysIndexed {
+                reminders.append(contentsOf: dayItem.reminders)
+            }
+            
+            // Collect from weeks_indexed
+            for weekItem in firstProgram.weeksIndexed {
+                reminders.append(contentsOf: weekItem.reminders)
+            }
+            
+            // Collect from months_indexed
+            for monthItem in firstProgram.monthsIndexed {
+                reminders.append(contentsOf: monthItem.reminders)
+            }
+        }
+        
+        // Remove duplicates
+        var uniqueReminders: [HabitReminderNew] = []
+        var seenReminders: Set<String> = []
+        for reminder in reminders {
+            let key = "\(reminder.time ?? "")|\(reminder.message ?? "")"
+            if !seenReminders.contains(key) {
+                seenReminders.insert(key)
+                uniqueReminders.append(reminder)
+            }
+        }
+        
+        return uniqueReminders
     }
     
     private func remindersList(_ reminders: [HabitReminderNew]) -> some View {
         VStack(alignment: .leading, spacing: 2) {
             ForEach(Array(reminders.prefix(3).enumerated()), id: \.offset) { _, reminder in
                 HStack(spacing: 8) {
-                    Text(reminder.time)
-                        .font(.caption)
-                        .fontWeight(.medium)
-                        .foregroundColor(.primary)
+                    if let time = reminder.time {
+                        Text(time)
+                            .font(.caption)
+                            .fontWeight(.medium)
+                            .foregroundColor(.primary)
+                    }
                     
-                    Text(reminder.message)
-                        .font(.caption)
-                        .foregroundColor(.secondary)
-                        .lineLimit(1)
+                    if let message = reminder.message {
+                        Text(message)
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                            .lineLimit(1)
+                    }
                 }
             }
             
@@ -323,7 +349,7 @@ struct HabitSuggestionCard: View {
             .overlay(
                 RoundedRectangle(cornerRadius: 16)
                     .stroke(
-                        Color(displayCategory.color).opacity(0.3),
+                        displayCategory.color.opacity(0.3),
                         lineWidth: 1
                     )
             )
@@ -346,17 +372,45 @@ struct HabitSuggestionCard: View {
             habit: ComprehensiveHabit(
                 name: "Morning Meditation",
                 goal: "Cultivate inner peace and clarity",
-                createdAt: ISO8601DateFormatter().string(from: Date()),
                 category: "mindfulness",
                 description: "Start each day with 10 minutes of mindful meditation to cultivate inner peace and clarity",
-                motivation: "To develop mental clarity and emotional resilience through daily practice",
-                trackingMethod: "Daily check-in with mood and focus level",
-                milestones: [],
-                reminders: [
-                    HabitReminderNew(time: "07:00", message: "Time for your morning meditation 🧘", frequency: "daily", type: "execution"),
-                    HabitReminderNew(time: "06:55", message: "Prepare your meditation space", frequency: "daily", type: "preparation"),
-                    HabitReminderNew(time: "21:00", message: "Reflect on today's mindfulness practice", frequency: "daily", type: "reflection")
-                ]
+                difficulty: "beginner",
+                lowLevelSchedule: HabitSchedule(
+                    span: "day",
+                    spanValue: 1.0,
+                    habitSchedule: nil,
+                    habitRepeatCount: nil,
+                    program: [
+                        HabitProgramSchedule(
+                            daysIndexed: [
+                                DaysIndexedItem(
+                                    index: 1,
+                                    title: "Daily Meditation",
+                                    content: [
+                                        DayStepContent(step: "Sit comfortably for 10 minutes", clock: "07:00")
+                                    ],
+                                    reminders: [
+                                        HabitReminderNew(time: "07:00", message: "Time for your morning meditation 🧘"),
+                                        HabitReminderNew(time: "06:55", message: "Prepare your meditation space")
+                                    ]
+                                )
+                            ],
+                            weeksIndexed: [],
+                            monthsIndexed: []
+                        )
+                    ]
+                ),
+                highLevelSchedule: HabitHighLevelSchedule(
+                    milestones: [
+                        HabitMilestone(
+                            index: 0,
+                            description: "Foundation - Get started",
+                            completionCriteria: "streak_of_days",
+                            completionCriteriaPoint: 7,
+                            rewardMessage: "Great start! You're building consistency."
+                        )
+                    ]
+                )
             ),
             onPushToSchedule: {
                 print("Push to schedule tapped")

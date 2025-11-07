@@ -1,0 +1,11 @@
+/* 
+  InfoPlist.strings
+  Stoa AI
+*/
+
+CFBundleDisplayName = "Calendo";
+
+"NSUserNotificationUsageDescription" = "Wir möchten Ihnen täglich spirituelle Zitate senden, um Ihre Reise zu inspirieren.";
+"NSAppleMusicUsageDescription" = "Wir benötigen Zugriff, um Ihnen täglich inspirierende Zitate zu senden.";
+"NSUserTrackingUsageDescription" = "Dies ermöglicht es uns, Ihnen personalisierte Inhalte anzubieten und Ihr Erlebnis mit relevanten Erkenntnissen zu verbessern.";
+

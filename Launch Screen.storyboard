@@ -16,20 +16,20 @@
                         <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <!-- Brand S -->
-                            <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="S" textAlignment="center" lineBreakMode="middleTruncation" baselineAdjustment="alignBaselines" minimumFontSize="12" translatesAutoresizingMaskIntoConstraints="NO" id="brand-S" userLabel="Brand S">
-                                <rect key="frame" x="116.5" y="302" width="160" height="248"/>
-                                <fontDescription key="fontDescription" type="system" weight="medium" pointSize="200"/>
-                                <color key="textColor" red="0.031372549019607843" green="1" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                            <!-- App Name -->
+                            <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Calendo" textAlignment="center" lineBreakMode="middleTruncation" baselineAdjustment="alignBaselines" minimumFontSize="12" translatesAutoresizingMaskIntoConstraints="NO" id="app-name" userLabel="App Name">
+                                <rect key="frame" x="96.5" y="302" width="200" height="248"/>
+                                <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="48"/>
+                                <color key="textColor" systemColor="labelColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="Bcu-3y-fUS"/>
-                        <color key="backgroundColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                         <constraints>
-                            <!-- Center S -->
-                            <constraint firstItem="brand-S" firstAttribute="centerX" secondItem="Bcu-3y-fUS" secondAttribute="centerX" id="center-x-S"/>
-                            <constraint firstItem="brand-S" firstAttribute="centerY" secondItem="Bcu-3y-fUS" secondAttribute="centerY" id="center-y-S"/>
+                            <!-- Center Calendo -->
+                            <constraint firstItem="app-name" firstAttribute="centerX" secondItem="Bcu-3y-fUS" secondAttribute="centerX" id="center-x-app-name"/>
+                            <constraint firstItem="app-name" firstAttribute="centerY" secondItem="Bcu-3y-fUS" secondAttribute="centerY" id="center-y-app-name"/>
                         </constraints>
                     </view>
                 </viewController>
@@ -39,8 +39,11 @@
         </scene>
     </scenes>
     <resources>
-        <systemColor name="systemYellowColor">
-            <color red="1" green="0.80000000000000004" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        <systemColor name="labelColor">
+            <color white="0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+        </systemColor>
+        <systemColor name="systemBackgroundColor">
+            <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
         </systemColor>
     </resources>
 </document>

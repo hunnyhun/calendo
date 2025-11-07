@@ -1,0 +1,117 @@
+{
+    "name": "30-Day Meditation Challenge",
+    "goal": "Complete a 30-day meditation program to build mindfulness and reduce stress",
+    "category": "Wellness",
+    "description": "Meditate for 10 minutes every day for 30 consecutive days to establish a meditation practice",
+    "difficulty": "beginner",
+    "high_level_schedule": {
+        "milestones": [
+            {
+                "index": 0,
+                "description": "Complete 10 days of daily meditation",
+                "completion_criteria": "streak_of_days",
+                "completion_criteria_point": 10,
+                "reward_message": "Great job! You've completed 10 days. You're building your meditation habit!"
+            },
+            {
+                "index": 1,
+                "description": "Complete 20 days of daily meditation",
+                "completion_criteria": "streak_of_days",
+                "completion_criteria_point": 20,
+                "reward_message": "Fantastic! 20 days down. You're over halfway through the challenge!"
+            },
+            {
+                "index": 2,
+                "description": "Complete 30 days of daily meditation",
+                "completion_criteria": "streak_of_days",
+                "completion_criteria_point": 30,
+                "reward_message": "Congratulations! You've completed the 30-day meditation challenge! You've built a strong foundation for mindfulness!"
+            }
+        ]
+    },
+    "low_level_schedule": {
+        "span": "day",
+        "span_value": 1,
+        "habit_schedule": null,
+        "habit_repeat_count": 30,
+        "program": [
+            {
+                "days_indexed": [
+                    {
+                        "index": 0,
+                        "title": "Daily Meditation",
+                        "content": [
+                            {
+                                "step": "Find a quiet space and sit comfortably",
+                                "clock": "07:00"
+                            },
+                            {
+                                "step": "Meditate for 10 minutes focusing on your breath",
+                                "clock": "07:05"
+                            },
+                            {
+                                "step": "Reflect on your meditation experience",
+                                "clock": "07:15"
+                            }
+                        ],
+                        "reminders": [
+                            {
+                                "time": "07:00",
+                                "message": "Time for your daily meditation practice!"
+                            }
+                        ]
+                    }
+                ],
+                "weeks_indexed": [
+                    {
+                        "index": 0,
+                        "title": "Weekly Meditation Progress",
+                        "content": [
+                            {
+                                "step": "Continue daily 10-minute meditation",
+                                "day": "Monday"
+                            },
+                            {
+                                "step": "Review your weekly meditation progress",
+                                "day": "Sunday"
+                            }
+                        ],
+                        "reminders": [
+                            {
+                                "time": "07:00",
+                                "message": "Keep up your weekly meditation habit!"
+                            }
+                        ]
+                    }
+                ],
+                "months_indexed": [
+                    {
+                        "index": 0,
+                        "title": "30-Day Meditation Challenge",
+                        "content": [
+                            {
+                                "step": "Begin your 30-day meditation challenge",
+                                "day": "start_of_month"
+                            },
+                            {
+                                "step": "Continue daily meditation - you're halfway through!",
+                                "day": "15"
+                            },
+                            {
+                                "step": "Complete final meditation and celebrate your achievement!",
+                                "day": "30"
+                            }
+                        ],
+                        "reminders": [
+                            {
+                                "time": "07:00",
+                                "message": "Day 30 - final meditation! You've completed the challenge!"
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    }
+}
+

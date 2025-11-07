@@ -1,0 +1,76 @@
+{
+    "name": "File Tax Return",
+    "goal": "Complete and submit annual tax return",
+    "category": "Finance",
+    "description": "Prepare and file income tax return",
+    "task_schedule": {
+        "steps": [
+            {
+                "index": 1,
+                "title": "Gather Documents",
+                "description": "Collect W-2s, receipts, and other tax documents",
+                "date": null,
+                "time": null,
+                "reminders": []
+            },
+            {
+                "index": 2,
+                "title": "Organize Receipts",
+                "description": "Sort and organize deductible expense receipts",
+                "date": null,
+                "time": null,
+                "reminders": []
+            },
+            {
+                "index": 3,
+                "title": "Complete Tax Forms",
+                "description": "Fill out all required tax forms",
+                "date": null,
+                "time": null,
+                "reminders": []
+            },
+            {
+                "index": 4,
+                "title": "Review Tax Return",
+                "description": "Double-check all information and calculations",
+                "date": null,
+                "time": null,
+                "reminders": []
+            },
+            {
+                "index": 5,
+                "title": "Submit Tax Return",
+                "description": "File tax return electronically or by mail",
+                "date": "2025-04-15",
+                "time": null,
+                "reminders": [
+                    {
+                        "offset": {
+                            "unit": "months",
+                            "value": 1
+                        },
+                        "time": "09:00",
+                        "message": "Tax deadline in one month"
+                    },
+                    {
+                        "offset": {
+                            "unit": "weeks",
+                            "value": 1
+                        },
+                        "time": "09:00",
+                        "message": "Tax deadline in one week - file soon!"
+                    },
+                    {
+                        "offset": {
+                            "unit": "days",
+                            "value": 1
+                        },
+                        "time": "09:00",
+                        "message": "Tax deadline tomorrow!"
+                    }
+                ]
+            }
+        ]
+    }
+}
+

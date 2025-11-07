@@ -8,6 +8,29 @@ struct TaskSuggestionCard: View {
     @State private var isProcessing = false
     @Environment(\.colorScheme) private var colorScheme
     
+    // Convert string category to HabitCategory for display
+    private var displayCategory: HabitCategory {
+        guard let categoryString = task.category?.lowercased() else {
+            return .personalGrowth
+        }
+        switch categoryString {
+        case "physical", "fitness", "health":
+            return .physical
+        case "mental", "mindfulness", "meditation":
+            return .mindfulness
+        case "spiritual", "spirituality":
+            return .spiritual
+        case "social", "relationships":
+            return .social
+        case "productivity", "work", "career":
+            return .productivity
+        case "learning", "education", "study":
+            return .learning
+        default:
+            return .personalGrowth
+        }
+    }
+    
     // Break down complex expressions into computed properties
     private var headerSection: some View {
         HStack {
@@ -20,22 +43,29 @@ struct TaskSuggestionCard: View {
     }
     
     private var taskTitleInfo: some View {
+        HStack(spacing: 12) {
+            Image(systemName: displayCategory.icon)
+                .font(.title2)
+                .foregroundColor(displayCategory.color)
+                .frame(width: 40, height: 40)
+                .background(displayCategory.color.opacity(0.1))
+                .clipShape(Circle())
+            
         VStack(alignment: .leading, spacing: 8) {
-            HStack {
-                Image(systemName: "checklist")
-                    .foregroundColor(.blue)
-                    .font(.title3)
-                
                 Text(task.name)
-                    .font(.headline)
+                    .font(.title3)
                     .fontWeight(.semibold)
                     .foregroundColor(.primary)
-            }
-            
-            if !task.steps.isEmpty {
+                
+                if task.category != nil {
+                    Text(displayCategory.rawValue)
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                } else if !task.steps.isEmpty {
                 Text("\(task.steps.count) steps")
                     .font(.caption)
                     .foregroundColor(.secondary)
+                }
             }
         }
     }
@@ -115,7 +145,7 @@ struct TaskSuggestionCard: View {
                         .foregroundColor(.gray)
                         .font(.caption)
                     
-                    Text(step.description)
+                    Text(step.displayTitle)
                         .font(.caption)
                         .foregroundColor(.secondary)
                         .lineLimit(1)
@@ -223,15 +253,57 @@ struct TaskSuggestionCard: View {
     VStack(spacing: 20) {
         TaskSuggestionCard(
             task: UserTask(
+                id: "preview-task",
                 name: "Plan Vacation",
+                goal: "Organize summer vacation trip",
+                category: "Travel",
                 description: "Organize and plan a complete vacation trip",
+                createdAt: ISO8601DateFormatter().string(from: Date()),
+                completedAt: nil,
+                isCompleted: false,
+                taskSchedule: TaskSchedule(
                 steps: [
-                    TaskStep(description: "Research destinations and choose location"),
-                    TaskStep(description: "Book flights and accommodation"),
-                    TaskStep(description: "Create itinerary and activity list"),
-                    TaskStep(description: "Pack bags and prepare for departure")
-                ],
-                createdBy: "preview"
+                        TaskStep(
+                            index: 1,
+                            title: "Research destinations",
+                            description: "Research destinations and choose location",
+                            date: nil,
+                            time: nil,
+                            isCompleted: false,
+                            reminders: []
+                        ),
+                        TaskStep(
+                            index: 2,
+                            title: "Book flights",
+                            description: "Book flights and accommodation",
+                            date: nil,
+                            time: nil,
+                            isCompleted: false,
+                            reminders: []
+                        ),
+                        TaskStep(
+                            index: 3,
+                            title: "Create itinerary",
+                            description: "Create itinerary and activity list",
+                            date: nil,
+                            time: nil,
+                            isCompleted: false,
+                            reminders: []
+                        ),
+                        TaskStep(
+                            index: 4,
+                            title: "Pack bags",
+                            description: "Pack bags and prepare for departure",
+                            date: nil,
+                            time: nil,
+                            isCompleted: false,
+                            reminders: []
+                        )
+                    ]
+                ),
+                createdBy: "preview",
+                startDate: nil,
+                isActive: true
             ),
             onPushToSchedule: {
                 print("Push to schedule tapped")

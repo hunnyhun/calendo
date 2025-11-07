@@ -68,8 +68,8 @@ struct SettingsView: View {
                 
                 
                 
-                // MARK: - Delete Account Section (Only show for non-anonymous users)
-                if !userStatusManager.state.isAnonymous {
+                // MARK: - Delete Account Section
+                if userStatusManager.state.isAuthenticated {
                     // MARK: - Purchases Section
                     Section("purchases".localized) {
                         Button {
@@ -220,9 +220,6 @@ struct SettingsView: View {
                 VStack(alignment: .leading, spacing: 2) {
                     if let email = userStatusManager.state.userEmail {
                         Text(email)
-                            .font(.headline)
-                    } else {
-                        Text("anonymousUser".localized)
                             .font(.headline)
                     }
                     

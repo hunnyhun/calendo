@@ -64,13 +64,6 @@
 			);
 			target = 00512EBD2E2BE5F800A24AF1 /* StoaAIWidgetExtension */;
 		};
-		00D3DB782E2E88FB001C332B /* Exceptions for "Stoa AI" folder in "Stoa AI" target */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				Info.plist,
-			);
-			target = 00B319632E25538B009FBCD6 /* Stoa AI */;
-		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -84,9 +77,6 @@
 		};
 		00B319662E25538B009FBCD6 /* Stoa AI */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-				00D3DB782E2E88FB001C332B /* Exceptions for "Stoa AI" folder in "Stoa AI" target */,
-			);
 			path = "Stoa AI";
 			sourceTree = "<group>";
 		};
@@ -243,6 +233,15 @@
 				ro,
 				"es-419",
 				"pt-BR",
+				ja,
+				ko,
+				sv,
+				nl,
+				de,
+				hu,
+				ru,
+				uk,
+				tr,
 			);
 			mainGroup = 00B3195B2E25538B009FBCD6;
 			minimizedProjectReferenceProxies = 1;
@@ -324,7 +323,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 1.4;
+				MARKETING_VERSION = 1.5;
 				PRODUCT_BUNDLE_IDENTIFIER = com.hunnyhun.stoicism.StoaAIWidget;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
@@ -352,7 +351,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 1.4;
+				MARKETING_VERSION = 1.5;
 				PRODUCT_BUNDLE_IDENTIFIER = com.hunnyhun.stoicism.StoaAIWidget;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
@@ -499,10 +498,12 @@
 				INFOPLIST_KEY_CFBundleURLSchemes_0 = "com.googleusercontent.apps.647533876699-0fj8hphne8nb7gtme55j6odaafo0sb6v";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
 				INFOPLIST_KEY_NSUserNotificationUsageDescription = "We'd like to send you daily spiritual quotes to inspire your journey.";
+				INFOPLIST_KEY_NSUserTrackingUsageDescription = "This allows us to provide you with personalized content and improve your experience with relevant insights.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UIBackgroundModes = "remote-notification";
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UILaunchStoryboardName = "Launch Screen";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
 				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
@@ -510,7 +511,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.4;
+				MARKETING_VERSION = 1.5;
 				PRODUCT_BUNDLE_IDENTIFIER = com.hunnyhun.stoicism;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -535,10 +536,12 @@
 				INFOPLIST_KEY_CFBundleURLSchemes_0 = "com.googleusercontent.apps.647533876699-0fj8hphne8nb7gtme55j6odaafo0sb6v";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
 				INFOPLIST_KEY_NSUserNotificationUsageDescription = "We'd like to send you daily spiritual quotes to inspire your journey.";
+				INFOPLIST_KEY_NSUserTrackingUsageDescription = "This allows us to provide you with personalized content and improve your experience with relevant insights.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UIBackgroundModes = "remote-notification";
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UILaunchStoryboardName = "Launch Screen";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
 				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
@@ -546,7 +549,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.4;
+				MARKETING_VERSION = 1.5;
 				PRODUCT_BUNDLE_IDENTIFIER = com.hunnyhun.stoicism;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;

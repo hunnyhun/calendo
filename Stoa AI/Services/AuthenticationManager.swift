@@ -6,7 +6,7 @@ import AuthenticationServices
 import FirebaseCore
 import FirebaseFunctions
 import CryptoKit
-import os
+import UIKit
 
 // AuthenticationManager: Handles all authentication related operations
 @Observable final class AuthenticationManager {
@@ -29,11 +29,10 @@ import os
             DispatchQueue.main.async {
                 self?.user = user
                 self?.isAuthenticated = user != nil
-                print("DEBUG: Auth state changed. User: \(user?.uid ?? "nil")")
+                Logger.debug("Auth state changed. User: \(user?.uid ?? "nil")", logger: Logger.auth)
             }
         }
-        // Store handle if needed for cleanup
-        print("DEBUG: Auth state listener setup with handle: \(handle)")
+        Logger.debug("Auth state listener setup with handle: \(handle)", logger: Logger.auth)
     }
     
     // MARK: - Sign In Methods
@@ -44,25 +43,19 @@ import os
         defer { isLoading = false }
         
         guard let clientID = FirebaseApp.app()?.options.clientID else {
-            print("ERROR: Failed to get clientID")
+            Logger.error("Failed to get Google client ID", logger: Logger.auth)
             throw AuthError.clientIDNotFound
         }
         
         let config = GIDConfiguration(clientID: clientID)
         GIDSignIn.sharedInstance.configuration = config
         
-        // Use UIApplication.shared.connectedScenes with await
-        guard let windowScene = await UIApplication.shared.connectedScenes.first as? UIWindowScene,
-              let window = await windowScene.windows.first,
-              let rootViewController = await window.rootViewController else {
-            print("ERROR: Failed to get root view controller")
-            throw AuthError.presentationError
-        }
+        let rootViewController = try await getRootViewController()
         
         do {
             let result = try await GIDSignIn.sharedInstance.signIn(withPresenting: rootViewController)
             guard let idToken = result.user.idToken?.tokenString else {
-                print("ERROR: Failed to get ID token")
+                Logger.error("Failed to get ID token from Google Sign In", logger: Logger.auth)
                 throw AuthError.tokenError
             }
             
@@ -71,13 +64,13 @@ import os
                 accessToken: result.user.accessToken.tokenString
             )
             
-            let authResult = try await Auth.auth().signIn(with: credential)
-            print("DEBUG: Successfully signed in with Google. User: \(authResult.user.uid)")
+            // Sign in with Google credential
+            try await authenticateWithCredential(credential, provider: "Google")
             
             // Ensure device registration after Google sign in
             await ensureDeviceRegistration()
         } catch {
-            print("ERROR: Google sign in error: \(error.localizedDescription)")
+            Logger.error("Google sign in error", logger: Logger.auth, error: error)
             throw error
         }
     }
@@ -90,22 +83,17 @@ import os
         request.requestedScopes = [.fullName, .email]
         request.nonce = sha256(nonce)
         
-        // Use UIApplication.shared.connectedScenes with await
-        guard let windowScene = await UIApplication.shared.connectedScenes.first as? UIWindowScene,
-              let window = await windowScene.windows.first,
-              let rootViewController = await window.rootViewController else {
-            throw AuthError.presentationError
-        }
+        let rootViewController = try await getRootViewController()
         
         do {
             let result = try await performAppleSignIn(request, on: rootViewController)
             guard let appleIDCredential = result.credential as? ASAuthorizationAppleIDCredential,
                   let appleIDToken = appleIDCredential.identityToken,
                   let idTokenString = String(data: appleIDToken, encoding: .utf8) else {
+                Logger.error("Failed to extract Apple ID token", logger: Logger.auth)
                 throw AuthError.credentialError
             }
             
-            // Fix: Use AuthProviderID.apple
             let credential = OAuthProvider.credential(
                 providerID: .apple,
                 idToken: idTokenString,
@@ -113,93 +101,79 @@ import os
                 accessToken: nil
             )
             
-            let authResult = try await Auth.auth().signIn(with: credential)
-            self.user = authResult.user
-            print("DEBUG: Successfully signed in with Apple. User: \(authResult.user.uid)")
+            // Sign in with Apple credential
+            try await authenticateWithCredential(credential, provider: "Apple")
             
             // Ensure device registration after Apple sign in
             await ensureDeviceRegistration()
         } catch {
-            print("DEBUG: Apple sign in error: \(error.localizedDescription)")
+            Logger.error("Apple sign in error", logger: Logger.auth, error: error)
             throw error
         }
     }
     
-    // Anonymous Sign In (Using Persistent Keychain ID and Custom Tokens - Backend Required)
-    func signInAnonymously() async throws {
-        isLoading = true
-        defer { isLoading = false }
-
-        print("DEBUG: [AuthManager] Attempting sign in with persistent anonymous ID...")
-
-        do {
-            var persistentId: String?
-            
-            // 1. Try to get existing ID from Keychain
-            persistentId = try KeychainHelper.shared.getAnonymousId()
-
-            if let existingId = persistentId {
-                // 2a. Existing ID found
-                print("DEBUG: [AuthManager] Found persistent anonymous ID in Keychain: \(existingId)")
-                // Call backend to get custom token for existing persistent ID
-                let customToken = try await getCustomTokenFromServer(for: existingId)
-                let authResult = try await Auth.auth().signIn(withCustomToken: customToken)
-                self.user = authResult.user
-                print("DEBUG: [AuthManager] Successfully signed in with custom token for existing ID: \(authResult.user.uid)")
-                
-                // Ensure device registration after anonymous sign in
-                await ensureDeviceRegistration()
-
-            } else {
-                // 2b. No existing ID found - Generate, save, and use a new one
-                let newId = UUID().uuidString
-                print("DEBUG: [AuthManager] No persistent anonymous ID found. Generating new ID: \(newId)")
-                try KeychainHelper.shared.saveAnonymousId(newId)
-                print("DEBUG: [AuthManager] Saved new persistent anonymous ID to Keychain.")
-                persistentId = newId // Use the new ID for the next step
-
-                // Call backend to get custom token for new persistent ID
-                let customToken = try await getCustomTokenFromServer(for: newId)
-                let authResult = try await Auth.auth().signIn(withCustomToken: customToken)
-                self.user = authResult.user
-                print("DEBUG: [AuthManager] Successfully signed in with custom token for NEW ID: \(authResult.user.uid)")
-                
-                // Ensure device registration after anonymous sign in
-                await ensureDeviceRegistration()
-
-            }
-
-        } catch let keychainError as KeychainError {
-            print("ERROR: [AuthManager] Keychain error during anonymous sign in: \(keychainError)")
-            // Handle specific keychain errors if needed
-            throw keychainError // Re-throw for caller
-        } catch {
-            print("ERROR: [AuthManager] Unexpected error during anonymous sign in: \(error.localizedDescription)")
-            throw error // Re-throw
-        }
-    }
-    
     // Sign Out
-    // Modified to immediately attempt anonymous sign-in after successful sign-out
     func signOut() async throws {
         do {
             try Auth.auth().signOut()
             self.user = nil // Update local state immediately
-            print("DEBUG: Successfully signed out from Firebase.")
-
-            // --- ADDED: Attempt anonymous sign-in immediately ---
-            print("DEBUG: [AuthManager] User explicitly signed out. Attempting immediate anonymous sign-in...")
-            // No need for isLoading = true here as signInAnonymously handles it
-            try await signInAnonymously()
-             print("DEBUG: [AuthManager] Anonymous sign-in attempted after explicit sign out.")
-             // The auth state listener will pick up the new anonymous user state.
-            // --- END ADDED ---
-
+            Logger.debug("Successfully signed out from Firebase", logger: Logger.auth)
         } catch let signOutError {
-            print("ERROR: Sign out error: \(signOutError.localizedDescription)")
-            // If sign out fails, we definitely don't want to try anonymous sign in
+            Logger.error("Sign out error", logger: Logger.auth, error: signOutError)
             throw signOutError
         }
+    }
+    
+    // MARK: - Helper Methods
+    
+    /// Get root view controller for presenting auth UI
+    private func getRootViewController() async throws -> UIViewController {
+        guard let windowScene = await UIApplication.shared.connectedScenes.first as? UIWindowScene,
+              let window = await windowScene.windows.first,
+              let rootViewController = await window.rootViewController else {
+            Logger.error("Failed to get root view controller", logger: Logger.auth)
+            throw AuthError.presentationError
+        }
+        return rootViewController
+    }
+    
+    /// Sign in with credential
+    private func authenticateWithCredential(_ credential: AuthCredential, provider: String) async throws {
+            let authResult = try await Auth.auth().signIn(with: credential)
+            self.user = authResult.user
+            Logger.info("Successfully signed in with \(provider). User: \(authResult.user.uid)", logger: Logger.auth)
+    }
+    
+    /// Ensure device registration after authentication with retry logic
+    private func ensureDeviceRegistration() async {
+        Logger.debug("Ensuring device registration after authentication", logger: Logger.auth)
+        
+        var retryCount = 0
+        
+        while retryCount < AppConfiguration.Auth.maxDeviceRegistrationRetries {
+            // Check if user ID is available
+            if UserStatusManager.shared.state.userId != nil {
+                Logger.debug("User ID available, proceeding with device registration", logger: Logger.auth)
+                break
+            }
+            
+            Logger.debug("User ID not yet available, retrying (attempt \(retryCount + 1)/\(AppConfiguration.Auth.maxDeviceRegistrationRetries))", logger: Logger.auth)
+            
+            // Wait before retry
+            await withCheckedContinuation { continuation in
+                DispatchQueue.main.asyncAfter(deadline: .now() + AppConfiguration.Auth.deviceRegistrationRetryDelay) {
+                    continuation.resume()
+                }
+            }
+            retryCount += 1
+        }
+        
+        if UserStatusManager.shared.state.userId == nil {
+            Logger.warning("Failed to get user ID after \(AppConfiguration.Auth.maxDeviceRegistrationRetries) attempts, device registration may fail", logger: Logger.auth)
+        }
+        
+        // Use NotificationManager's ensureDeviceRegistration method
+        await NotificationManager.shared.ensureDeviceRegistration()
     }
     
     // Store delegate as a property to prevent deallocation
@@ -216,93 +190,11 @@ import os
             authController.performRequests()
         }
     }
-}
-
-// MARK: - Custom Errors
-extension AuthenticationManager {
-    enum AuthError: LocalizedError {
-        case clientIDNotFound
-        case presentationError
-        case tokenError
-        case credentialError
-        
-        var errorDescription: String? {
-            switch self {
-            case .clientIDNotFound:
-                return "Failed to get Google client ID"
-            case .presentationError:
-                return "Unable to present sign-in screen"
-            case .tokenError:
-                return "Failed to get authentication token"
-            case .credentialError:
-                return "Invalid credentials provided"
-            }
-        }
-    }
-    }
     
-    // MARK: - Device Registration Helper
-    private func ensureDeviceRegistration() async {
-        print("🔧 [AuthManager] Ensuring device registration after authentication")
-        
-        // Wait for UserStatusManager to update with retry logic
-        var retryCount = 0
-        let maxRetries = 10
-        let retryDelay: TimeInterval = 0.2 // 0.2 seconds
-        
-        while retryCount < maxRetries {
-            // Check if user ID is available
-            if UserStatusManager.shared.state.userId != nil {
-                print("🔧 [AuthManager] User ID available, proceeding with device registration")
-                break
-            }
-            
-            print("🔧 [AuthManager] User ID not yet available, retrying in \(Int(retryDelay * 1000))ms (attempt \(retryCount + 1)/\(maxRetries))")
-
-            
-            // Use DispatchQueue for reliable sleep functionality
-            await withCheckedContinuation { continuation in
-                DispatchQueue.main.asyncAfter(deadline: .now() + retryDelay) {
-                    continuation.resume()
-                }
-            }
-            retryCount += 1
-        }
-        
-        if UserStatusManager.shared.state.userId == nil {
-            print("❌ [AuthManager] Failed to get user ID after \(maxRetries) attempts, device registration may fail")
-        }
-        
-        // Use NotificationManager's ensureDeviceRegistration method
-        await NotificationManager.shared.ensureDeviceRegistration()
-    }
+    // MARK: - Crypto Helpers
     
-    // MARK: - Helper Methods
-private extension AuthenticationManager {
-    /// Calls the backend Cloud Function to get a Firebase custom token for the given persistent anonymous ID.
-    /// - Parameter id: The persistent anonymous ID (UUID string).
-    /// - Returns: The custom token string.
-    /// - Throws: An error if the function call fails or the response is invalid.
-    func getCustomTokenFromServer(for id: String) async throws -> String {
-        let functions = Functions.functions(region: "us-central1")
-        do {
-            let result = try await functions.httpsCallable("getCustomAuthTokenForAnonymousId").call(["persistentId": id])
-            if let data = result.data as? [String: Any],
-               let customToken = data["customToken"] as? String {
-                print("DEBUG: [AuthManager] Received custom token from backend for persistentId: \(id)")
-                return customToken
-            } else {
-                print("ERROR: [AuthManager] Malformed response from backend: \(result.data)")
-                throw AuthError.tokenError
-            }
-        } catch {
-            print("ERROR: [AuthManager] Failed to get custom token from backend: \(error.localizedDescription)")
-            throw error
-        }
-    }
-
     // Generate random nonce for Apple Sign In
-    func randomNonceString(length: Int = 32) -> String {
+    func randomNonceString(length: Int = AppConfiguration.Auth.nonceLength) -> String {
         precondition(length > 0)
         let charset: [Character] = Array("0123456789ABCDEFGHIJKLMNOPQRSTUVXYZabcdefghijklmnopqrstuvwxyz-._")
         var result = ""
@@ -338,6 +230,29 @@ private extension AuthenticationManager {
     }
 }
 
+// MARK: - Custom Errors
+extension AuthenticationManager {
+    enum AuthError: LocalizedError {
+        case clientIDNotFound
+        case presentationError
+        case tokenError
+        case credentialError
+        
+        var errorDescription: String? {
+            switch self {
+            case .clientIDNotFound:
+                return "Failed to get Google client ID"
+            case .presentationError:
+                return "Unable to present sign-in screen"
+            case .tokenError:
+                return "Failed to get authentication token"
+            case .credentialError:
+                return "Invalid credentials provided"
+            }
+        }
+    }
+}
+
 // MARK: - Apple Sign In Delegate
 @MainActor
 private class AppleSignInDelegate: NSObject, ASAuthorizationControllerDelegate, ASAuthorizationControllerPresentationContextProviding {
@@ -348,7 +263,6 @@ private class AppleSignInDelegate: NSObject, ASAuthorizationControllerDelegate, 
     }
     
     func presentationAnchor(for controller: ASAuthorizationController) -> ASPresentationAnchor {
-        // Use UIWindowScene.windows instead of UIApplication.shared.windows
         guard let scene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
               let window = scene.windows.first else {
             fatalError("No window found")

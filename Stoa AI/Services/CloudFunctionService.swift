@@ -630,4 +630,76 @@ protocol StreamingResponseDelegate: AnyObject {
             throw CloudFunctionError.serverError(error.localizedDescription)
         }
     }
+    
+    // MARK: - Share Links
+    func createShareLink(type: String, itemId: String) async throws -> [String: Any] {
+        print("🌩️ Creating share link for \(type): \(itemId)")
+        
+        guard Auth.auth().currentUser != nil else {
+            throw CloudFunctionError.notAuthenticated
+        }
+        
+        do {
+            let result = try await functions.httpsCallable("createShareLink").call([
+                "type": type,
+                "itemId": itemId
+            ])
+            
+            guard let response = result.data as? [String: Any] else {
+                throw CloudFunctionError.parseError
+            }
+            
+            print("🌩️ Successfully created share link: \(response["shareUrl"] ?? "unknown")")
+            return response
+        } catch {
+            print("🌩️ createShareLink failed: \(error.localizedDescription)")
+            throw CloudFunctionError.serverError(error.localizedDescription)
+        }
+    }
+    
+    func getSharedItem(type: String, shareId: String) async throws -> [String: Any] {
+        print("🌩️ Getting shared item: \(type)/\(shareId)")
+        
+        do {
+            let result = try await functions.httpsCallable("getSharedItem").call([
+                "type": type,
+                "shareId": shareId
+            ])
+            
+            guard let response = result.data as? [String: Any] else {
+                throw CloudFunctionError.parseError
+            }
+            
+            print("🌩️ Successfully retrieved shared item")
+            return response
+        } catch {
+            print("🌩️ getSharedItem failed: \(error.localizedDescription)")
+            throw CloudFunctionError.serverError(error.localizedDescription)
+        }
+    }
+    
+    func recordShareImport(type: String, shareId: String) async throws -> [String: Any] {
+        print("🌩️ Recording share import: \(type)/\(shareId)")
+        
+        guard Auth.auth().currentUser != nil else {
+            throw CloudFunctionError.notAuthenticated
+        }
+        
+        do {
+            let result = try await functions.httpsCallable("recordShareImport").call([
+                "type": type,
+                "shareId": shareId
+            ])
+            
+            guard let response = result.data as? [String: Any] else {
+                throw CloudFunctionError.parseError
+            }
+            
+            print("🌩️ Successfully recorded share import")
+            return response
+        } catch {
+            print("🌩️ recordShareImport failed: \(error.localizedDescription)")
+            throw CloudFunctionError.serverError(error.localizedDescription)
+        }
+    }
 } 

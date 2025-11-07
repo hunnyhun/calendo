@@ -27,46 +27,41 @@ struct ContentView: View {
     @State private var justLoggedIn = false  // Track if user just logged in
     @AppStorage("app_theme") private var appTheme: String = "light" // "light" or "dark"
     
-    // New states for daily quote view
-    @State private var showDailyQuote = false
-    @State private var currentQuote: String?
     
     // MARK: - Onboarding state
     @State private var showOnboarding = false
     @State private var hasCheckedOnboarding = false
     
+    // MARK: - Authentication check state
+    @State private var hasCheckedInitialAuth = false
+    
     // MARK: - Body
     var body: some View {
         Group {
-            // Always show main content, handle auth state internally
+            if !hasCheckedInitialAuth || userStatusManager.isLoading {
+                // Show loading state during initial authentication check
+                // This prevents the flash of auth view when user is already authenticated
+                Color(.systemBackground)
+                    .ignoresSafeArea()
+            } else if userStatusManager.state.isAuthenticated {
+                // Show main content only if authenticated
                 mainContent
                     .transition(.opacity)
+            } else {
+                // Show authentication view if not authenticated
+                AuthenticationView(onAuthenticationSuccess: nil)
+                    .transition(.opacity)
+            }
         }
         .animation(.easeInOut(duration: 0.3), value: userStatusManager.state.isAuthenticated)
         .preferredColorScheme(appTheme == "dark" ? .dark : .light)
         .task {
             // Check user status during initial load
             await userStatusManager.refreshUserState()
+            // Mark that initial check is complete
+            hasCheckedInitialAuth = true
             
-            // Attempt anonymous sign-in if not authenticated
-            if !userStatusManager.state.isAuthenticated {
-                print("📱 [ContentView] No authenticated user found, attempting anonymous sign-in.")
-                do {
-                    try await AuthenticationManager.shared.signInAnonymously()
-                    // User state will update via listener, triggering UI changes if needed
-                    print("📱 [ContentView] Anonymous sign-in successful.")
-                    // Refresh state again after potential anonymous sign-in
-                    await userStatusManager.refreshUserState()
-                    
-                    // After anonymous login, notifications will be requested
-                    // during the onboarding flow when appropriate
-                } catch {
-                    print("❌ [ContentView] Anonymous sign-in failed: \(error.localizedDescription)")
-                    // Handle error - maybe show an alert or retry button?
-                }
-            }
-            
-            // Initialize app if user is now authenticated (either fully or anonymously)
+            // Initialize app if user is authenticated
             if userStatusManager.state.isAuthenticated {
                 chatViewModel.loadChatHistory()
                 
@@ -84,14 +79,13 @@ struct ContentView: View {
                 }
             }
             
-            // Add observer for quote notification taps
-            setupNotificationObservers()
+        // Setup notification observers
+        setupNotificationObservers()
         }
         .onReceive(NotificationCenter.default.publisher(for: Notification.Name("UserStateChanged"))) { notification in
             if let userInfo = notification.userInfo,
                let authStatus = userInfo["authStatus"] as? String,
-               let isAnonymous = userInfo["isAnonymous"] as? Bool,
-               authStatus == "authenticated" && !isAnonymous {
+               authStatus == "authenticated" {
                 // User just logged in
                 print("📱 [ContentView] User just logged in, will show notification prompt")
                 justLoggedIn = true
@@ -137,6 +131,8 @@ struct ContentView: View {
             // Check if user has completed onboarding (local only for first launch)
             if !hasCheckedOnboarding {
                 let hasCompletedOnboarding = OnboardingManager.shared.checkLocalOnboardingStatus()
+                // Only show onboarding if not completed AND user is not authenticated
+                // If user is authenticated but onboarding not done, they'll complete it in the auth page
                 showOnboarding = !hasCompletedOnboarding
                 hasCheckedOnboarding = true
                 
@@ -148,7 +144,7 @@ struct ContentView: View {
         }
         .fullScreenCover(isPresented: $showOnboarding) {
             OnboardingView(isPresented: $showOnboarding, onCompletion: {
-                // Show paywall immediately after onboarding completes
+                // After onboarding completes (which includes auth), show paywall
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
                     showPaywall = true
                 }
@@ -194,11 +190,43 @@ struct ContentView: View {
                     Group {
                         switch selectedFeature {
                         case .chat:
-                            ChatView(viewModel: chatViewModel, showSidebarCallback: $showSidebar)
+                            ChatView(
+                                viewModel: chatViewModel,
+                                showSidebarCallback: $showSidebar,
+                                selectedFeature: Binding(
+                                    get: { selectedFeature ?? .chat },
+                                    set: { selectedFeature = $0 }
+                                )
+                            )
                         case .calendar:
-                            CalendarView(onNavigateBack: {
-                                selectedFeature = .chat
-                            })
+                            CalendarView(
+                                selectedFeature: Binding(
+                                    get: { selectedFeature ?? .calendar },
+                                    set: { selectedFeature = $0 }
+                                )
+                            )
+                        case .reminders:
+                            RemindersView(
+                                selectedFeature: Binding(
+                                    get: { selectedFeature ?? .reminders },
+                                    set: { selectedFeature = $0 }
+                                )
+                            )
+                        case .tracking:
+                            TrackingView(
+                                selectedFeature: Binding(
+                                    get: { selectedFeature ?? .tracking },
+                                    set: { selectedFeature = $0 }
+                                )
+                            )
+                        case .settings:
+                            SettingsViewWrapper(
+                                selectedFeature: Binding(
+                                    get: { selectedFeature ?? .settings },
+                                    set: { selectedFeature = $0 }
+                                ),
+                                showPaywall: $showPaywall
+                            )
                         case .tasks:
                             TaskTrackingView(onNavigateBack: {
                                 selectedFeature = .chat
@@ -208,7 +236,14 @@ struct ContentView: View {
                                 selectedFeature = .chat
                             })
                         case .none:
-                            ChatView(viewModel: chatViewModel, showSidebarCallback: $showSidebar)
+                            ChatView(
+                                viewModel: chatViewModel,
+                                showSidebarCallback: $showSidebar,
+                                selectedFeature: Binding(
+                                    get: { selectedFeature ?? .chat },
+                                    set: { selectedFeature = $0 }
+                                )
+                            )
                         }
                     }
                     .id(selectedFeature)
@@ -251,16 +286,6 @@ struct ContentView: View {
                         let generator = UINotificationFeedbackGenerator()
                         generator.notificationOccurred(.success)
                     }
-                }
-            }
-            // Add Daily Quote Sheet with separate onDismiss handler
-            .sheet(isPresented: $showDailyQuote, onDismiss: dailyQuoteDismissed) {
-                if let quote = currentQuote {
-                    // From notification
-                    DailyQuoteView(initialQuote: quote, fromNotification: true)
-                } else {
-                    // Regular view
-                    DailyQuoteView(fromNotification: false)
                 }
             }
             .gesture(
@@ -324,7 +349,7 @@ struct ContentView: View {
         // Remove any existing observers
         NotificationCenter.default.removeObserver(self)
         
-        // Add observer for quote notification taps
+        // Add observer for reminder notification taps
         NotificationCenter.default.addObserver(
             forName: Notification.Name("OpenDailyQuoteView"),
             object: nil,
@@ -332,31 +357,27 @@ struct ContentView: View {
         ) { notification in
             // Extract quote from notification
             if let userInfo = notification.userInfo,
-               let quote = userInfo["quote"] as? String {
-                print("📱 [ContentView] Received open quote view notification: \(quote)")
+               let _ = userInfo["quote"] as? String {
+                print("📱 [ContentView] Received open reminder view notification")
+                
+                // Clear notification count before showing view
+                if NotificationManager.shared.unreadNotificationCount > 0 {
+                    print("📱 [ContentView] Clearing \(NotificationManager.shared.unreadNotificationCount) notifications")
+                    NotificationManager.shared.markNotificationsAsRead()
+                }
                 
                 // Close sidebar if it's open
                 if self.showSidebar {
                     self.dismissKeyboardAndCloseSidebar()
                 }
                 
-                // Set the current quote
-                self.currentQuote = quote
-                
-                // Show the daily quote view with a slight delay to ensure UI transitions
+                // Switch to reminders view with a slight delay to ensure UI transitions
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                    print("📱 [ContentView] Opening DailyQuoteView")
-                    self.showDailyQuote = true
+                    print("📱 [ContentView] Opening Reminders view")
+                    self.selectedFeature = .reminders
                 }
             }
         }
-    }
-    
-    private func dailyQuoteDismissed() {
-        print("📱 [ContentView] DailyQuoteView dismissed")
-        
-        // Reset quote after sheet is dismissed
-        currentQuote = nil
     }
     
     // MARK: - User Login Handler

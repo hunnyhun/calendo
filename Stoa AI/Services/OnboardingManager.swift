@@ -3,7 +3,7 @@ import FirebaseFirestore
 import FirebaseAuth
 
 // MARK: - Onboarding Manager
-@Observable final class OnboardingManager {
+@Observable final class OnboardingManager: @unchecked Sendable {
     
     // MARK: - Singleton
     static let shared = OnboardingManager()

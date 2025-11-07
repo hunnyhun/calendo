@@ -1,0 +1,313 @@
+{
+    "name": "6-Month Daily Writing Challenge",
+    "goal": "Complete a 6-month program of daily writing across multiple weeks and months",
+    "category": "Creative",
+    "description": "Write for 30 minutes every day across multiple weeks over 6 months to develop writing skills and build a writing habit",
+    "difficulty": "intermediate",
+    "high_level_schedule": {
+        "milestones": [
+            {
+                "index": 0,
+                "description": "Complete 2 months of daily writing",
+                "completion_criteria": "streak_of_months",
+                "completion_criteria_point": 2,
+                "reward_message": "Great job! You've completed 2 months of daily writing!"
+            },
+            {
+                "index": 1,
+                "description": "Complete 4 months of daily writing",
+                "completion_criteria": "streak_of_months",
+                "completion_criteria_point": 4,
+                "reward_message": "Fantastic! 4 months of consistent daily writing. You're building serious writing skills!"
+            },
+            {
+                "index": 2,
+                "description": "Complete 6 months of daily writing",
+                "completion_criteria": "streak_of_months",
+                "completion_criteria_point": 6,
+                "reward_message": "Congratulations! You've completed the 6-month daily writing challenge! You've become a dedicated writer!"
+            }
+        ]
+    },
+    "low_level_schedule": {
+        "span": "month",
+        "span_value": 1,
+        "habit_schedule": null,
+        "habit_repeat_count": 6,
+        "program": [
+            {
+                "days_indexed": [
+                    {
+                        "index": 0,
+                        "title": "Daily Writing Session",
+                        "content": [
+                            {
+                                "step": "Set up your writing space",
+                                "clock": "09:00"
+                            },
+                            {
+                                "step": "Write for 30 minutes without stopping",
+                                "clock": "09:05"
+                            },
+                            {
+                                "step": "Review what you wrote",
+                                "clock": "09:35"
+                            }
+                        ],
+                        "reminders": [
+                            {
+                                "time": "09:00",
+                                "message": "Time for your daily writing session!"
+                            }
+                        ]
+                    }
+                ],
+                "weeks_indexed": [
+                    {
+                        "index": 0,
+                        "title": "Week 1: Foundation",
+                        "content": [
+                            {
+                                "step": "Start your first week of daily writing",
+                                "day": "Monday"
+                            },
+                            {
+                                "step": "Continue daily writing",
+                                "day": "Wednesday"
+                            },
+                            {
+                                "step": "Review week 1 progress",
+                                "day": "Sunday"
+                            }
+                        ],
+                        "reminders": [
+                            {
+                                "time": "09:00",
+                                "message": "Week 1 - building your foundation!"
+                            }
+                        ]
+                    },
+                    {
+                        "index": 1,
+                        "title": "Week 2: Consistency",
+                        "content": [
+                            {
+                                "step": "Continue daily writing into week 2",
+                                "day": "Monday"
+                            },
+                            {
+                                "step": "Maintain consistency",
+                                "day": "Wednesday"
+                            },
+                            {
+                                "step": "Review week 2 progress",
+                                "day": "Sunday"
+                            }
+                        ],
+                        "reminders": [
+                            {
+                                "time": "09:00",
+                                "message": "Week 2 - maintaining consistency!"
+                            }
+                        ]
+                    },
+                    {
+                        "index": 2,
+                        "title": "Week 3: Growth",
+                        "content": [
+                            {
+                                "step": "Continue daily writing into week 3",
+                                "day": "Monday"
+                            },
+                            {
+                                "step": "Focus on growth and improvement",
+                                "day": "Wednesday"
+                            },
+                            {
+                                "step": "Review week 3 progress",
+                                "day": "Sunday"
+                            }
+                        ],
+                        "reminders": [
+                            {
+                                "time": "09:00",
+                                "message": "Week 3 - focus on growth!"
+                            }
+                        ]
+                    },
+                    {
+                        "index": 3,
+                        "title": "Week 4: Mastery",
+                        "content": [
+                            {
+                                "step": "Continue daily writing into week 4",
+                                "day": "Monday"
+                            },
+                            {
+                                "step": "Work towards mastery",
+                                "day": "Wednesday"
+                            },
+                            {
+                                "step": "Review week 4 and monthly progress",
+                                "day": "Sunday"
+                            }
+                        ],
+                        "reminders": [
+                            {
+                                "time": "09:00",
+                                "message": "Week 4 - working towards mastery!"
+                            }
+                        ]
+                    }
+                ],
+                "months_indexed": [
+                    {
+                        "index": 0,
+                        "title": "Month 1: Beginning",
+                        "content": [
+                            {
+                                "step": "Begin your 6-month daily writing challenge",
+                                "day": "start_of_month"
+                            },
+                            {
+                                "step": "Continue through all weeks of the month",
+                                "day": "15"
+                            },
+                            {
+                                "step": "Review month 1 progress",
+                                "day": "end_of_month"
+                            }
+                        ],
+                        "reminders": [
+                            {
+                                "time": "09:00",
+                                "message": "Month 1 - beginning your writing journey!"
+                            }
+                        ]
+                    },
+                    {
+                        "index": 1,
+                        "title": "Month 2: Building",
+                        "content": [
+                            {
+                                "step": "Continue your daily writing into month 2",
+                                "day": "start_of_month"
+                            },
+                            {
+                                "step": "Maintain consistency across all weeks",
+                                "day": "15"
+                            },
+                            {
+                                "step": "Review month 2 progress",
+                                "day": "end_of_month"
+                            }
+                        ],
+                        "reminders": [
+                            {
+                                "time": "09:00",
+                                "message": "Month 2 - building your writing habit!"
+                            }
+                        ]
+                    },
+                    {
+                        "index": 2,
+                        "title": "Month 3: Strengthening",
+                        "content": [
+                            {
+                                "step": "Continue strengthening your writing habit",
+                                "day": "start_of_month"
+                            },
+                            {
+                                "step": "Focus on improvement across all weeks",
+                                "day": "15"
+                            },
+                            {
+                                "step": "Review 3-month milestone progress",
+                                "day": "end_of_month"
+                            }
+                        ],
+                        "reminders": [
+                            {
+                                "time": "09:00",
+                                "message": "Month 3 - strengthening your habit!"
+                            }
+                        ]
+                    },
+                    {
+                        "index": 3,
+                        "title": "Month 4: Advancing",
+                        "content": [
+                            {
+                                "step": "Continue advancing your writing routine",
+                                "day": "start_of_month"
+                            },
+                            {
+                                "step": "Build on your established patterns",
+                                "day": "15"
+                            },
+                            {
+                                "step": "Review month 4 progress",
+                                "day": "end_of_month"
+                            }
+                        ],
+                        "reminders": [
+                            {
+                                "time": "09:00",
+                                "message": "Month 4 - advancing your writing!"
+                            }
+                        ]
+                    },
+                    {
+                        "index": 4,
+                        "title": "Month 5: Refining",
+                        "content": [
+                            {
+                                "step": "Continue refining your writing practice",
+                                "day": "start_of_month"
+                            },
+                            {
+                                "step": "Optimize your writing approach",
+                                "day": "15"
+                            },
+                            {
+                                "step": "Review month 5 progress",
+                                "day": "end_of_month"
+                            }
+                        ],
+                        "reminders": [
+                            {
+                                "time": "09:00",
+                                "message": "Month 5 - refining your writing!"
+                            }
+                        ]
+                    },
+                    {
+                        "index": 5,
+                        "title": "Month 6: Completion",
+                        "content": [
+                            {
+                                "step": "Continue towards completion",
+                                "day": "start_of_month"
+                            },
+                            {
+                                "step": "Demonstrate consistent writing excellence",
+                                "day": "15"
+                            },
+                            {
+                                "step": "Complete final writing session and celebrate your 6-month achievement!",
+                                "day": "end_of_month"
+                            }
+                        ],
+                        "reminders": [
+                            {
+                                "time": "09:00",
+                                "message": "Month 6 - final month! Complete your writing challenge!"
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    }
+}
+

@@ -9,7 +9,7 @@ enum MessageType {
 // MARK: - Chat Message
 struct ChatMessage: Identifiable, Codable, Hashable {
     let id: String
-    let text: String
+    var text: String  // Full message text (includes JSON for history reloading)
     let isUser: Bool
     let timestamp: Date
     var detectedHabitSuggestion: ComprehensiveHabit?

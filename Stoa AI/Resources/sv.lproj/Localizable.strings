@@ -1,0 +1,261 @@
+/* 
+  Localizable.strings
+  Stoa AI
+*/
+
+// MARK: - Common UI Elements
+"settings" = "Inställningar";
+"language" = "Språk";
+"done" = "Klar";
+"cancel" = "Avbryt";
+"signOut" = "Logga ut";
+"appTitle" = "Calendo: Planera, Spåra & Uppnå";
+"premium" = "Premium-prenumeration";
+"freeAccount" = "Gratis konto";
+"anonymousUser" = "Anonym användare";
+"task_mode" = "Uppgift";
+"task_management" = "Uppgiftshantering";
+"my_tasks" = "Mina uppgifter";
+
+// MARK: - Onboarding
+"onboarding_welcome_title" = "Välkommen till Calendo";
+"onboarding_welcome_description" = "Din personliga utvecklingskompanjon för att bygga bättre vanor och uppnå dina mål. Börja din resa med självförbättring med praktisk vägledning och stöd.";
+"onboarding_chat_title" = "Hur man använder chatten";
+"onboarding_chat_description" = "Ställ frågor om livets utmaningar • Sök vägledning om svåra beslut • Få hjälp med personlig utveckling och vanebygge • Fråga vad du vill lära dig";
+"onboarding_quotes_title" = "Daglig inspiration";
+"onboarding_quotes_description" = "Börja varje dag med motiverande citat och praktiska insikter. Få personanpassad vägledning levererad till din telefon.";
+"onboarding_profile_title" = "Berätta om dig själv";
+"onboarding_profile_description" = "Hjälp oss att personanpassa din upplevelse med Stoa AI. Denna information hjälper oss att ge mer relevant vägledning.";
+"onboarding_goals_title" = "Vad vill du uppnå?";
+"onboarding_goals_description" = "Välj dina huvudmål så att vi kan skräddarsy vår vägledning efter din personliga resa.";
+"onboarding_suffering_title" = "Hur länge har du arbetat med detta?";
+"onboarding_suffering_description" = "Att förstå din resa hjälper oss att ge lämplig vägledning och stöd.";
+"onboarding_sample_quote" = "\"Det enda sättet att göra bra arbete är att älska vad du gör.\" - Steve Jobs";
+"onboarding_sample_user_message" = "Jag vill förbättra min...";
+"onboarding_sample_ai_message" = "Välkommen! Jag är här för att hjälpa dig bygga bättre vanor och uppnå dina mål. Hur kan jag hjälpa dig idag?";
+"onboarding_widget_title" = "Håll dig ansluten till tillväxt";
+"onboarding_widget_description" = "Lägg till Calendo-widgeten på din startskärm för omedelbar åtkomst till daglig motivation och vanespårning.";
+"onboarding_today_inspiration" = "Dagens tillväxtinsikt";
+"onboarding_widget_label" = "Widget";
+"onboarding_add_to_home_screen" = "Lägg till på startskärmen";
+"onboarding_widget_instructions" = "Tryck och håll på din startskärm, tryck sedan på +-knappen för att lägga till Calendo-widgeten";
+"onboarding_previous" = "Föregående";
+"onboarding_next" = "Nästa";
+"onboarding_get_started" = "Kom igång";
+"onboarding_continue" = "Fortsätt";
+"onboarding_skip" = "Hoppa över";
+
+// MARK: - Onboarding Habits
+"onboarding_habits_title" = "Bygg bättre vanor";
+"onboarding_habits_description" = "Skapa och spåra dagliga övningar för personlig utveckling • Checka in, bygg serier och se din framsteg";
+"onboarding_habit_morning_reflection" = "Morgonreflektion";
+"onboarding_habit_morning_reflection_sub" = "Dagligen • 10 min";
+"onboarding_habit_evening_review" = "Kvällsgenomgång";
+"onboarding_habit_evening_review_sub" = "Dagligen • 5 min";
+"onboarding_habit_acts_of_kindness" = "Vänliga handlingar";
+"onboarding_habit_acts_of_kindness_sub" = "Dagligen";
+"onboarding_habit_read_philosophy" = "Läs filosofi";
+"onboarding_habit_read_philosophy_sub" = "Dagligen • 20 min";
+
+// MARK: - Profile Setup
+"profile_name_placeholder" = "Ditt namn";
+"profile_age_placeholder" = "Din ålder";
+"profile_optional" = "(Valfritt)";
+"profile_name_label" = "Namn";
+"profile_age_label" = "Ålder";
+"profile_gender_label" = "Kön";
+
+// MARK: - Goals
+"goal_personal_growth" = "Personlig utveckling";
+"goal_stress_reduction" = "Stressreducering";
+"goal_emotional_resilience" = "Känslomässig motståndskraft";
+"goal_mindfulness" = "Medvetenhet & nuet";
+"goal_better_relationships" = "Bättre relationer";
+"goal_personal_growth_desc" = "Utveckla visdom, dygd och karaktär genom personlig utveckling";
+"goal_stress_reduction_desc" = "Lär dig hantera stress och hitta inre frid";
+"goal_emotional_resilience_desc" = "Bygg styrka för att hantera livets utmaningar";
+"goal_mindfulness_desc" = "Öva närvaro och medvetenhet i vardagen";
+"goal_better_relationships_desc" = "Förbättra förbindelser med andra genom visdom";
+
+// MARK: - Suffering Duration
+"suffering_recently_started" = "Nyligen startat";
+"suffering_few_months" = "Några månader";
+"suffering_six_months_to_year" = "6 månader till 1 år";
+"suffering_one_to_three_years" = "1-3 år";
+"suffering_several_years" = "Flera år";
+"suffering_not_applicable" = "Gäller inte mig";
+"suffering_recently_started_desc" = "Jag har precis börjat denna resa";
+"suffering_few_months_desc" = "Jag har arbetat med detta i några månader";
+"suffering_six_months_to_year_desc" = "Jag har hanterat detta i ett halvt år till ett år";
+"suffering_one_to_three_years_desc" = "Detta har varit en pågående utmaning i 1-3 år";
+"suffering_several_years_desc" = "Jag har stött på detta i många år";
+"suffering_not_applicable_desc" = "Denna fråga gäller inte min situation";
+
+// MARK: - Gender Options
+"gender_male" = "Man";
+"gender_female" = "Kvinna";
+"gender_non_binary" = "Icke-binär";
+"gender_prefer_not_to_say" = "Vill inte ange";
+
+// MARK: - Settings Screen
+"app" = "APP";
+"notificationPreferences" = "Notisinställningar";
+"languageSettings" = "Språk";
+
+// MARK: - Auth Screen
+"signIn" = "Logga in";
+"signUp" = "Registrera dig";
+"email" = "E-post";
+"password" = "Lösenord";
+"forgotPassword" = "Glömt lösenord?";
+
+// MARK: - Daily Quote
+"dailyQuote" = "Dagligt citat";
+"shareQuote" = "Dela citat";
+"quotes" = "Citat";
+"previousQuotes" = "Tidigare citat";
+"noPreviousQuotes" = "Inga tidigare citat tillgängliga";
+"noQuoteAvailable" = "Inget citat tillgängligt idag.";
+"fromNotification" = "Från notis";
+
+// MARK: - Reminders
+"reminders" = "Påminnelser";
+"previousReminders" = "Tidigare Påminnelser";
+"noReminderAvailable" = "Ingen påminnelse tillgänglig för idag.";
+"noPreviousReminders" = "Inga tidigare påminnelser tillgängliga.";
+"signInToViewDailyReminders" = "Logga in för att se dagliga påminnelser";
+
+// MARK: - Chat
+"chat" = "Chatt";
+"send" = "Skicka";
+"messageHint" = "Skriv ditt meddelande...";
+"newChat" = "Ny chatt";
+"priest" = "Visa";
+"welcomeToChat" = "Välkommen till filosofisk reflektion";
+"welcomeToStoicHabitMind" = "Välkommen till Calendo";
+"holySpirit" = "Låt oss tillsammans utforska visdom och dygd.";
+"confessSuggestion1" = "Hur kan jag förvandla dagliga hinder till möjligheter för tillväxt?";
+"confessSuggestion2" = "Jag kämpar med ilska - hur kan jag hantera det bättre?";
+"confessSuggestion3" = "Hjälp mig förstå disciplinen av begär vs. vad som är i min kontroll";
+
+// Habit mode suggestions
+"habitSuggestion1" = "Hjälp mig skapa en morgonreflexionsvana";
+"habitSuggestion2" = "Jag vill bygga en vana att läsa personlig utveckling dagligen";
+"habitSuggestion3" = "Hur kan jag utveckla en konsekvent kvällsgenomgångspraxis?";
+
+// Task mode suggestions
+"I have an exam coming up" = "Jag har ett prov snart";
+"I need to buy groceries" = "Jag behöver handla matvaror";
+"I need to make a reservation" = "Jag behöver göra en reservation";
+
+// Habit mode suggestions
+"Create a morning exercise habit" = "Skapa en morgonövningsvana";
+"Help me build a daily reading routine" = "Hjälp mig att bygga en daglig läsrutin";
+"I want to start meditating regularly" = "Jag vill börja meditera regelbundet";
+"messageLimitReached" = "Meddelandegräns nådd";
+"upgradeToPremium" = "Uppgradera till Premium för obegränsade meddelanden";
+"confessThoughts" = "Dela dina filosofiska tankar...";
+"noChatsYet" = "Inga chattar ännu";
+"newConversation" = "Ny konversation";
+
+// MARK: - Chat History Sections
+"Today" = "Idag";
+"Yesterday" = "Igår";
+"Last Week" = "Förra veckan";
+"Earlier" = "Tidigare";
+
+// MARK: - Sidebar
+"upgradeToPremiumButton" = "Uppgradera till Premium";
+"dailySpiritualQuote" = "Citat";
+
+// MARK: - Paywall
+"unlockPremium" = "Lås upp Premium";
+"restorePurchases" = "Återställ köp";
+
+// MARK: - Accessibility
+"openSettings" = "Öppnar systeminställningar för att ändra appens språk"; 
+
+/* Settings View */
+"account" = "Konto";
+"purchases" = "Köp";
+
+/* User Section */
+"anonymousUser" = "Anonym användare";
+"premium" = "Premium";
+"freeAccount" = "Gratis konto";
+
+/* App Section */
+"notificationPreferences" = "Notisinställningar";
+"language" = "Språk";
+"openSettings" = "Öppna inställningar";
+
+/* Purchases Section */
+"restorePurchases" = "Återställ köp";
+"restoreSuccessMessage" = "Dina köp har återställts.";
+"restoreNoPurchasesFound" = "Inga tidigare köp hittades.";
+"restoreFailedMessage" = "Återställning av köp misslyckades. Försök igen.";
+
+/* Account Actions */
+"deleteAccount" = "Radera konto";
+"signOut" = "Logga ut";
+
+/* Delete Account Alert */
+"deleteAccountTitle" = "Radera konto";
+"deleteAccountConfirmMessage" = "Är du säker på att du vill radera ditt konto? Denna åtgärd kan inte ångras och alla dina data raderas permanent.";
+"deleteAccountFailedMessage" = "Radering av konto misslyckades.";
+
+/* Buttons */
+"cancelButton" = "Avbryt";
+"deleteButton" = "Radera";
+"ok" = "OK";
+
+/* Errors */
+"errorTitle" = "Fel";
+"unknownError" = "Ett okänt fel uppstod."; 
+
+/* Sidebar Anonymous Prompt */
+"signUpOrLogIn" = "Registrera dig eller logga in";
+"signUpBenefitText" = "Spara dina chattar, personanpassa upplevelsen och dagliga filosofiska citat.";
+
+/* Daily Quote Anonymous Prompt */
+"signInToViewDailyQuotes" = "Logga in för att se dagliga citat"; 
+
+/* Sidebar Anonymous History Prompt */
+"signInToViewHistory" = "Logga in för att se chatthistorik.";
+
+/* Authentication View */
+"authWelcomeTitle" = "Välkommen till din utvecklingsresa! 🚀";
+"authSubtitle" = "Börja din sökande efter personlig utveckling med SmartAI";
+"authDescription" = "Gå med tusentals som bygger bättre vanor och uppnår sina mål genom meningsfulla samtal med din AI-personliga utvecklingskompanjon.";
+"continueWithGoogle" = "Fortsätt med Google";
+"continueWithApple" = "Fortsätt med Apple";
+"authSuccessTitle" = "Välkommen till SmartAI! 📚";
+"authSuccessMessage" = "Du är nu ansluten till SmartAI Habit & Daily Planner. Din personliga utvecklingsresa väntar med obegränsade konversationer, personanpassad vägledning och daglig vanespårning.";
+"subscriptionSuccessTitle" = "Premium upplåst! ⭐";
+"subscriptionSuccessMessage" = "Grattis! Du har nu tillgång till obegränsade meddelanden, snabbare svar och prioriterad vägledning. Din förbättrade resa av personlig utveckling börjar nu!";
+
+/* Anonymous Settings Button */
+"settingsButtonLabel" = "Inställningar"; 
+
+/* Anonymous User Limits */
+"anonymousLimitTitle" = "Användningsgräns nådd";
+"signUpOrLogInButton" = "Registrera dig eller logga in";
+"anonymousLimitMessage" = "För att fortsätta chatta, vänligen registrera dig eller logga in.";
+
+/* Anonymous Limit Sheet */
+"signUpBenefitsTitle" = "Fördelar med att registrera sig";
+"unlimitedMessages" = "Obegränsade meddelanden";
+"chatHistory" = "Chatthistorik";
+"dailyQuotes" = "Dagliga citat";
+"cloudSync" = "Molnsynkronisering";
+"continueBrowsing" = "Fortsätt bläddra";
+
+/* Premium Limit Sheet */
+"messageLimitReached" = "Meddelandegräns nådd";
+"freeTierLimitMessage" = "Du har nått din gratistierens meddelandegräns.";
+"premiumBenefitsTitle" = "Premium-fördelar";
+"fasterResponses" = "Snabbare svar";
+"unlimitedQuotes" = "Obegränsade citat";
+"prioritySupport" = "Prioriterat stöd";
+"maybeLater" = "Kanske senare";
+

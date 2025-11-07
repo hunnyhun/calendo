@@ -1,0 +1,297 @@
+{
+    "name": "90-Day Comprehensive Transformation Program",
+    "goal": "Complete a 90-day program with multiple days per week across multiple weeks spanning multiple months",
+    "category": "Personal Development",
+    "description": "Follow a comprehensive routine with 4 different activities per week across 4 weeks per month for 3 months to achieve complete transformation",
+    "difficulty": "advanced",
+    "high_level_schedule": {
+        "milestones": [
+            {
+                "index": 0,
+                "description": "Complete 30 days of comprehensive routine",
+                "completion_criteria": "streak_of_days",
+                "completion_criteria_point": 30,
+                "reward_message": "Great job! You've completed your first month of the transformation program!"
+            },
+            {
+                "index": 1,
+                "description": "Complete 60 days of comprehensive routine",
+                "completion_criteria": "streak_of_days",
+                "completion_criteria_point": 60,
+                "reward_message": "Fantastic! 60 days down. You're two-thirds through the program!"
+            },
+            {
+                "index": 2,
+                "description": "Complete 90 days of comprehensive routine",
+                "completion_criteria": "streak_of_days",
+                "completion_criteria_point": 90,
+                "reward_message": "Congratulations! You've completed the 90-day transformation program! You've achieved remarkable transformation!"
+            }
+        ]
+    },
+    "low_level_schedule": {
+        "span": "month",
+        "span_value": 1,
+        "habit_schedule": null,
+        "habit_repeat_count": 3,
+        "program": [
+            {
+                "days_indexed": [
+                    {
+                        "index": 0,
+                        "title": "Day 1: Physical Fitness",
+                        "content": [
+                            {
+                                "step": "Complete morning workout session",
+                                "clock": "07:00"
+                            },
+                            {
+                                "step": "Track fitness metrics",
+                                "clock": "07:45"
+                            }
+                        ],
+                        "reminders": [
+                            {
+                                "time": "07:00",
+                                "message": "Day 1 - physical fitness time!"
+                            }
+                        ]
+                    },
+                    {
+                        "index": 1,
+                        "title": "Day 2: Mental Development",
+                        "content": [
+                            {
+                                "step": "Complete learning and reading session",
+                                "clock": "19:00"
+                            },
+                            {
+                                "step": "Review and take notes",
+                                "clock": "19:45"
+                            }
+                        ],
+                        "reminders": [
+                            {
+                                "time": "19:00",
+                                "message": "Day 2 - mental development time!"
+                            }
+                        ]
+                    },
+                    {
+                        "index": 2,
+                        "title": "Day 3: Creative Expression",
+                        "content": [
+                            {
+                                "step": "Complete creative project work",
+                                "clock": "18:00"
+                            },
+                            {
+                                "step": "Reflect on creative output",
+                                "clock": "18:45"
+                            }
+                        ],
+                        "reminders": [
+                            {
+                                "time": "18:00",
+                                "message": "Day 3 - creative expression time!"
+                            }
+                        ]
+                    },
+                    {
+                        "index": 3,
+                        "title": "Day 4: Reflection and Planning",
+                        "content": [
+                            {
+                                "step": "Complete weekly reflection session",
+                                "clock": "20:00"
+                            },
+                            {
+                                "step": "Plan for next week",
+                                "clock": "20:30"
+                            }
+                        ],
+                        "reminders": [
+                            {
+                                "time": "20:00",
+                                "message": "Day 4 - reflection and planning time!"
+                            }
+                        ]
+                    }
+                ],
+                "weeks_indexed": [
+                    {
+                        "index": 0,
+                        "title": "Week 1: Foundation",
+                        "content": [
+                            {
+                                "step": "Start week 1 with fitness day",
+                                "day": "Monday"
+                            },
+                            {
+                                "step": "Continue with mental and creative days",
+                                "day": "Wednesday"
+                            },
+                            {
+                                "step": "Complete reflection day and review week 1",
+                                "day": "Friday"
+                            }
+                        ],
+                        "reminders": [
+                            {
+                                "time": "19:00",
+                                "message": "Week 1 - building your foundation!"
+                            }
+                        ]
+                    },
+                    {
+                        "index": 1,
+                        "title": "Week 2: Consistency",
+                        "content": [
+                            {
+                                "step": "Continue with fitness day",
+                                "day": "Monday"
+                            },
+                            {
+                                "step": "Continue with mental and creative days",
+                                "day": "Wednesday"
+                            },
+                            {
+                                "step": "Complete reflection day and review week 2",
+                                "day": "Friday"
+                            }
+                        ],
+                        "reminders": [
+                            {
+                                "time": "19:00",
+                                "message": "Week 2 - maintaining consistency!"
+                            }
+                        ]
+                    },
+                    {
+                        "index": 2,
+                        "title": "Week 3: Growth",
+                        "content": [
+                            {
+                                "step": "Continue with fitness day",
+                                "day": "Monday"
+                            },
+                            {
+                                "step": "Continue with mental and creative days",
+                                "day": "Wednesday"
+                            },
+                            {
+                                "step": "Complete reflection day and review week 3",
+                                "day": "Friday"
+                            }
+                        ],
+                        "reminders": [
+                            {
+                                "time": "19:00",
+                                "message": "Week 3 - focus on growth!"
+                            }
+                        ]
+                    },
+                    {
+                        "index": 3,
+                        "title": "Week 4: Mastery",
+                        "content": [
+                            {
+                                "step": "Continue with fitness day",
+                                "day": "Monday"
+                            },
+                            {
+                                "step": "Continue with mental and creative days",
+                                "day": "Wednesday"
+                            },
+                            {
+                                "step": "Complete reflection day and review monthly progress",
+                                "day": "Friday"
+                            }
+                        ],
+                        "reminders": [
+                            {
+                                "time": "19:00",
+                                "message": "Week 4 - working towards mastery!"
+                            }
+                        ]
+                    }
+                ],
+                "months_indexed": [
+                    {
+                        "index": 0,
+                        "title": "Month 1: Beginning Transformation",
+                        "content": [
+                            {
+                                "step": "Begin your 90-day transformation program",
+                                "day": "start_of_month"
+                            },
+                            {
+                                "step": "Continue through all weeks and days",
+                                "day": "15"
+                            },
+                            {
+                                "step": "Review month 1 progress",
+                                "day": "end_of_month"
+                            }
+                        ],
+                        "reminders": [
+                            {
+                                "time": "19:00",
+                                "message": "Month 1 - beginning your transformation!"
+                            }
+                        ]
+                    },
+                    {
+                        "index": 1,
+                        "title": "Month 2: Deepening Practice",
+                        "content": [
+                            {
+                                "step": "Continue your comprehensive routine into month 2",
+                                "day": "start_of_month"
+                            },
+                            {
+                                "step": "Maintain consistency across all weeks and days",
+                                "day": "15"
+                            },
+                            {
+                                "step": "Review month 2 progress",
+                                "day": "end_of_month"
+                            }
+                        ],
+                        "reminders": [
+                            {
+                                "time": "19:00",
+                                "message": "Month 2 - deepening your practice!"
+                            }
+                        ]
+                    },
+                    {
+                        "index": 2,
+                        "title": "Month 3: Completing Transformation",
+                        "content": [
+                            {
+                                "step": "Continue strengthening your comprehensive habit",
+                                "day": "start_of_month"
+                            },
+                            {
+                                "step": "Focus on transformation across all areas",
+                                "day": "15"
+                            },
+                            {
+                                "step": "Complete final day and celebrate your 90-day transformation achievement!",
+                                "day": "90"
+                            }
+                        ],
+                        "reminders": [
+                            {
+                                "time": "19:00",
+                                "message": "Month 3 - final month! Complete your transformation!"
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    }
+}
+

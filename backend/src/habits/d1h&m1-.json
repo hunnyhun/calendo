@@ -1,0 +1,177 @@
+{
+    "name": "4-Week Language Learning Sprint",
+    "goal": "Complete a 4-week intensive language learning program with alternating focus weeks",
+    "category": "Learning",
+    "description": "Learn a new language with vocabulary weeks alternating with conversation weeks over 4 weeks",
+    "difficulty": "intermediate",
+    "high_level_schedule": {
+        "milestones": [
+            {
+                "index": 0,
+                "description": "Complete week 1 of language learning",
+                "completion_criteria": "streak_of_weeks",
+                "completion_criteria_point": 1,
+                "reward_message": "Great progress! You've completed your first week of language learning!"
+            },
+            {
+                "index": 1,
+                "description": "Complete 2 weeks of language learning",
+                "completion_criteria": "streak_of_weeks",
+                "completion_criteria_point": 2,
+                "reward_message": "Fantastic! 2 weeks down. You're halfway through the sprint!"
+            },
+            {
+                "index": 2,
+                "description": "Complete 4 weeks of language learning",
+                "completion_criteria": "streak_of_weeks",
+                "completion_criteria_point": 4,
+                "reward_message": "Congratulations! You've completed the 4-week language learning sprint! You've built a strong foundation!"
+            }
+        ]
+    },
+    "low_level_schedule": {
+        "span": "week",
+        "span_value": 2,
+        "habit_schedule": 30,
+        "habit_repeat_count": 4,
+        "program": [
+            {
+                "days_indexed": [
+                    {
+                        "index": 0,
+                        "title": "Daily Language Practice",
+                        "content": [
+                            {
+                                "step": "Set up your learning environment",
+                                "clock": "19:00"
+                            },
+                            {
+                                "step": "Practice for 30 minutes",
+                                "clock": "19:05"
+                            },
+                            {
+                                "step": "Review what you learned",
+                                "clock": "19:35"
+                            }
+                        ],
+                        "reminders": [
+                            {
+                                "time": "19:00",
+                                "message": "Time for your daily language practice!"
+                            }
+                        ]
+                    }
+                ],
+                "weeks_indexed": [
+                    {
+                        "index": 0,
+                        "title": "Week 1: Vocabulary Building Week",
+                        "content": [
+                            {
+                                "step": "Learn 20 new vocabulary words daily",
+                                "day": "Monday"
+                            },
+                            {
+                                "step": "Learn 20 new vocabulary words daily",
+                                "day": "Tuesday"
+                            },
+                            {
+                                "step": "Learn 20 new vocabulary words daily",
+                                "day": "Wednesday"
+                            },
+                            {
+                                "step": "Learn 20 new vocabulary words daily",
+                                "day": "Thursday"
+                            },
+                            {
+                                "step": "Learn 20 new vocabulary words daily",
+                                "day": "Friday"
+                            },
+                            {
+                                "step": "Review all vocabulary learned this week",
+                                "day": "Saturday"
+                            },
+                            {
+                                "step": "Test yourself on vocabulary",
+                                "day": "Sunday"
+                            }
+                        ],
+                        "reminders": [
+                            {
+                                "time": "19:00",
+                                "message": "Vocabulary week - expand your word bank!"
+                            }
+                        ]
+                    },
+                    {
+                        "index": 1,
+                        "title": "Week 2: Conversation Practice Week",
+                        "content": [
+                            {
+                                "step": "Practice speaking with language partner or app",
+                                "day": "Monday"
+                            },
+                            {
+                                "step": "Practice speaking with language partner or app",
+                                "day": "Tuesday"
+                            },
+                            {
+                                "step": "Practice speaking with language partner or app",
+                                "day": "Wednesday"
+                            },
+                            {
+                                "step": "Practice speaking with language partner or app",
+                                "day": "Thursday"
+                            },
+                            {
+                                "step": "Practice speaking with language partner or app",
+                                "day": "Friday"
+                            },
+                            {
+                                "step": "Have a full conversation in the target language",
+                                "day": "Saturday"
+                            },
+                            {
+                                "step": "Review conversation skills learned",
+                                "day": "Sunday"
+                            }
+                        ],
+                        "reminders": [
+                            {
+                                "time": "19:00",
+                                "message": "Conversation week - practice speaking!"
+                            }
+                        ]
+                    }
+                ],
+                "months_indexed": [
+                    {
+                        "index": 0,
+                        "title": "4-Week Language Sprint",
+                        "content": [
+                            {
+                                "step": "Begin your 4-week language learning sprint",
+                                "day": "start_of_month"
+                            },
+                            {
+                                "step": "Continue alternating weeks - you're making progress!",
+                                "day": "15"
+                            },
+                            {
+                                "step": "Complete week 4 and celebrate your language learning achievement!",
+                                "day": "28"
+                            }
+                        ],
+                        "reminders": [
+                            {
+                                "time": "19:00",
+                                "message": "Final week - complete your language sprint!"
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    }
+}
+

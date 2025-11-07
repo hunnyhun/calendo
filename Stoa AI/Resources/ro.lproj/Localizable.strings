@@ -55,6 +55,13 @@
 "noQuoteAvailable" = "Nu este disponibil niciun citat astăzi.";
 "fromNotification" = "Din Notificare";
 
+// MARK: - Reminders
+"reminders" = "Amintiri";
+"previousReminders" = "Amintiri Anterioare";
+"noReminderAvailable" = "Nu este disponibilă nicio amintire pentru astăzi.";
+"noPreviousReminders" = "Nu sunt disponibile amintiri anterioare.";
+"signInToViewDailyReminders" = "Autentifică-te pentru a vedea Amintirile Zilnice";
+
 // MARK: - Chat
 "chat" = "Chat";
 "send" = "Trimite";
@@ -172,6 +179,16 @@
 "unlimitedQuotes" = "Citate nelimitate";
 "prioritySupport" = "Suport prioritar";
 "maybeLater" = "Poate mai târziu";
+
+// Task mode suggestions
+"I have an exam coming up" = "Am un examen în curând";
+"I need to buy groceries" = "Trebuie să cumpăr mâncare";
+"I need to make a reservation" = "Trebuie să fac o rezervare";
+
+// Habit mode suggestions
+"Create a morning exercise habit" = "Creează un obicei de exerciții dimineața";
+"Help me build a daily reading routine" = "Ajută-mă să creez o rutină zilnică de lectură";
+"I want to start meditating regularly" = "Vreau să încep să meditez regulat";
 
 /* Anonymous Limit Sheet */
 "signUpBenefitsTitle" = "Avantajele Înregistrării";

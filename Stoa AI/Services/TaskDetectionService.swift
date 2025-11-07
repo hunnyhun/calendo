@@ -41,44 +41,106 @@ class TaskDetectionService {
                 return nil
             }
             
-            // Parse steps
+            // Extract optional fields
+            let goal = json["goal"] as? String
+            let category = json["category"] as? String
+            
+            // Parse task_schedule with steps
             var taskSteps: [TaskStep] = []
-            if let stepsArray = json["steps"] as? [[String: Any]] {
-                taskSteps = stepsArray.compactMap { stepDict in
-                    guard let stepDescription = stepDict["description"] as? String else {
+            guard let taskScheduleDict = json["task_schedule"] as? [String: Any],
+                  let stepsArray = taskScheduleDict["steps"] as? [[String: Any]] else {
+                print("❌ [TaskDetection] Missing task_schedule.steps")
+                return nil
+            }
+            
+            taskSteps = stepsArray.enumerated().compactMap { (idx, stepDict) in
+                let index = stepDict["index"] as? Int ?? (idx + 1)
+                let title = stepDict["title"] as? String
+                let stepDescription = stepDict["description"] as? String
+                let date = stepDict["date"] as? String // YYYY-MM-DD or null
+                let time = stepDict["time"] as? String // HH:MM or null
+                let isCompleted = stepDict["isCompleted"] as? Bool ?? false
+                
+                // Parse reminders
+                var reminders: [TaskReminder] = []
+                if let remindersArray = stepDict["reminders"] as? [[String: Any]] {
+                    reminders = remindersArray.compactMap { reminderDict in
+                        guard let offsetDict = reminderDict["offset"] as? [String: Any],
+                              let unitString = offsetDict["unit"] as? String,
+                              let unit = ReminderUnit(rawValue: unitString),
+                              let value = offsetDict["value"] as? Int else {
                         return nil
                     }
-                    let isCompleted = stepDict["isCompleted"] as? Bool ?? false
-                    return TaskStep(
-                        id: UUID().uuidString,
-                        description: stepDescription,
-                        isCompleted: isCompleted,
-                        scheduledDate: nil
-                    )
+                        
+                        let reminderTime = reminderDict["time"] as? String
+                        let message = reminderDict["message"] as? String
+                        
+                        return TaskReminder(
+                            offset: ReminderOffset(unit: unit, value: value),
+                            time: reminderTime,
+                            message: message
+                        )
+                    }
                 }
+                
+                // Convert date string to Date if available
+                var scheduledDate: Date? = nil
+                if let dateString = date {
+                    let formatter = DateFormatter()
+                    formatter.dateFormat = "yyyy-MM-dd"
+                    scheduledDate = formatter.date(from: dateString)
+                    
+                    // Add time if available
+                    if let timeString = time, let baseDate = scheduledDate {
+                        let timeFormatter = DateFormatter()
+                        timeFormatter.dateFormat = "HH:mm"
+                        if let timeValue = timeFormatter.date(from: timeString) {
+                            let calendar = Calendar.current
+                            let timeComponents = calendar.dateComponents([.hour, .minute], from: timeValue)
+                            scheduledDate = calendar.date(bySettingHour: timeComponents.hour ?? 0, minute: timeComponents.minute ?? 0, second: 0, of: baseDate)
+                        }
+                    }
+                }
+                
+                    return TaskStep(
+                    index: index,
+                    title: title,
+                        description: stepDescription,
+                    date: date,
+                    time: time,
+                        isCompleted: isCompleted,
+                    scheduledDate: scheduledDate,
+                    reminders: reminders
+                    )
             }
             
-            // Parse dates
-            let createdAt: Date
+            // Parse createdAt (should be ISO8601 string, like habits)
+            let createdAt: String?
             if let createdAtString = json["created_at"] as? String {
-                let formatter = ISO8601DateFormatter()
-                createdAt = formatter.date(from: createdAtString) ?? Date()
+                createdAt = createdAtString
             } else {
-                createdAt = Date()
+                // If not provided, use current time as ISO8601 string
+                createdAt = ISO8601DateFormatter().string(from: Date())
             }
             
-            // Create UserTask
+            // Create task schedule
+            let taskSchedule = TaskSchedule(steps: taskSteps)
+            
+            // Create UserTask with new structure
+            // startDate will be set when user pushes to calendar (like habits)
             let task = UserTask(
                 id: UUID().uuidString,
                 name: name,
+                goal: goal,
+                category: category,
                 description: description,
                 createdAt: createdAt,
                 completedAt: nil,
                 isCompleted: false,
-                steps: taskSteps,
-                createdBy: userId ?? "unknown",
-                deadline: nil,
-                startDate: nil
+                taskSchedule: taskSchedule,
+                createdBy: userId,
+                startDate: nil, // startDate will be set when user pushes to calendar
+                isActive: true // New tasks are active by default
             )
             
             print("✅ [TaskDetection] Successfully detected task: \(task.name)")
@@ -159,23 +221,37 @@ class TaskDetectionService {
         return jsonString
     }
     
-    /// Removes task JSON from text for clean display
+    /// Removes task JSON and any flags from text for clean display
     func cleanTextFromTaskSuggestion(_ text: String) -> String {
-        // Remove code-fenced JSON
-        var cleanedText = text.replacingOccurrences(
+        var cleanedText = text
+        
+        // Step 1: Remove any task generation flags (if they exist)
+        cleanedText = cleanedText.replacingOccurrences(
+            of: "\\[TASKGEN\\s*=\\s*True\\]",
+            with: "",
+            options: [.regularExpression, .caseInsensitive]
+        )
+        cleanedText = cleanedText.replacingOccurrences(
+            of: "TASKGEN=True",
+            with: "",
+            options: [.caseInsensitive]
+        )
+        
+        // Step 2: Remove code-fenced JSON
+        cleanedText = cleanedText.replacingOccurrences(
             of: "```json[\\s\\S]*?```",
             with: "",
             options: .regularExpression
         )
         
-        // Remove raw JSON
+        // Step 3: Remove raw JSON (both new and legacy structures)
         cleanedText = cleanedText.replacingOccurrences(
-            of: "\\{[\\s\\S]*?\"name\"[\\s\\S]*?\"description\"[\\s\\S]*?\"steps\"[\\s\\S]*?\\}",
+            of: "\\{[\\s\\S]*?\"name\"[\\s\\S]*?\"description\"[\\s\\S]*?(\"task_schedule\"|\"steps\")[\\s\\S]*?\\}",
             with: "",
             options: .regularExpression
         )
         
-        // Clean up extra whitespace
+        // Step 4: Clean up extra whitespace
         cleanedText = cleanedText
             .trimmingCharacters(in: .whitespacesAndNewlines)
             .replacingOccurrences(of: "\n\n\n+", with: "\n\n", options: .regularExpression)

@@ -1,0 +1,131 @@
+{
+    "name": "string",
+    "goal": "string",
+    "category": "string",
+    "description": "string",
+    "difficulty": "beginner" | "intermediate" | "advanced",
+    "high_level_schedule": {
+        "milestones": [
+            {
+                "index": 0,
+                "description": "string",
+                "completion_criteria": "streak_of_days | streak_of_weeks | streak_of_months | percentage",
+                "completion_criteria_point": "number",
+                "reward_message": "string"
+            }
+        ]
+    },
+    "low_level_schedule": {
+        "span": "day" | "week" | "month" | "year",
+        "span_value": number,
+        "habit_schedule": number | null,
+        "habit_repeat_count": number | null,
+        "program": [
+            {
+                "days_indexed": [
+                    {
+                        "index": 1,
+                        "title": "string",
+                        "content": [
+                            {
+                                "step": "string",
+                                "clock": "00:00 | null"
+                            }
+                        ],
+                        "reminders": [
+                            {
+                                "time": "00:00 | null",
+                                "message": "string | null"
+                            }
+                        ]
+                    }
+                ],
+                "weeks_indexed": [
+                    {
+                        "index": 1,
+                        "title": "string",
+                        "description": "string",
+                        "content": [
+                            {
+                                "step": "string",
+                                "day": "Monday | Tuesday | Wednesday | Thursday | Friday | Saturday | Sunday"
+                            }
+                        ],
+                        "reminders": [
+                            {
+                                "time": "00:00 | null",
+                                "message": "string | null"
+                            }
+                        ]
+                    }
+                ],
+                "months_indexed": [
+                    {
+                        "index": 1,
+                        "title": "string",
+                        "description": "string",
+                        "content": [
+                            {
+                                "step": "string",
+                                "day": "start_of_month | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 | 17 | 18 | 19 | 20 | 21 | 22 | 23 | 24 | 25 | 26 | 27 | 28 | end_of_month"
+                            }
+                        ],
+                        "reminders": [
+                            {
+                                "time": "00:00 | null",
+                                "message": "string | null"
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    }
+}
+    // The difficulty of the habit is determined based on conversation and later on the app can create a new habit which is continued from the previous habit.
+    //
+    // CRITICAL: Understanding habit_schedule and habit_repeat_count
+    //
+    // habit_repeat_count:
+    //   - Definition: How many times the program cycle will repeat
+    //   - Type: number | null
+    //   - If null: The habit repeats infinitely (no end date)
+    //   - If number: The habit repeats exactly that many times
+    //   - Example: habit_repeat_count: 12 means the program repeats 12 times
+    //
+    // habit_schedule:
+    //   - Definition: Total duration the habit will be running, measured in DAYS
+    //   - Type: number | null
+    //   - If null: The habit runs infinitely (no end date)
+    //   - If number: The habit runs for exactly that many days
+    //   - Calculation Formula: habit_schedule = habit_repeat_count × span × span_value (converted to days)
+    //     * For span="day": habit_schedule = habit_repeat_count × span_value × 1
+    //     * For span="week": habit_schedule = habit_repeat_count × span_value × 7
+    //     * For span="month": habit_schedule = habit_repeat_count × span_value × 30 (approximate)
+    //     * For span="year": habit_schedule = habit_repeat_count × span_value × 365 (approximate)
+    //
+    // Calculation method:
+    // - span × span_value = duration of one repeating cycle (in the span unit, e.g., if span="week" and span_value=2, one cycle = 2 weeks)
+    // - habit_repeat_count = how many times the cycle repeats (if null, duration is infinite)
+    // - habit_schedule = total duration in days (habit_repeat_count × span × span_value converted to days). If null, duration is infinite.
+    //
+    // IMPORTANT Relationships:
+    // - When BOTH habit_repeat_count and habit_schedule are null → habit is INFINITE
+    // - When habit_repeat_count is set → habit_schedule MUST be calculated using the formula above
+    // - When habit_schedule is set → it represents the total duration in days regardless of habit_repeat_count
+    // - For infinite habits → set both to null: habit_repeat_count: null, habit_schedule: null
+    //
+    // Examples:
+    // - Example 1: 2 weeks plan repeating for 6 months
+    //   span:"week", span_value:2, habit_repeat_count:12, habit_schedule:168 (12 × 2 × 7 = 168 days)
+    // - Example 2: Infinite habit (e.g., daily water intake)
+    //   span:"day", span_value:1, habit_repeat_count:null, habit_schedule:null
+    // - Example 3: 4-day gym rotation (chest, back, leg, rest) repeating indefinitely
+    //   span:"day", span_value:4, habit_repeat_count:null, habit_schedule:null
+    // - Example 4: 30-day program repeating 3 times
+    //   span:"day", span_value:30, habit_repeat_count:3, habit_schedule:90 (3 × 30 × 1 = 90 days)
+    // Program has all the details in three context; days, weeks, months.
+    // All three of days_indexed, weeks_indexed, months_indexed will have indexed element which has details about the date.
+    // On app's calendar view days_indexed contents will be rendered on daily view, weeks_indexed content will be rendered on weekly view, months_indexed content will be rendered on monthly view.
+    // The indexed elements of days_indexed should have title, a content list of steps with a clock ( if the step clock data is nill it means anytime in day it can be done )
+

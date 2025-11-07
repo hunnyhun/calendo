@@ -1,0 +1,237 @@
+{
+    "name": "Multi-Week Multi-Month Habit",
+    "goal": "Build a long-term habit across multiple weeks and months",
+    "category": "Personal Development",
+    "description": "Maintain a daily activity across multiple weeks spanning multiple months",
+    "difficulty": "intermediate",
+    "high_level_schedule": {
+        "milestones": [
+            {
+                "index": 0,
+                "description": "Complete 2 months of multi-week tracking",
+                "completion_criteria": "streak_of_months",
+                "completion_criteria_point": 2,
+                "reward_message": "Great job! You've completed 2 months of multi-week tracking!"
+            },
+            {
+                "index": 1,
+                "description": "Complete 4 months of multi-week tracking",
+                "completion_criteria": "streak_of_months",
+                "completion_criteria_point": 4,
+                "reward_message": "Fantastic! 4 months of consistent multi-week tracking!"
+            },
+            {
+                "index": 2,
+                "description": "Complete 6 months of multi-week tracking",
+                "completion_criteria": "streak_of_months",
+                "completion_criteria_point": 6,
+                "reward_message": "Incredible! 6 months of multi-week tracking. You've built a strong habit!"
+            }
+        ]
+    },
+    "low_level_schedule": {
+        "span": "month",
+        "span_value": 1,
+        "habit_schedule": null,
+        "habit_repeat_count": null,
+        "program": [
+            {
+                "days_indexed": [
+                    {
+                        "index": 0,
+                        "title": "Daily Practice",
+                        "content": [
+                            {
+                                "step": "Complete your daily practice session",
+                                "clock": "19:00"
+                            },
+                            {
+                                "step": "Log your progress",
+                                "clock": "19:30"
+                            }
+                        ],
+                        "reminders": [
+                            {
+                                "time": "19:00",
+                                "message": "Time for your daily practice!"
+                            }
+                        ]
+                    }
+                ],
+                "weeks_indexed": [
+                    {
+                        "index": 0,
+                        "title": "Week 1: Foundation",
+                        "content": [
+                            {
+                                "step": "Start your first week of daily practice",
+                                "day": "Monday"
+                            },
+                            {
+                                "step": "Continue daily practice",
+                                "day": "Wednesday"
+                            },
+                            {
+                                "step": "Review week 1 progress",
+                                "day": "Sunday"
+                            }
+                        ],
+                        "reminders": [
+                            {
+                                "time": "19:00",
+                                "message": "Week 1 - building your foundation!"
+                            }
+                        ]
+                    },
+                    {
+                        "index": 1,
+                        "title": "Week 2: Consistency",
+                        "content": [
+                            {
+                                "step": "Continue daily practice into week 2",
+                                "day": "Monday"
+                            },
+                            {
+                                "step": "Maintain consistency",
+                                "day": "Wednesday"
+                            },
+                            {
+                                "step": "Review week 2 progress",
+                                "day": "Sunday"
+                            }
+                        ],
+                        "reminders": [
+                            {
+                                "time": "19:00",
+                                "message": "Week 2 - maintaining consistency!"
+                            }
+                        ]
+                    },
+                    {
+                        "index": 2,
+                        "title": "Week 3: Growth",
+                        "content": [
+                            {
+                                "step": "Continue daily practice into week 3",
+                                "day": "Monday"
+                            },
+                            {
+                                "step": "Focus on growth and improvement",
+                                "day": "Wednesday"
+                            },
+                            {
+                                "step": "Review week 3 progress",
+                                "day": "Sunday"
+                            }
+                        ],
+                        "reminders": [
+                            {
+                                "time": "19:00",
+                                "message": "Week 3 - focus on growth!"
+                            }
+                        ]
+                    },
+                    {
+                        "index": 3,
+                        "title": "Week 4: Mastery",
+                        "content": [
+                            {
+                                "step": "Continue daily practice into week 4",
+                                "day": "Monday"
+                            },
+                            {
+                                "step": "Work towards mastery",
+                                "day": "Wednesday"
+                            },
+                            {
+                                "step": "Review week 4 and monthly progress",
+                                "day": "Sunday"
+                            }
+                        ],
+                        "reminders": [
+                            {
+                                "time": "19:00",
+                                "message": "Week 4 - working towards mastery!"
+                            }
+                        ]
+                    }
+                ],
+                "months_indexed": [
+                    {
+                        "index": 0,
+                        "title": "Month 1: Beginning",
+                        "content": [
+                            {
+                                "step": "Start your multi-week, multi-month journey",
+                                "day": "start_of_month"
+                            },
+                            {
+                                "step": "Continue through all weeks of the month",
+                                "day": "15"
+                            },
+                            {
+                                "step": "Review month 1 progress",
+                                "day": "end_of_month"
+                            }
+                        ],
+                        "reminders": [
+                            {
+                                "time": "19:00",
+                                "message": "Month 1 - beginning your journey!"
+                            }
+                        ]
+                    },
+                    {
+                        "index": 1,
+                        "title": "Month 2: Building",
+                        "content": [
+                            {
+                                "step": "Continue your multi-week practice",
+                                "day": "start_of_month"
+                            },
+                            {
+                                "step": "Maintain consistency across all weeks",
+                                "day": "15"
+                            },
+                            {
+                                "step": "Review month 2 progress",
+                                "day": "end_of_month"
+                            }
+                        ],
+                        "reminders": [
+                            {
+                                "time": "19:00",
+                                "message": "Month 2 - building your habit!"
+                            }
+                        ]
+                    },
+                    {
+                        "index": 2,
+                        "title": "Month 3: Strengthening",
+                        "content": [
+                            {
+                                "step": "Continue strengthening your habit",
+                                "day": "start_of_month"
+                            },
+                            {
+                                "step": "Focus on improvement across all weeks",
+                                "day": "15"
+                            },
+                            {
+                                "step": "Review 3-month milestone progress",
+                                "day": "end_of_month"
+                            }
+                        ],
+                        "reminders": [
+                            {
+                                "time": "19:00",
+                                "message": "Month 3 - strengthening your habit!"
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    }
+}
+

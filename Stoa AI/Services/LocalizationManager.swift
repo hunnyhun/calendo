@@ -20,7 +20,17 @@ import UIKit
         "es-419": "Español (Latinoamérica)",
         "it": "Italiano",
         "pt": "Português",
-        "pt-BR": "Português (Brasil)"
+        "pt-BR": "Português (Brasil)",
+        "ro": "Română",
+        "ja": "日本語",
+        "ko": "한국어",
+        "sv": "Svenska",
+        "nl": "Nederlands",
+        "de": "Deutsch",
+        "hu": "Magyar",
+        "ru": "Русский",
+        "uk": "Українська",
+        "tr": "Türkçe"
     ]
     
     // Private initializer for singleton

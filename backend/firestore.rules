@@ -1,0 +1,116 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Helper functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    function isValidProvider() {
+      return request.auth != null && 
+             (request.auth.token.firebase.sign_in_provider == 'google.com' || 
+              request.auth.token.firebase.sign_in_provider == 'apple.com');
+    }
+    
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId && isValidProvider();
+    }
+    
+    function isAdmin() {
+      return isAuthenticated() && request.auth.token.admin == true;
+    }
+    
+    // Users collection - users can only access their own data
+    match /users/{userId} {
+      // User can only read/write their own profile
+      allow read: if isOwner(userId);
+      allow write: if isOwner(userId);
+      
+      // User's conversations
+      match /conversations/{conversationId} {
+        allow read, write, delete: if isOwner(userId);
+      }
+      
+      // User's devices
+      match /devices/{deviceId} {
+        allow read: if isOwner(userId);
+        allow write: if isOwner(userId);
+      }
+      
+      // User's habits - with isActive field support
+      match /habits/{habitId} {
+        // Users can read/write/delete only their own habits
+        // Ensure isActive is always a boolean when present
+        allow read: if isOwner(userId);
+        allow create, update: if isOwner(userId) && 
+                                (!('isActive' in request.resource.data) || request.resource.data.isActive is bool);
+        allow delete: if isOwner(userId);
+      }
+      
+      // User's habit entries
+      match /habitEntries/{entryId} {
+        allow read, write, delete: if isOwner(userId);
+      }
+      
+      // User's tasks - with isActive field support
+      match /tasks/{taskId} {
+        // Users can read/write/delete only their own tasks
+        // Ensure isActive is always a boolean when present
+        allow read: if isOwner(userId);
+        allow create, update: if isOwner(userId) && 
+                                (!('isActive' in request.resource.data) || request.resource.data.isActive is bool);
+        allow delete: if isOwner(userId);
+      }
+    }
+    
+    // Customers collection (for RevenueCat)
+    match /customers/{userId} {
+      allow read: if isOwner(userId);
+      allow write: if isOwner(userId) || isAdmin();
+    }
+    
+    // Shared habits collection (public read for share links, authenticated write)
+    match /sharedHabits/{shareId} {
+      // Anyone can read shared habits (for importing)
+      allow read: if true;
+      // Only authenticated users can create share links
+      allow create: if isAuthenticated() && isValidProvider();
+      // Anyone can update import count and view count (for analytics)
+      // Only the creator can update other fields
+      allow update: if isAuthenticated() && isValidProvider() && (
+        // Allow updates to analytics fields by anyone
+        (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['importCount', 'importedBy', 'viewCount', 'lastImportedAt'])) ||
+        // Or allow creator to update any field
+        (resource.data.sharedBy == request.auth.uid)
+      );
+      // Only the creator can delete
+      allow delete: if isAuthenticated() && isValidProvider() && 
+                     resource.data.sharedBy == request.auth.uid;
+    }
+    
+    // Shared tasks collection (public read for share links, authenticated write)
+    match /sharedTasks/{shareId} {
+      // Anyone can read shared tasks (for importing)
+      allow read: if true;
+      // Only authenticated users can create share links
+      allow create: if isAuthenticated() && isValidProvider();
+      // Anyone can update import count and view count (for analytics)
+      // Only the creator can update other fields
+      allow update: if isAuthenticated() && isValidProvider() && (
+        // Allow updates to analytics fields by anyone
+        (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['importCount', 'importedBy', 'viewCount', 'lastImportedAt'])) ||
+        // Or allow creator to update any field
+        (resource.data.sharedBy == request.auth.uid)
+      );
+      // Only the creator can delete
+      allow delete: if isAuthenticated() && isValidProvider() && 
+                     resource.data.sharedBy == request.auth.uid;
+    }
+    
+    // Deny all other access by default
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

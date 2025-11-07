@@ -7,6 +7,9 @@ public enum Models {
     public enum Feature: Hashable {
         case chat
         case calendar
+        case tracking
+        case reminders
+        case settings
         case tasks
         case habits
     }
@@ -147,7 +150,6 @@ public enum Models {
         public var userEmail: String?
         public var userId: String?
         public var lastUpdated: Date = Date()
-        public var isAnonymous: Bool = true // Default to true
         public var profile: UserProfile = UserProfile()
         
         public var isAuthenticated: Bool {
@@ -235,26 +237,14 @@ public enum Models {
     
     /// Helper for checking habit access permissions
     public struct HabitAccessHelper {
+        // All users can create habits regardless of status or count
         public static func canCreateHabit(userStatus: UserStatus, currentHabitCount: Int) -> HabitAccessResult {
-            switch userStatus {
-            case .anonymous:
-                return .requiresLogin
-            case .loggedIn(let isPremium):
-                if isPremium {
-                    return .allowed
-                } else {
-                    return currentHabitCount >= 1 ? .requiresPremium(currentCount: currentHabitCount) : .allowed
-                }
-            }
+            return .allowed
         }
         
+        // All users can access habit mode
         public static func canAccessHabitMode(userStatus: UserStatus) -> Bool {
-            switch userStatus {
-            case .anonymous:
-                return false
-            case .loggedIn:
-                return true
-            }
+            return true
         }
     }
     
@@ -268,14 +258,28 @@ public enum Models {
         public let stepDescription: String
         public let time: String? // e.g., "6 PM", "18:00"
         public let isCompleted: Bool
+        public let stepId: String? // Original step ID from schedule
+        public let difficulty: String? // "easy", "medium", "hard", "expert"
+        public let durationMinutes: Int? // Estimated duration in minutes
+        public let feedback: String? // Feedback message for completion
+        public let phase: String? // Phase name for high-level schedule context
+        public let milestoneId: String? // Related milestone ID if applicable
+        public let title: String? // Title for the day/week/month (e.g., "First Day Meditation", "Week 1")
         
-        public init(id: String = UUID().uuidString, habitId: String, habitName: String, stepDescription: String, time: String? = nil, isCompleted: Bool = false) {
+        public init(id: String = UUID().uuidString, habitId: String, habitName: String, stepDescription: String, time: String? = nil, isCompleted: Bool = false, stepId: String? = nil, difficulty: String? = nil, durationMinutes: Int? = nil, feedback: String? = nil, phase: String? = nil, milestoneId: String? = nil, title: String? = nil) {
             self.id = id
             self.habitId = habitId
             self.habitName = habitName
             self.stepDescription = stepDescription
             self.time = time
             self.isCompleted = isCompleted
+            self.stepId = stepId
+            self.difficulty = difficulty
+            self.durationMinutes = durationMinutes
+            self.feedback = feedback
+            self.phase = phase
+            self.milestoneId = milestoneId
+            self.title = title
         }
     }
     

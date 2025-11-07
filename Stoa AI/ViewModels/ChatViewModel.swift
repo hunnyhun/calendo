@@ -47,21 +47,14 @@ struct SectionedChatHistory {
     private var lastLoadTime: Date?
     private let loadThrottleInterval: TimeInterval = 3.0 // seconds
     private var observerSetup = false
-    var showAnonymousLimitPrompt = false
     
     // MARK: - Chat Mode Properties
-    var currentChatMode: ChatMode = .task
-    var showingHabitModeRestriction = false
+    var currentChatMode: ChatMode = .habit
     
     // MARK: - Chat Mode Functions
     
     func switchChatMode(to mode: ChatMode) {
-        // Check if user can access habit mode
-        if mode == .habit && !canAccessHabitMode() {
-            showingHabitModeRestriction = true
-            return
-        }
-        
+        // All users can now access all chat modes
         currentChatMode = mode
         
         // Start a new conversation when switching modes
@@ -75,18 +68,12 @@ struct SectionedChatHistory {
     }
     
     
-    // MARK: - Alert Properties for Popups
-    var showAnonymousLimitAlert = false
-    var showPremiumLimitAlert = false
-    var anonymousLimitAlertMessage = ""
-    var premiumLimitAlertMessage = ""
-    
     // Streaming properties
     var isStreaming = false
     var currentStreamingMessageId: String?
     
     // MARK: - Init
-    init(cloudService: CloudFunctionService = CloudFunctionService()) {
+    init(cloudService: CloudFunctionService = CloudFunctionService.shared) {
         self.cloudService = cloudService
         
         // Generate initial conversation ID with timestamp for better uniqueness
@@ -328,57 +315,29 @@ struct SectionedChatHistory {
     }
     
     @objc private func handleUserStateChange(_ notification: Notification) {
-        guard let userInfo = notification.userInfo else {
+        guard let userInfo = notification.userInfo,
+              let authStatus = userInfo["authStatus"] as? String else {
             print("ERROR: [Chat] Invalid user state change notification data")
             return
         }
         
-        if let authStatus = userInfo["authStatus"] as? String,
-           let isAnonymous = userInfo["isAnonymous"] as? Bool {
+        print("[Chat] Handling user state change: Auth=\(authStatus)")
 
-            print("[Chat] Handling user state change: Auth=\(authStatus), Anonymous=\(isAnonymous)")
-
-            if authStatus == "authenticated" && !isAnonymous {
-                // User is fully authenticated (not anonymous)
-                print("[Chat] User is fully authenticated. Clearing state and loading history.")
+        if authStatus == "authenticated" {
+            // User is authenticated
+            print("[Chat] User is authenticated. Clearing state and loading history.")
                 self.messages = [] // Clear the current chat window
-                self.showAnonymousLimitPrompt = false // Reset the prompt flag
-                self.isRateLimited = false // Also reset premium limit flag
+            self.isRateLimited = false // Reset premium limit flag
                 self.error = nil // Clear any lingering errors
                 self.currentConversation = nil // Reset current conversation reference
                 
-                // Clear alert properties
-                self.showAnonymousLimitAlert = false
-                self.showPremiumLimitAlert = false
-                self.anonymousLimitAlertMessage = ""
-                self.premiumLimitAlertMessage = ""
-                
-                 // Generate a new conversation ID for the newly logged-in user
+            // Generate a new conversation ID for the logged-in user
                 let timestamp = ISO8601DateFormatter().string(from: Date())
                 self.currentConversationId = "\(timestamp)-\(UUID().uuidString.prefix(8))"
                 print("[Chat] Generated new conversation ID for logged-in user: \(self.currentConversationId)")
 
-                // Load history (existing logic)
+            // Load history
                 loadChatHistory()
-
-                 // Dismissal of AuthView sheet should happen implicitly in ChatView
-                 // as showAnonymousLimitPrompt is now false.
-
-            } else if authStatus == "authenticated" && isAnonymous {
-                // User is anonymous
-                print("[Chat] User is anonymous. Clearing local history.")
-                self.chatHistory = []
-                self.sectionedHistory = []
-                self.isLoadingHistory = false
-                
-                // Clear any limit-related alerts for anonymous users
-                self.showPremiumLimitAlert = false
-                self.premiumLimitAlertMessage = ""
-                self.showAnonymousLimitAlert = false
-                self.anonymousLimitAlertMessage = ""
-                self.currentConversation = nil // Reset current conversation if they were viewing one
-                // Keep existing conversation ID for anonymous session
-
             } else {
                 // User is unauthenticated
                 print("[Chat] User is unauthenticated. Clearing local history and messages.")
@@ -386,23 +345,13 @@ struct SectionedChatHistory {
                 self.sectionedHistory = []
                 self.isLoadingHistory = false
                 self.messages = [] // Clear messages on sign out
-                self.showAnonymousLimitPrompt = false // Ensure prompt is hidden
                 self.isRateLimited = false
                 self.error = nil
                 self.currentConversation = nil
                 
-                // Clear alert properties
-                self.showAnonymousLimitAlert = false
-                self.showPremiumLimitAlert = false
-                self.anonymousLimitAlertMessage = ""
-                self.premiumLimitAlertMessage = ""
-                
                  // Generate new conversation ID for logged-out state
                 let timestamp = ISO8601DateFormatter().string(from: Date())
                  self.currentConversationId = "\(timestamp)-\(UUID().uuidString.prefix(8))"
-            }
-        } else {
-            print("ERROR: [Chat] Invalid user state change notification data")
         }
     }
     
@@ -427,16 +376,44 @@ struct SectionedChatHistory {
         }
     }
 
-    // Infer chat mode from messages by scanning for ai_habit_suggestion or task JSON
+    // Infer chat mode from messages by scanning for habit or task JSON markers
     private func inferMode(from messages: [ChatMessage]) -> ChatMode {
         for msg in messages where !msg.isUser {
-            if msg.text.contains("\"ai_habit_suggestion\"") || msg.cleanedText != nil || msg.detectedHabitSuggestion != nil {
+            // Check if message already has detected suggestions (most reliable)
+            if msg.detectedHabitSuggestion != nil {
                 return .habit
             }
-            if msg.text.contains("\"name\"") && msg.text.contains("\"description\"") && msg.text.contains("\"steps\"") || msg.detectedTaskSuggestion != nil {
+            if msg.detectedTaskSuggestion != nil {
+                return .task
+            }
+            
+            // Check for habit markers in text (comprehensive format)
+            let text = msg.text.lowercased()
+            let hasHabitMarkers = text.contains("\"ai_habit_suggestion\"") ||
+                                  (text.contains("\"name\"") && text.contains("\"goal\"") && 
+                                   (text.contains("\"milestones\"") || 
+                                    text.contains("\"low_level_schedule\"") || 
+                                    text.contains("\"high_level_schedule\"") ||
+                                    text.contains("\"tracking_method\"")))
+            
+            // Check for task markers (has steps but no habit-specific fields)
+            let hasTaskMarkers = text.contains("\"name\"") && 
+                                text.contains("\"description\"") && 
+                                text.contains("\"steps\"") &&
+                                !text.contains("\"milestones\"") &&
+                                !text.contains("\"low_level_schedule\"") &&
+                                !text.contains("\"high_level_schedule\"")
+            
+            // Prioritize habit detection (habits can have steps too, but tasks don't have milestones/schedules)
+            if hasHabitMarkers {
+                return .habit
+            }
+            if hasTaskMarkers {
                 return .task
             }
         }
+        
+        // Default to task mode if no clear indicators found
         return .task
     }
     
@@ -584,22 +561,46 @@ struct SectionedChatHistory {
     
     // MARK: - Simple JSON Filtering for Streaming
     private func filterJSONFromStreamingText(_ text: String) -> String {
-        // Simple approach: just remove everything after we see JSON starting
+        var filtered = text
+        
+        // Remove HABITGEN flags immediately during streaming
+        filtered = filtered.replacingOccurrences(
+            of: "\\[HABITGEN\\s*=\\s*True\\]",
+            with: "",
+            options: [.regularExpression, .caseInsensitive]
+        )
+        filtered = filtered.replacingOccurrences(
+            of: "HABITGEN=True",
+            with: "",
+            options: [.caseInsensitive]
+        )
+        
+        // Remove TASKGEN flags if they exist
+        filtered = filtered.replacingOccurrences(
+            of: "\\[TASKGEN\\s*=\\s*True\\]",
+            with: "",
+            options: [.regularExpression, .caseInsensitive]
+        )
+        filtered = filtered.replacingOccurrences(
+            of: "TASKGEN=True",
+            with: "",
+            options: [.caseInsensitive]
+        )
         
         // Method 1: Look for code fence (most common)
-        if let codeStart = text.range(of: "```") {
-            return String(text[..<codeStart.lowerBound]).trimmingCharacters(in: .whitespacesAndNewlines)
+        if let codeStart = filtered.range(of: "```") {
+            return String(filtered[..<codeStart.lowerBound]).trimmingCharacters(in: .whitespacesAndNewlines)
         }
         
         // Method 2: Look for JSON object start with our key
-        if text.contains("ai_habit_suggestion") {
-            // Find the opening brace before ai_habit_suggestion
-            if let jsonStart = text.range(of: "{") {
-                return String(text[..<jsonStart.lowerBound]).trimmingCharacters(in: .whitespacesAndNewlines)
+        if filtered.contains("ai_habit_suggestion") || filtered.contains("\"name\":") {
+            // Find the opening brace before JSON markers
+            if let jsonStart = filtered.range(of: "{") {
+                return String(filtered[..<jsonStart.lowerBound]).trimmingCharacters(in: .whitespacesAndNewlines)
             }
         }
         
-        return text
+        return filtered.trimmingCharacters(in: .whitespacesAndNewlines)
     }
     
     
@@ -620,16 +621,19 @@ struct SectionedChatHistory {
                 self.currentConversationId = newConversationId
             }
             
-            // Save updated conversation with title from backend
-            self.saveConversation(withTitle: response["title"] as? String)
-            
             // Check for suggestions in the complete message based on current chat mode
+            // NOTE: Save conversation AFTER updating message text, so the saved conversation includes full text with JSON
             if let messageId = self.currentStreamingMessageId,
                let index = self.messages.firstIndex(where: { $0.id == messageId }),
                let userId = self.userStatusManager.state.userId,
                let completeMessage = response["message"] as? String {
                 
                 print("[Chat] Checking for \(self.currentChatMode.displayName.lowercased()) suggestions in complete message (length: \(completeMessage.count))")
+                
+                // CRITICAL: Update the message's text property with the complete message (includes JSON)
+                // This ensures that when we reload from history, the full text with JSON is available
+                var updatedMessage = self.messages[index]
+                updatedMessage.text = completeMessage  // Save full text with JSON for history
                 
                 // Detect suggestions based on current chat mode
                 if self.currentChatMode == .habit {
@@ -642,12 +646,12 @@ struct SectionedChatHistory {
                         print("✅ [Chat] Detected habit suggestion: \(detectedHabit.name)")
                         
                         // Update the message with detected habit and cleaned text
-                        var updatedMessage = self.messages[index]
                         updatedMessage.detectedHabitSuggestion = detectedHabit
                         updatedMessage.cleanedText = HabitDetectionService.shared.cleanTextFromHabitSuggestion(completeMessage)
-                        self.messages[index] = updatedMessage
                     } else {
                         print("❌ [Chat] No habit suggestion detected in complete message")
+                        // Still clean the text to remove HABITGEN flags and JSON
+                        updatedMessage.cleanedText = HabitDetectionService.shared.cleanTextFromHabitSuggestion(completeMessage)
                     }
                 } else if self.currentChatMode == .task {
                     // In task mode, only check for task suggestions
@@ -658,15 +662,22 @@ struct SectionedChatHistory {
                         print("✅ [Chat] Detected task suggestion: \(detectedTask.name)")
                         
                         // Update the message with detected task and cleaned text
-                        var updatedMessage = self.messages[index]
                         updatedMessage.detectedTaskSuggestion = detectedTask
                         updatedMessage.cleanedText = TaskDetectionService.shared.cleanTextFromTaskSuggestion(completeMessage)
-                        self.messages[index] = updatedMessage
                     } else {
                         print("❌ [Chat] No task suggestion detected in complete message")
+                        // Still clean the text to remove any flags and JSON
+                        updatedMessage.cleanedText = TaskDetectionService.shared.cleanTextFromTaskSuggestion(completeMessage)
                     }
                 }
+                
+                // Save the updated message with full text
+                self.messages[index] = updatedMessage
             }
+            
+            // Save updated conversation with title from backend (AFTER updating message text)
+            // This ensures the saved conversation includes the full message text with JSON
+            self.saveConversation(withTitle: response["title"] as? String)
             
             // Reset all streaming and loading states
             self.isLoading = false
@@ -708,34 +719,12 @@ struct SectionedChatHistory {
     private func handleChatError(_ error: CloudFunctionError) {
         switch error {
         case .rateLimitExceeded(let message):
-            // Check if user is anonymous or authenticated
-            if userStatusManager.state.isAnonymous {
-                // Anonymous user - show login popup
-                anonymousLimitAlertMessage = message
-                showAnonymousLimitAlert = true
-                showAnonymousLimitPrompt = false // Clear inline prompt
-            } else {
-                // Authenticated user - show subscription popup
-                premiumLimitAlertMessage = message
-                showPremiumLimitAlert = true
-                isRateLimited = false // Clear inline rate limit flag
-            }
+            // Simply show the error message
+            setErrorMessage(message)
         case .notAuthenticated:
             setErrorMessage("Authentication required")
         case .serverError(let message):
-            if message.contains("anonymous") {
-                // Anonymous user limit - show login popup
-                anonymousLimitAlertMessage = message
-                showAnonymousLimitAlert = true
-                showAnonymousLimitPrompt = false // Clear inline prompt
-            } else if message.contains("free tier") || message.contains("upgrade to premium") {
-                // Authenticated free user limit - show subscription popup
-                premiumLimitAlertMessage = message
-                showPremiumLimitAlert = true
-                isRateLimited = false // Clear inline rate limit flag
-            } else {
-                setErrorMessage(message)
-            }
+            setErrorMessage(message)
         case .networkError, .parseError:
             setErrorMessage("Network error. Please check your connection.")
         }
@@ -749,8 +738,6 @@ struct SectionedChatHistory {
         if let message = message {
             print("[Chat] Error: \(message)")
         }
-        // Ensure anonymous prompt isn't shown for general errors
-        // self.showAnonymousLimitPrompt = false // Don't reset here, let the view handle dismissal
     }
     
     // MARK: - Saving Conversation
@@ -805,24 +792,42 @@ struct SectionedChatHistory {
         currentConversation = history
         currentConversationId = history.id
         
-        // Process messages for suggestions based on chat mode before setting them
-        if history.mode == .habit {
-            messages = processMessagesForHabitSuggestions(history.messages)
-        } else if history.mode == .task {
-            messages = processMessagesForTaskSuggestions(history.messages)
-        } else {
-            messages = history.messages
-        }
-        
-        // Update chat mode to match the conversation's mode
+        // Determine the chat mode (stored or inferred)
+        let effectiveMode: ChatMode
         if let storedMode = history.mode {
-            currentChatMode = storedMode
-            print("🔄 [ChatViewModel] Set conversation (\(source)) with \(storedMode.displayName) mode")
+            effectiveMode = storedMode
+            print("🔄 [ChatViewModel] Set conversation (\(source)) with stored \(storedMode.displayName) mode")
         } else {
             // Fallback: infer mode from messages if no stored mode
-            currentChatMode = inferMode(from: history.messages)
-            print("🔄 [ChatViewModel] Set conversation (\(source)) with inferred \(currentChatMode.displayName) mode")
+            effectiveMode = inferMode(from: history.messages)
+            print("🔄 [ChatViewModel] Set conversation (\(source)) with inferred \(effectiveMode.displayName) mode")
         }
+        
+        // Update current chat mode
+        currentChatMode = effectiveMode
+        
+        // Process messages for suggestions based on the effective chat mode
+        // Always process messages to ensure habit/task cards are detected when reopening chats
+        print("🔄 [ChatViewModel] Processing messages with mode: \(effectiveMode.displayName)")
+        print("🔄 [ChatViewModel] Processing \(history.messages.count) messages from history")
+        
+        if effectiveMode == .habit {
+            messages = processMessagesForHabitSuggestions(history.messages)
+            print("✅ [ChatViewModel] Processed \(messages.count) messages for habit mode")
+        } else if effectiveMode == .task {
+            messages = processMessagesForTaskSuggestions(history.messages)
+            print("✅ [ChatViewModel] Processed \(messages.count) messages for task mode")
+        } else {
+            // If mode is unclear, process for both to be safe (though this shouldn't happen with current modes)
+            let habitProcessed = processMessagesForHabitSuggestions(history.messages)
+            messages = processMessagesForTaskSuggestions(habitProcessed)
+            print("✅ [ChatViewModel] Processed \(messages.count) messages for both modes")
+        }
+        
+        // Debug: Count how many messages have detected habits/tasks
+        let habitCount = messages.filter { $0.detectedHabitSuggestion != nil }.count
+        let taskCount = messages.filter { $0.detectedTaskSuggestion != nil }.count
+        print("📊 [ChatViewModel] After processing: \(habitCount) messages with habits, \(taskCount) messages with tasks")
         
         // Reset state
         isLoading = false
@@ -832,54 +837,90 @@ struct SectionedChatHistory {
     
     // Process messages to detect habit suggestions that weren't processed before
     private func processMessagesForHabitSuggestions(_ messages: [ChatMessage]) -> [ChatMessage] {
+        print("🔍 [ChatViewModel] Processing \(messages.count) messages for habit suggestions")
+        guard let userId = userStatusManager.state.userId else {
+            print("⚠️ [ChatViewModel] No userId available, skipping habit detection")
+            return messages
+        }
+        
         return messages.map { message in
-            // Skip user messages and messages that already have habit suggestions
-            guard !message.isUser && message.detectedHabitSuggestion == nil else {
+            // Skip user messages
+            guard !message.isUser else {
                 return message
             }
             
-            // Try to detect habit suggestion in the message text
+            var updatedMessage = message
+            
+            // Always try to detect habit suggestion (re-detect even if one exists, to ensure accuracy)
+            print("🔍 [ChatViewModel] Checking AI message for habit suggestion (text length: \(message.text.count))")
+            
             if let detectedHabit = HabitDetectionService.shared.detectHabitSuggestion(
                 in: message.text,
                 messageId: message.id,
-                userId: userStatusManager.state.userId
+                userId: userId
             ) {
-                print("✅ [ChatViewModel] Detected habit suggestion in old message: \(detectedHabit.name)")
-                
-                // Create updated message with detected habit and cleaned text
-                var updatedMessage = message
+                print("✅ [ChatViewModel] Detected habit suggestion: \(detectedHabit.name)")
                 updatedMessage.detectedHabitSuggestion = detectedHabit
-                updatedMessage.cleanedText = HabitDetectionService.shared.cleanTextFromHabitSuggestion(message.text)
-                return updatedMessage
+            } else {
+                print("❌ [ChatViewModel] No habit suggestion detected")
+                // Clear any existing suggestion if detection fails (data might be stale)
+                updatedMessage.detectedHabitSuggestion = nil
             }
             
-            return message
+            // ALWAYS clean the text to remove HABITGEN flags and JSON, even if no habit detected
+            // This ensures we never show "HABITGEN=True" or JSON to users
+            let cleaned = HabitDetectionService.shared.cleanTextFromHabitSuggestion(message.text)
+            if cleaned != message.text || updatedMessage.detectedHabitSuggestion != nil {
+                // Only update cleanedText if it changed or if we detected a habit
+                updatedMessage.cleanedText = cleaned
+                print("🧹 [ChatViewModel] Cleaned text (length: \(cleaned.count), original: \(message.text.count))")
+            }
+            
+            return updatedMessage
         }
     }
     
     // Process messages to detect task suggestions that weren't processed before
     private func processMessagesForTaskSuggestions(_ messages: [ChatMessage]) -> [ChatMessage] {
+        print("🔍 [ChatViewModel] Processing \(messages.count) messages for task suggestions")
+        guard let userId = userStatusManager.state.userId else {
+            print("⚠️ [ChatViewModel] No userId available, skipping task detection")
+            return messages
+        }
+        
         return messages.map { message in
-            // Skip user messages and messages that already have task suggestions
-            guard !message.isUser && message.detectedTaskSuggestion == nil else {
+            // Skip user messages
+            guard !message.isUser else {
                 return message
             }
             
-            // Try to detect task suggestion in the message text
+            var updatedMessage = message
+            
+            // Always try to detect task suggestion (re-detect even if one exists, to ensure accuracy)
+            print("🔍 [ChatViewModel] Checking AI message for task suggestion (text length: \(message.text.count))")
+            
             if let detectedTask = TaskDetectionService.shared.detectTaskSuggestion(
                 in: message.text,
-                userId: userStatusManager.state.userId
+                userId: userId
             ) {
-                print("✅ [ChatViewModel] Detected task suggestion in old message: \(detectedTask.name)")
-                
-                // Create updated message with detected task and cleaned text
-                var updatedMessage = message
+                print("✅ [ChatViewModel] Detected task suggestion: \(detectedTask.name)")
                 updatedMessage.detectedTaskSuggestion = detectedTask
-                updatedMessage.cleanedText = TaskDetectionService.shared.cleanTextFromTaskSuggestion(message.text)
-                return updatedMessage
+            } else {
+                print("❌ [ChatViewModel] No task suggestion detected")
+                // Clear any existing suggestion if detection fails (data might be stale)
+                updatedMessage.detectedTaskSuggestion = nil
             }
             
-            return message
+            // ALWAYS clean the text to remove any flags and JSON, even if no task detected
+            // This ensures we never show flags or JSON to users
+            let cleaned = TaskDetectionService.shared.cleanTextFromTaskSuggestion(message.text)
+            if cleaned != message.text || updatedMessage.detectedTaskSuggestion != nil {
+                // Only update cleanedText if it changed or if we detected a task
+                updatedMessage.cleanedText = cleaned
+                print("🧹 [ChatViewModel] Cleaned text (length: \(cleaned.count), original: \(message.text.count))")
+            }
+            
+            return updatedMessage
         }
     }
     
@@ -944,37 +985,6 @@ struct SectionedChatHistory {
     func startNewChat() {
         clearConversation()
     }
-    
-    
-    // MARK: - Alert Action Methods
-    func handleAnonymousLimitLogin() {
-        // Clear the alert
-        showAnonymousLimitAlert = false
-        anonymousLimitAlertMessage = ""
-        
-        // The login action will be handled by the view showing AuthenticationView
-        print("[Chat] Anonymous user requested login due to limit")
-    }
-    
-    func handlePremiumLimitSubscribe() {
-        // Clear the alert
-        showPremiumLimitAlert = false
-        premiumLimitAlertMessage = ""
-        
-        // The subscription action will be handled by the view showing PaywallView
-        print("[Chat] Authenticated user requested subscription due to limit")
-    }
-    
-    func dismissAnonymousLimitAlert() {
-        showAnonymousLimitAlert = false
-        anonymousLimitAlertMessage = ""
-    }
-    
-    func dismissPremiumLimitAlert() {
-        showPremiumLimitAlert = false
-        premiumLimitAlertMessage = ""
-    }
-    
 } 
 
 

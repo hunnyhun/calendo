@@ -1,0 +1,189 @@
+{
+    "name": "4-Week Bodyweight Fitness Challenge",
+    "goal": "Complete a 4-week bodyweight fitness program with 4 different workout days per week",
+    "category": "Fitness",
+    "description": "Follow a structured 4-day bodyweight workout split each week for 4 weeks to build strength and endurance",
+    "difficulty": "intermediate",
+    "high_level_schedule": {
+        "milestones": [
+            {
+                "index": 0,
+                "description": "Complete 7 days of workouts",
+                "completion_criteria": "streak_of_days",
+                "completion_criteria_point": 7,
+                "reward_message": "Great job! You've completed your first week of workouts!"
+            },
+            {
+                "index": 1,
+                "description": "Complete 14 days of workouts",
+                "completion_criteria": "streak_of_days",
+                "completion_criteria_point": 14,
+                "reward_message": "Fantastic! 2 weeks down. You're halfway through the challenge!"
+            },
+            {
+                "index": 2,
+                "description": "Complete 16 days of workouts (4 weeks)",
+                "completion_criteria": "streak_of_days",
+                "completion_criteria_point": 16,
+                "reward_message": "Congratulations! You've completed the 4-week bodyweight fitness challenge! You're stronger now!"
+            }
+        ]
+    },
+    "low_level_schedule": {
+        "span": "day",
+        "span_value": 4,
+        "habit_schedule": null,
+        "habit_repeat_count": 16,
+        "program": [
+            {
+                "days_indexed": [
+                    {
+                        "index": 0,
+                        "title": "Day 1: Upper Body Push",
+                        "content": [
+                            {
+                                "step": "Warm up with 5 minutes of dynamic stretching",
+                                "clock": "18:00"
+                            },
+                            {
+                                "step": "Perform push-ups, dips, and pike push-ups",
+                                "clock": "18:05"
+                            },
+                            {
+                                "step": "Cool down with static stretching",
+                                "clock": "18:45"
+                            }
+                        ],
+                        "reminders": [
+                            {
+                                "time": "18:00",
+                                "message": "Upper body push day - let's build strength!"
+                            }
+                        ]
+                    },
+                    {
+                        "index": 1,
+                        "title": "Day 2: Lower Body",
+                        "content": [
+                            {
+                                "step": "Warm up with 5 minutes of dynamic stretching",
+                                "clock": "18:00"
+                            },
+                            {
+                                "step": "Perform squats, lunges, and glute bridges",
+                                "clock": "18:05"
+                            },
+                            {
+                                "step": "Cool down with static stretching",
+                                "clock": "18:45"
+                            }
+                        ],
+                        "reminders": [
+                            {
+                                "time": "18:00",
+                                "message": "Lower body day - build powerful legs!"
+                            }
+                        ]
+                    },
+                    {
+                        "index": 2,
+                        "title": "Day 3: Upper Body Pull",
+                        "content": [
+                            {
+                                "step": "Warm up with 5 minutes of dynamic stretching",
+                                "clock": "18:00"
+                            },
+                            {
+                                "step": "Perform pull-ups, inverted rows, and bodyweight rows",
+                                "clock": "18:05"
+                            },
+                            {
+                                "step": "Cool down with static stretching",
+                                "clock": "18:45"
+                            }
+                        ],
+                        "reminders": [
+                            {
+                                "time": "18:00",
+                                "message": "Upper body pull day - develop your back!"
+                            }
+                        ]
+                    },
+                    {
+                        "index": 3,
+                        "title": "Day 4: Full Body Core",
+                        "content": [
+                            {
+                                "step": "Warm up with 5 minutes of dynamic stretching",
+                                "clock": "18:00"
+                            },
+                            {
+                                "step": "Perform planks, leg raises, and Russian twists",
+                                "clock": "18:05"
+                            },
+                            {
+                                "step": "Cool down with static stretching",
+                                "clock": "18:45"
+                            }
+                        ],
+                        "reminders": [
+                            {
+                                "time": "18:00",
+                                "message": "Core day - strengthen your midsection!"
+                            }
+                        ]
+                    }
+                ],
+                "weeks_indexed": [
+                    {
+                        "index": 0,
+                        "title": "Weekly Bodyweight Routine",
+                        "content": [
+                            {
+                                "step": "Follow the 4-day cycle: push, legs, pull, core",
+                                "day": "Monday"
+                            },
+                            {
+                                "step": "Track your progress and reps",
+                                "day": "Sunday"
+                            }
+                        ],
+                        "reminders": [
+                            {
+                                "time": "18:00",
+                                "message": "Continue your weekly bodyweight routine!"
+                            }
+                        ]
+                    }
+                ],
+                "months_indexed": [
+                    {
+                        "index": 0,
+                        "title": "4-Week Bodyweight Challenge",
+                        "content": [
+                            {
+                                "step": "Begin your 4-week bodyweight fitness challenge",
+                                "day": "start_of_month"
+                            },
+                            {
+                                "step": "Continue the 4-day cycle - you're getting stronger!",
+                                "day": "15"
+                            },
+                            {
+                                "step": "Complete week 4 and celebrate your fitness achievement!",
+                                "day": "28"
+                            }
+                        ],
+                        "reminders": [
+                            {
+                                "time": "18:00",
+                                "message": "Final week - finish strong!"
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    }
+}
+

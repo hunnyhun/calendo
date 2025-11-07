@@ -1,0 +1,205 @@
+{
+    "name": "Multi-Day Weekly Multi-Month Routine",
+    "goal": "Build a consistent multi-day routine each week across multiple months",
+    "category": "Health",
+    "description": "Follow a structured multi-day routine each week over multiple months",
+    "difficulty": "intermediate",
+    "high_level_schedule": {
+        "milestones": [
+            {
+                "index": 0,
+                "description": "Complete 3 months of weekly routines",
+                "completion_criteria": "streak_of_months",
+                "completion_criteria_point": 3,
+                "reward_message": "Great job! You've completed 3 months of weekly routines!"
+            },
+            {
+                "index": 1,
+                "description": "Complete 6 months of weekly routines",
+                "completion_criteria": "streak_of_months",
+                "completion_criteria_point": 6,
+                "reward_message": "Fantastic! 6 months of consistent weekly routines!"
+            },
+            {
+                "index": 2,
+                "description": "Complete 12 months of weekly routines",
+                "completion_criteria": "streak_of_months",
+                "completion_criteria_point": 12,
+                "reward_message": "Incredible! A full year of weekly routines. You're a master of consistency!"
+            }
+        ]
+    },
+    "low_level_schedule": {
+        "span": "month",
+        "span_value": 1,
+        "habit_schedule": null,
+        "habit_repeat_count": null,
+        "program": [
+            {
+                "days_indexed": [
+                    {
+                        "index": 0,
+                        "title": "Day 1: Morning Routine",
+                        "content": [
+                            {
+                                "step": "Complete morning routine activities",
+                                "clock": "07:00"
+                            },
+                            {
+                                "step": "Review and plan for the day",
+                                "clock": "07:30"
+                            }
+                        ],
+                        "reminders": [
+                            {
+                                "time": "07:00",
+                                "message": "Time for your morning routine!"
+                            }
+                        ]
+                    },
+                    {
+                        "index": 1,
+                        "title": "Day 2: Mid-Week Focus",
+                        "content": [
+                            {
+                                "step": "Complete mid-week routine activities",
+                                "clock": "19:00"
+                            },
+                            {
+                                "step": "Track your progress",
+                                "clock": "19:30"
+                            }
+                        ],
+                        "reminders": [
+                            {
+                                "time": "19:00",
+                                "message": "Mid-week routine time!"
+                            }
+                        ]
+                    },
+                    {
+                        "index": 2,
+                        "title": "Day 3: Weekend Prep",
+                        "content": [
+                            {
+                                "step": "Complete weekend preparation activities",
+                                "clock": "18:00"
+                            },
+                            {
+                                "step": "Review weekly progress",
+                                "clock": "18:30"
+                            }
+                        ],
+                        "reminders": [
+                            {
+                                "time": "18:00",
+                                "message": "Weekend prep routine!"
+                            }
+                        ]
+                    }
+                ],
+                "weeks_indexed": [
+                    {
+                        "index": 0,
+                        "title": "Weekly Routine Cycle",
+                        "content": [
+                            {
+                                "step": "Start your weekly multi-day routine",
+                                "day": "Monday"
+                            },
+                            {
+                                "step": "Continue with mid-week activities",
+                                "day": "Wednesday"
+                            },
+                            {
+                                "step": "Complete weekend prep and review week",
+                                "day": "Friday"
+                            }
+                        ],
+                        "reminders": [
+                            {
+                                "time": "19:00",
+                                "message": "Keep up your weekly routine!"
+                            }
+                        ]
+                    }
+                ],
+                "months_indexed": [
+                    {
+                        "index": 0,
+                        "title": "Month 1: Establishing Routine",
+                        "content": [
+                            {
+                                "step": "Begin your first month of weekly routines",
+                                "day": "start_of_month"
+                            },
+                            {
+                                "step": "Continue weekly routines throughout the month",
+                                "day": "15"
+                            },
+                            {
+                                "step": "Review month 1 progress and routines",
+                                "day": "end_of_month"
+                            }
+                        ],
+                        "reminders": [
+                            {
+                                "time": "19:00",
+                                "message": "Month 1 - establishing your routine!"
+                            }
+                        ]
+                    },
+                    {
+                        "index": 1,
+                        "title": "Month 2: Building Consistency",
+                        "content": [
+                            {
+                                "step": "Continue your weekly routines into month 2",
+                                "day": "start_of_month"
+                            },
+                            {
+                                "step": "Maintain consistency across all weeks",
+                                "day": "15"
+                            },
+                            {
+                                "step": "Review month 2 progress and improvements",
+                                "day": "end_of_month"
+                            }
+                        ],
+                        "reminders": [
+                            {
+                                "time": "19:00",
+                                "message": "Month 2 - building consistency!"
+                            }
+                        ]
+                    },
+                    {
+                        "index": 2,
+                        "title": "Month 3: Habit Formation",
+                        "content": [
+                            {
+                                "step": "Continue your weekly routines into month 3",
+                                "day": "start_of_month"
+                            },
+                            {
+                                "step": "Focus on making routines automatic",
+                                "day": "15"
+                            },
+                            {
+                                "step": "Review 3-month milestone and celebrate progress",
+                                "day": "end_of_month"
+                            }
+                        ],
+                        "reminders": [
+                            {
+                                "time": "19:00",
+                                "message": "Month 3 - your habit is forming!"
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    }
+}
+

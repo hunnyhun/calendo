@@ -1,0 +1,43 @@
+{
+    "name": "Prepare for Interview",
+    "goal": "Get ready for job interview",
+    "category": "Career",
+    "description": "Complete all preparation steps for the upcoming interview",
+    "task_schedule": {
+        "steps": [
+            {
+                "index": 1,
+                "title": "Research Company",
+                "description": "Learn about the company culture, values, and recent news",
+                "date": null,
+                "time": null,
+                "reminders": []
+            },
+            {
+                "index": 2,
+                "title": "Prepare Questions",
+                "description": "Write down thoughtful questions to ask the interviewer",
+                "date": null,
+                "time": null,
+                "reminders": []
+            },
+            {
+                "index": 3,
+                "title": "Practice Interview",
+                "description": "Practice common interview questions with a friend or mentor",
+                "date": null,
+                "time": null,
+                "reminders": []
+            },
+            {
+                "index": 4,
+                "title": "Prepare Outfit",
+                "description": "Choose and prepare professional interview attire",
+                "date": null,
+                "time": null,
+                "reminders": []
+            }
+        ]
+    }
+}
+

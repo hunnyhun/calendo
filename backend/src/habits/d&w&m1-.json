@@ -1,0 +1,261 @@
+{
+    "name": "1-Month Intensive Training Program",
+    "goal": "Complete a 1-month intensive training program with multiple days per week across multiple weeks",
+    "category": "Fitness",
+    "description": "Follow a comprehensive 4-day workout routine each week for 4 weeks to achieve peak fitness in one month",
+    "difficulty": "advanced",
+    "high_level_schedule": {
+        "milestones": [
+            {
+                "index": 0,
+                "description": "Complete week 1 of intensive training",
+                "completion_criteria": "streak_of_weeks",
+                "completion_criteria_point": 1,
+                "reward_message": "Great job! You've completed your first week of intensive training!"
+            },
+            {
+                "index": 1,
+                "description": "Complete 2 weeks of intensive training",
+                "completion_criteria": "streak_of_weeks",
+                "completion_criteria_point": 2,
+                "reward_message": "Fantastic! 2 weeks down. You're halfway through the program!"
+            },
+            {
+                "index": 2,
+                "description": "Complete 4 weeks of intensive training",
+                "completion_criteria": "streak_of_weeks",
+                "completion_criteria_point": 4,
+                "reward_message": "Congratulations! You've completed the 1-month intensive training program! You've achieved peak fitness!"
+            }
+        ]
+    },
+    "low_level_schedule": {
+        "span": "month",
+        "span_value": 1,
+        "habit_schedule": null,
+        "habit_repeat_count": 1,
+        "program": [
+            {
+                "days_indexed": [
+                    {
+                        "index": 0,
+                        "title": "Day 1: Strength Training",
+                        "content": [
+                            {
+                                "step": "Warm up with 10 minutes of dynamic movement",
+                                "clock": "17:00"
+                            },
+                            {
+                                "step": "Complete strength training session (60 minutes)",
+                                "clock": "17:10"
+                            },
+                            {
+                                "step": "Cool down with stretching",
+                                "clock": "18:10"
+                            }
+                        ],
+                        "reminders": [
+                            {
+                                "time": "17:00",
+                                "message": "Day 1 - strength training time!"
+                            }
+                        ]
+                    },
+                    {
+                        "index": 1,
+                        "title": "Day 2: Cardio and Conditioning",
+                        "content": [
+                            {
+                                "step": "Warm up with 10 minutes of light cardio",
+                                "clock": "17:00"
+                            },
+                            {
+                                "step": "Complete cardio and conditioning session (60 minutes)",
+                                "clock": "17:10"
+                            },
+                            {
+                                "step": "Cool down with stretching",
+                                "clock": "18:10"
+                            }
+                        ],
+                        "reminders": [
+                            {
+                                "time": "17:00",
+                                "message": "Day 2 - cardio and conditioning time!"
+                            }
+                        ]
+                    },
+                    {
+                        "index": 2,
+                        "title": "Day 3: Functional Training",
+                        "content": [
+                            {
+                                "step": "Warm up with 10 minutes of dynamic movement",
+                                "clock": "17:00"
+                            },
+                            {
+                                "step": "Complete functional training session (60 minutes)",
+                                "clock": "17:10"
+                            },
+                            {
+                                "step": "Cool down with stretching",
+                                "clock": "18:10"
+                            }
+                        ],
+                        "reminders": [
+                            {
+                                "time": "17:00",
+                                "message": "Day 3 - functional training time!"
+                            }
+                        ]
+                    },
+                    {
+                        "index": 3,
+                        "title": "Day 4: Recovery and Mobility",
+                        "content": [
+                            {
+                                "step": "Light stretching and mobility work (30 minutes)",
+                                "clock": "17:00"
+                            },
+                            {
+                                "step": "Foam rolling and recovery exercises",
+                                "clock": "17:30"
+                            }
+                        ],
+                        "reminders": [
+                            {
+                                "time": "17:00",
+                                "message": "Day 4 - recovery and mobility time!"
+                            }
+                        ]
+                    }
+                ],
+                "weeks_indexed": [
+                    {
+                        "index": 0,
+                        "title": "Week 1: Foundation Building",
+                        "content": [
+                            {
+                                "step": "Start week 1 with strength training day",
+                                "day": "Monday"
+                            },
+                            {
+                                "step": "Continue with cardio and functional training",
+                                "day": "Wednesday"
+                            },
+                            {
+                                "step": "Complete recovery day and review week 1",
+                                "day": "Friday"
+                            }
+                        ],
+                        "reminders": [
+                            {
+                                "time": "17:00",
+                                "message": "Week 1 - building your foundation!"
+                            }
+                        ]
+                    },
+                    {
+                        "index": 1,
+                        "title": "Week 2: Intensity Building",
+                        "content": [
+                            {
+                                "step": "Continue with strength training day",
+                                "day": "Monday"
+                            },
+                            {
+                                "step": "Continue with cardio and functional training",
+                                "day": "Wednesday"
+                            },
+                            {
+                                "step": "Complete recovery day and review week 2",
+                                "day": "Friday"
+                            }
+                        ],
+                        "reminders": [
+                            {
+                                "time": "17:00",
+                                "message": "Week 2 - building intensity!"
+                            }
+                        ]
+                    },
+                    {
+                        "index": 2,
+                        "title": "Week 3: Peak Performance",
+                        "content": [
+                            {
+                                "step": "Continue with strength training day",
+                                "day": "Monday"
+                            },
+                            {
+                                "step": "Continue with cardio and functional training",
+                                "day": "Wednesday"
+                            },
+                            {
+                                "step": "Complete recovery day and review week 3",
+                                "day": "Friday"
+                            }
+                        ],
+                        "reminders": [
+                            {
+                                "time": "17:00",
+                                "message": "Week 3 - peak performance week!"
+                            }
+                        ]
+                    },
+                    {
+                        "index": 3,
+                        "title": "Week 4: Final Push",
+                        "content": [
+                            {
+                                "step": "Continue with strength training day",
+                                "day": "Monday"
+                            },
+                            {
+                                "step": "Continue with cardio and functional training",
+                                "day": "Wednesday"
+                            },
+                            {
+                                "step": "Complete final recovery day and celebrate your achievement!",
+                                "day": "Friday"
+                            }
+                        ],
+                        "reminders": [
+                            {
+                                "time": "17:00",
+                                "message": "Week 4 - final push! Complete your program!"
+                            }
+                        ]
+                    }
+                ],
+                "months_indexed": [
+                    {
+                        "index": 0,
+                        "title": "1-Month Intensive Training",
+                        "content": [
+                            {
+                                "step": "Begin your 1-month intensive training program",
+                                "day": "start_of_month"
+                            },
+                            {
+                                "step": "Continue through weeks 2 and 3",
+                                "day": "15"
+                            },
+                            {
+                                "step": "Complete week 4 and celebrate your achievement!",
+                                "day": "end_of_month"
+                            }
+                        ],
+                        "reminders": [
+                            {
+                                "time": "17:00",
+                                "message": "1-month intensive - you've got this!"
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    }
+}
+

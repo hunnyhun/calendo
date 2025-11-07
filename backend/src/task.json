@@ -1,0 +1,153 @@
+{
+    "name": "string",
+    "goal": "string",
+    "category": "string",
+    "description": "string",
+    "task_schedule": {
+        "steps": [
+            {
+                "index": 1,
+                "title": "string",
+                "description": "string | null",
+                "date": "YYYY-MM-DD | null",
+                "time": "HH:MM | null",
+                "reminders": [
+                    {
+                        "offset": {
+                            "unit": "days | weeks | months",
+                            "value": "number"
+                        },
+                        "time": "HH:MM | null",
+                        "message": "string | null"
+                    }
+                ]
+            }
+        ]
+    }
+}
+// TASK JSON TEMPLATE - Simplified structure for tasks
+//
+// KEY DIFFERENCES FROM HABITS:
+// - Tasks are NOT repetitive (no cycles, no repeat_count)
+// - Tasks have a simple list of steps that execute once
+// - Steps can have an optional exact date, or no date for step-by-step tasks
+// - Reminders are only valid for steps with dates
+//
+// STEP DATES:
+// - date: Optional exact date in ISO format (YYYY-MM-DD) or null
+// - If date is provided: Step is time-related and will appear on calendar
+// - If date is null: Step is just a checklist item, not time-related
+// - time: Optional time of day (HH:MM format) - only used if date is provided
+//
+// REMINDERS:
+// - Only applicable for steps with dates
+// - offset.unit: "days", "weeks", or "months"
+// - offset.value: Number of units before the step date (positive = before)
+// - time: Optional time of day for the reminder (HH:MM format)
+// - message: Optional reminder message
+//
+// EXAMPLES:
+//
+// Example 1: Task with date - "Apply to university on 15th October"
+// {
+//   "name": "Apply to University",
+//   "goal": "Complete university application",
+//   "category": "Education",
+//   "description": "Submit application for fall 2025",
+//   "task_schedule": {
+//     "steps": [
+//       {
+//         "index": 1,
+//         "title": "Submit Application",
+//         "description": "Apply to university",
+//         "date": "2024-10-15",
+//         "time": null,
+//         "reminders": [
+//           {
+//             "offset": { "unit": "days", "value": 1 },
+//             "time": "09:00",
+//             "message": "Application due tomorrow!"
+//           }
+//         ]
+//       }
+//     ]
+//   }
+// }
+//
+// Example 2: Step-by-step task without dates
+// {
+//   "name": "Prepare for Interview",
+//   "goal": "Get ready for job interview",
+//   "category": "Career",
+//   "description": "Complete all preparation steps",
+//   "task_schedule": {
+//     "steps": [
+//       {
+//         "index": 1,
+//         "title": "Research Company",
+//         "description": "Learn about the company culture and values",
+//         "date": null,
+//         "time": null,
+//         "reminders": []
+//       },
+//       {
+//         "index": 2,
+//         "title": "Prepare Questions",
+//         "description": "Write down questions to ask the interviewer",
+//         "date": null,
+//         "time": null,
+//         "reminders": []
+//       },
+//       {
+//         "index": 3,
+//         "title": "Practice Interview",
+//         "description": "Practice common interview questions",
+//         "date": null,
+//         "time": null,
+//         "reminders": []
+//       }
+//     ]
+//   }
+// }
+//
+// Example 3: Mixed task - some steps with dates, some without
+// {
+//   "name": "Plan Vacation",
+//   "task_schedule": {
+//     "steps": [
+//       {
+//         "index": 1,
+//         "title": "Book Flight",
+//         "date": "2024-10-20",
+//         "time": null,
+//         "reminders": [
+//           {
+//             "offset": { "unit": "days", "value": 3 },
+//             "time": "10:00",
+//             "message": "Don't forget to book your flight!"
+//           }
+//         ]
+//       },
+//       {
+//         "index": 2,
+//         "title": "Research Hotels",
+//         "date": null,
+//         "time": null,
+//         "reminders": []
+//       },
+//       {
+//         "index": 3,
+//         "title": "Create Itinerary",
+//         "date": null,
+//         "time": null,
+//         "reminders": []
+//       }
+//     ]
+//   }
+// }
+//
+// FRONTEND MAPPING:
+// - Steps with dates: Display on calendar at the specified date/time
+// - Steps without dates: Display as checklist items, not on calendar
+// - Reminders: Only create for steps that have dates
+// - Step order: Maintained by index field for both dated and undated steps

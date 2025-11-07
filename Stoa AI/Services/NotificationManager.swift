@@ -4,6 +4,7 @@ import FirebaseCore
 import FirebaseAuth
 import FirebaseFirestore
 import FirebaseMessaging
+import os.log
 // Rule: Always add debug logs for easier debug
 
 // MARK: - Notification Manager
@@ -28,7 +29,7 @@ import FirebaseMessaging
         loadUnreadNotificationCount()
         
         // Debug log for initialization
-        print("📱 [NotificationManager] Initialized with unread count: \(unreadNotificationCount)")
+        Logger.debug("Initialized with unread count: \(unreadNotificationCount)", logger: Logger.notification)
         
         // Register for app lifecycle notifications to help manage badge state
         NotificationCenter.default.addObserver(self, 
@@ -71,17 +72,17 @@ import FirebaseMessaging
     private func createUserDocumentIfNeeded(userId: String) {
         let userDocRef = db.collection("users").document(userId)
         
-        print("📱 [NotificationManager] Ensuring user document exists for userId: \(userId)")
+        Logger.debug("Ensuring user document exists for userId: \(userId)", logger: Logger.notification)
         
         // Check if document exists
         userDocRef.getDocument { (document, error) in
             if let error = error {
-                print("📱 [NotificationManager] Error checking user document: \(error.localizedDescription)")
+                Logger.debug("Error checking user document: \(error.localizedDescription)", logger: Logger.notification)
                 return
             }
             
             if let document = document, document.exists {
-                print("📱 [NotificationManager] User document already exists")
+                Logger.debug("User document already exists", logger: Logger.notification)
             } else {
                 // Create user document with basic information
                 let userData: [String: Any] = [
@@ -94,9 +95,9 @@ import FirebaseMessaging
                 
                 userDocRef.setData(userData) { error in
                     if let error = error {
-                        print("📱 [NotificationManager] Error creating user document: \(error.localizedDescription)")
+                        Logger.error("Error creating user document", logger: Logger.notification, error: error)
                     } else {
-                        print("📱 [NotificationManager] User document created successfully")
+                        Logger.debug("User document created successfully", logger: Logger.notification)
                         
                         // Process any pending device tokens
                         self.processPendingDeviceTokens()
@@ -113,14 +114,12 @@ import FirebaseMessaging
     
     // App lifecycle handler - App became active
     @objc private func handleAppDidBecomeActive() {
-        print("📱 [NotificationManager] App became active. Current unread count: \(unreadNotificationCount)")
+        Logger.debug("App became active. Current unread count: \(unreadNotificationCount)", logger: Logger.notification)
         
         // Reset badge count in Firestore when app becomes active
-        if let appDelegate = UIApplication.shared.delegate as? AppDelegate,
-           let fcmToken = appDelegate.fcmToken {
+        if let fcmToken = getCurrentFCMToken() {
             // Reset badge count to zero in Firestore when app is opened
             updateDeviceBadgeCountInFirestore(fcmToken: fcmToken, badgeCount: 0)
-            print("📱 [NotificationManager] Reset badge count in Firestore to 0")
         }
         
         // Ensure synchronization
@@ -130,7 +129,7 @@ import FirebaseMessaging
     // App lifecycle handler - App entered background
     @objc private func handleAppDidEnterBackground() {
         // Ensure badge count is synchronized when app enters background
-        print("📱 [NotificationManager] App entered background, synchronizing badge count: \(unreadNotificationCount)")
+        Logger.debug("App entered background, synchronizing badge count: \(unreadNotificationCount)", logger: Logger.notification)
         synchronizeBadgeCount()
     }
     
@@ -142,12 +141,12 @@ import FirebaseMessaging
         unreadNotificationCount += 1
         
         // Debug log
-        print("📱 [NotificationManager] Incrementing unread count to: \(unreadNotificationCount)")
+        Logger.debug("Incrementing unread count to: \(unreadNotificationCount)", logger: Logger.notification)
         
         // Update app badge using non-deprecated API
         UNUserNotificationCenter.current().setBadgeCount(unreadNotificationCount) { error in
             if let error = error {
-                print("❌ [NotificationManager] Error updating badge count: \(error.localizedDescription)")
+                Logger.error("Error updating badge count", logger: Logger.notification, error: error)
             }
         }
         
@@ -161,12 +160,12 @@ import FirebaseMessaging
         unreadNotificationCount = count
         
         // Debug log
-        print("📱 [NotificationManager] Setting unread count to: \(count)")
+        Logger.debug("Setting unread count to: \(count)", logger: Logger.notification)
         
         // Update app badge using non-deprecated API
         UNUserNotificationCenter.current().setBadgeCount(count) { error in
             if let error = error {
-                print("❌ [NotificationManager] Error updating badge count: \(error.localizedDescription)")
+                Logger.error("Error updating badge count", logger: Logger.notification, error: error)
             }
         }
         
@@ -184,12 +183,12 @@ import FirebaseMessaging
             // Update app badge using non-deprecated API
             UNUserNotificationCenter.current().setBadgeCount(0) { error in
                 if let error = error {
-                    print("❌ [NotificationManager] Error clearing badge count: \(error.localizedDescription)")
+                    Logger.error("Error clearing badge count", logger: Logger.notification, error: error)
                 }
             }
             
             // Debug log
-            print("📱 [NotificationManager] Marked notifications as read, cleared unread count")
+            Logger.debug("Marked notifications as read, cleared unread count", logger: Logger.notification)
             
             // Save to persistent storage
             saveUnreadNotificationCount()
@@ -198,27 +197,21 @@ import FirebaseMessaging
             UNUserNotificationCenter.current().removeAllDeliveredNotifications()
             
             // Also update the badge count in Firestore for this device
-            if let appDelegate = UIApplication.shared.delegate as? AppDelegate,
-               let fcmToken = appDelegate.fcmToken {
-                print("📱 [NotificationManager] Updating Firestore badge count to 0 from markNotificationsAsRead")
+            if let fcmToken = getCurrentFCMToken() {
                 updateDeviceBadgeCountInFirestore(fcmToken: fcmToken, badgeCount: 0)
-            } else {
-                print("📱 [NotificationManager] Cannot update Firestore: No FCM token available")
             }
-        } else {
-            print("📱 [NotificationManager] No notifications to mark as read (count already 0)")
         }
     }
     
     // Synchronize badge count with system
     func synchronizeBadgeCount() {
         // Ensure app badge count matches our internal count
-        print("📱 [NotificationManager] Synchronizing badge count: \(unreadNotificationCount)")
+        Logger.debug("Synchronizing badge count: \(unreadNotificationCount)", logger: Logger.notification)
         
         // Update app badge using non-deprecated API
         UNUserNotificationCenter.current().setBadgeCount(unreadNotificationCount) { error in
             if let error = error {
-                print("❌ [NotificationManager] Error synchronizing badge count: \(error.localizedDescription)")
+                Logger.error("Error synchronizing badge count", logger: Logger.notification, error: error)
             }
         }
     }
@@ -226,17 +219,16 @@ import FirebaseMessaging
     // MARK: - Handle Received Notification
     func handleReceivedNotification(_ userInfo: [AnyHashable: Any]) -> String? {
         // Debug log
-        print("📱 [NotificationManager] Handling received notification")
+        Logger.debug("Handling received notification", logger: Logger.notification)
         
         // When app is in foreground, increment badge instead of using server value
         // This prevents continuing from previously high values
         incrementUnreadCount()
         
         // Sync our badge count back to Firebase so server stays in sync
-        if let appDelegate = UIApplication.shared.delegate as? AppDelegate,
-           let fcmToken = appDelegate.fcmToken {
+        if let fcmToken = getCurrentFCMToken() {
             updateDeviceBadgeCountInFirestore(fcmToken: fcmToken, badgeCount: unreadNotificationCount)
-            print("📱 [NotificationManager] Updated Firestore badge count to: \(unreadNotificationCount)")
+            Logger.debug("Updated Firestore badge count to: \(unreadNotificationCount)", logger: Logger.notification)
         }
         
         // Extract quote from notification payload
@@ -266,10 +258,105 @@ import FirebaseMessaging
         return nil
     }
     
+    // MARK: - UNUserNotificationCenterDelegate Methods
+    
+    /// Handle notification received while app is in foreground
+    /// Returns the quote text if available, and determines presentation options
+    func handleNotificationWillPresent(_ userInfo: [AnyHashable: Any]) -> (quote: String?, options: UNNotificationPresentationOptions) {
+        Logger.info("Handling notification received while app in foreground", logger: Logger.notification)
+        
+        // When app is in foreground, increment badge instead of using server value
+        // This prevents continuing from previously high values
+        incrementUnreadCount()
+        
+        // Sync our badge count back to Firebase so server stays in sync
+        if let fcmToken = getCurrentFCMToken() {
+            updateDeviceBadgeCountInFirestore(fcmToken: fcmToken, badgeCount: unreadNotificationCount)
+            Logger.debug("Updated Firestore badge count to: \(unreadNotificationCount)", logger: Logger.notification)
+        }
+        
+        // Extract quote from notification payload
+        var quote: String?
+        if let data = userInfo["data"] as? [String: Any],
+           let extractedQuote = data["quote"] as? String {
+            quote = extractedQuote
+        }
+        
+        // Show notification with badge, sound, and banner
+        return (quote: quote, options: [.banner, .sound, .badge])
+    }
+    
+    /// Handle notification tap response
+    /// Completes all handling including badge reset, marking as read, and posting notification to open quote view
+    func handleNotificationResponse(_ userInfo: [AnyHashable: Any]) {
+        Logger.info("Handling notification tap", logger: Logger.notification)
+        
+        // Extract badge count if available (for logging purposes)
+        if let badgeCount = extractBadgeCount(from: userInfo) {
+            Logger.debug("Badge count from notification payload: \(badgeCount)", logger: Logger.notification)
+        }
+        
+        // Reset badge count when notification is tapped
+        BadgeManager.shared.resetBadgeCount { error in
+            if let error = error {
+                Logger.error("Error resetting badge count on notification tap", logger: Logger.notification, error: error)
+            }
+        }
+        
+        // Mark notifications as read
+        markNotificationsAsRead()
+        
+        // Extract notification data and post to open quote view if available
+        if let notificationData = extractNotificationData(from: userInfo) {
+            // Post notification to open the quote view
+            DispatchQueue.main.asyncAfter(deadline: .now() + AppConfiguration.Delays.notificationOpenDelay) {
+                NotificationCenter.default.post(
+                    name: Notification.Name(AppConfiguration.NotificationNames.openDailyQuoteView),
+                    object: nil,
+                    userInfo: [
+                        "quote": notificationData.quote,
+                        "source": notificationData.source,
+                        "fromNotification": true
+                    ]
+                )
+            }
+        }
+    }
+    
+    // MARK: - Helper Methods for Notification Handling
+    
+    /// Extract badge count from notification payload
+    private func extractBadgeCount(from userInfo: [AnyHashable: Any]) -> Int? {
+        // Try APS payload first
+        if let aps = userInfo["aps"] as? [String: Any],
+           let badge = aps["badge"] as? Int {
+            return badge
+        }
+        
+        // Try data payload
+        if let data = userInfo["data"] as? [String: Any],
+           let badgeString = data["badgeCount"] as? String,
+           let badge = Int(badgeString) {
+            return badge
+        }
+        
+        return nil
+    }
+    
+    /// Extract notification data (quote and source) from payload
+    private func extractNotificationData(from userInfo: [AnyHashable: Any]) -> (quote: String, source: String)? {
+        if let data = userInfo["data"] as? [String: Any],
+           let quote = data["quote"] as? String {
+            let source = data["source"] as? String ?? "notification"
+            return (quote: quote, source: source)
+        }
+        return nil
+    }
+    
     // MARK: - Request Permission
     func requestNotificationPermission() async -> Bool {
         // Rule: Always add debug logs
-        print("📱 [NotificationManager] Requesting notification permission")
+        Logger.debug("Requesting notification permission", logger: Logger.notification)
         
         do {
             // Configure notification center
@@ -280,7 +367,7 @@ import FirebaseMessaging
             let granted = try await center.requestAuthorization(options: options)
             
             // Debug log
-            print("📱 [NotificationManager] Notification permission granted: \(granted)")
+            Logger.debug("Notification permission granted: \(granted)", logger: Logger.notification)
             
             // Update local state regardless of outcome
             isNotificationsEnabled = granted
@@ -301,7 +388,7 @@ import FirebaseMessaging
             
             return granted
         } catch {
-            print("📱 [NotificationManager] Error requesting notification permission: \(error.localizedDescription)")
+            Logger.error("Error requesting notification permission", logger: Logger.notification, error: error)
             isNotificationsEnabled = false
             saveNotificationStatus()
             return false
@@ -312,10 +399,25 @@ import FirebaseMessaging
     
     // New method to get current FCM token
     func getCurrentFCMToken() -> String? {
-        // Try to get token from AppDelegate first
-        if let appDelegate = UIApplication.shared.delegate as? AppDelegate,
-           let fcmToken = appDelegate.fcmToken {
-            return fcmToken
+        // UIApplication.shared.delegate must be accessed on the main thread
+        var tokenFromAppDelegate: String?
+        
+        if Thread.isMainThread {
+            // Already on main thread, access directly
+            if let appDelegate = UIApplication.shared.delegate as? AppDelegate {
+                tokenFromAppDelegate = appDelegate.fcmToken
+            }
+        } else {
+            // Not on main thread, dispatch synchronously to main thread
+            DispatchQueue.main.sync {
+                if let appDelegate = UIApplication.shared.delegate as? AppDelegate {
+                    tokenFromAppDelegate = appDelegate.fcmToken
+                }
+            }
+        }
+        
+        if let token = tokenFromAppDelegate {
+            return token
         }
         
         // Fallback to Messaging directly
@@ -327,48 +429,43 @@ import FirebaseMessaging
         // Force token refresh first
         do {
             let token = try await Messaging.messaging().token()
-            print("📱 [NotificationManager] Refreshed FCM token: \(token.prefix(10))...")
+            Logger.debug("Refreshed FCM token: \(token.prefix(10))...", logger: Logger.notification)
             
             // Update device record with current permission state
             updateDeviceToken(token, forceEnabled: isNotificationsEnabled)
         } catch {
-            print("📱 [NotificationManager] Error refreshing FCM token: \(error.localizedDescription)")
+            Logger.debug("Error refreshing FCM token: \(error.localizedDescription)", logger: Logger.notification)
         }
     }
     
     // New method to update token with current state
     private func updateDeviceTokenWithCurrentState() async {
         if let token = getCurrentFCMToken() {
-            print("📱 [NotificationManager] Updating device with current state: token=\(token.prefix(10))..., enabled=\(isNotificationsEnabled)")
+            Logger.debug("Updating device with current state: token=\(token.prefix(10))..., enabled=\(isNotificationsEnabled)", logger: Logger.notification)
             updateDeviceToken(token, forceEnabled: isNotificationsEnabled)
-        } else {
-            print("📱 [NotificationManager] No FCM token available to update device state")
         }
     }
     
     // MARK: - Enable Notifications (Legacy method - kept for backward compatibility)
     func enableNotifications() async -> Bool {
         // Simply forward to requestNotificationPermission
-        print("📱 [NotificationManager] enableNotifications() called - redirecting to requestNotificationPermission()")
+        Logger.debug("enableNotifications() called - redirecting to requestNotificationPermission()", logger: Logger.notification)
         return await requestNotificationPermission()
     }
     
     // MARK: - Update Device Token
     func updateDeviceToken(_ fcmToken: String, forceEnabled: Bool? = nil) {
-        print("📱 [NotificationManager] updateDeviceToken called with token: \(fcmToken.prefix(10))...")
-        print("📱 [NotificationManager] Current user ID: \(UserStatusManager.shared.state.userId ?? "nil")")
-        print("📱 [NotificationManager] User authenticated: \(UserStatusManager.shared.state.isAuthenticated)")
+        Logger.debug("updateDeviceToken called with token: \(fcmToken.prefix(10))...", logger: Logger.notification)
         
         guard let userId = UserStatusManager.shared.state.userId else {
-            print("📱 [NotificationManager] No user ID available - storing token for later registration: \(fcmToken.prefix(10))...")
+            Logger.debug("No user ID available - storing token for later registration: \(fcmToken.prefix(10))...", logger: Logger.notification)
             pendingFCMTokens.insert(fcmToken)
-            print("📱 [NotificationManager] Pending tokens count: \(pendingFCMTokens.count)")
             return
         }
         
         // Remove from pending tokens since we're processing it now
         pendingFCMTokens.remove(fcmToken)
-        print("📱 [NotificationManager] Registering device token for user \(userId): \(fcmToken.prefix(10))...")
+        Logger.debug("Registering device token for user \(userId): \(fcmToken.prefix(10))...", logger: Logger.notification)
         
         // Get timezone information
         let timeZone = TimeZone.current
@@ -380,13 +477,9 @@ import FirebaseMessaging
         let enabled: Bool
         if let forceValue = forceEnabled {
             enabled = forceValue
-            print("📱 [NotificationManager] Using forced notification status: \(enabled)")
         } else {
             enabled = isNotificationsEnabled
-            print("📱 [NotificationManager] Using current notification status: \(enabled)")
         }
-        
-        print("📱 [NotificationManager] Updating device token with notificationsEnabled: \(enabled)")
         
         // First, remove old device tokens for the current platform to prevent duplicates
         let devicesRef = db.collection("users").document(userId).collection("devices")
@@ -401,14 +494,13 @@ import FirebaseMessaging
                   .whereField("deviceId", isEqualTo: deviceId)
                   .getDocuments { (snapshot, error) in
             if let error = error {
-                print("📱 [NotificationManager] Error querying existing device tokens: \(error)")
+                Logger.debug("Error querying existing device tokens: \(error.localizedDescription)", logger: Logger.notification)
             } else if let snapshot = snapshot {
                 let batch = self.db.batch()
                 
                 // Delete old tokens from this device
                 for document in snapshot.documents {
                     if document.documentID != fcmToken {
-                        print("📱 [NotificationManager] Removing old device token: \(document.documentID)")
                         batch.deleteDocument(document.reference)
                     }
                 }
@@ -416,9 +508,9 @@ import FirebaseMessaging
                 // Commit batch delete
                 batch.commit { error in
                     if let error = error {
-                        print("📱 [NotificationManager] Error removing old tokens: \(error)")
+                        Logger.debug("Error removing old tokens: \(error.localizedDescription)", logger: Logger.notification)
                     } else {
-                        print("📱 [NotificationManager] Successfully removed old tokens")
+                        Logger.debug("Successfully removed old tokens", logger: Logger.notification)
                     }
                 }
             }
@@ -440,19 +532,11 @@ import FirebaseMessaging
             "lastUpdated": FieldValue.serverTimestamp()
         ]
         
-        print("📱 [NotificationManager] Saving device data to Firestore:")
-        print("📱 [NotificationManager] - User ID: \(userId)")
-        print("📱 [NotificationManager] - Device ID: \(deviceId)")
-        print("📱 [NotificationManager] - Device Model: \(deviceModel)")
-        print("📱 [NotificationManager] - Device Name: \(deviceName)")
-        print("📱 [NotificationManager] - Notifications Enabled: \(enabled)")
-        print("📱 [NotificationManager] - Timezone: \(timeZoneName)")
-        
         deviceRef.setData(deviceData, merge: true) { error in
             if let error = error {
-                print("❌ [NotificationManager] Failed to register device: \(error.localizedDescription)")
+                Logger.error("Failed to register device", logger: Logger.notification, error: error)
             } else {
-                print("✅ [NotificationManager] Successfully registered device for user \(userId)")
+                Logger.debug("Successfully registered device for user \(userId)", logger: Logger.notification)
             }
         }
     }
@@ -460,16 +544,15 @@ import FirebaseMessaging
     // MARK: - Process Pending Tokens
     func processPendingDeviceTokens() {
         guard !pendingFCMTokens.isEmpty else {
-            print("📱 [NotificationManager] No pending device tokens to process")
             return
         }
         
         guard UserStatusManager.shared.state.userId != nil else {
-            print("📱 [NotificationManager] Still no user ID available, keeping tokens pending")
+            Logger.debug("Still no user ID available, keeping tokens pending", logger: Logger.notification)
             return
         }
         
-        print("📱 [NotificationManager] Processing \(pendingFCMTokens.count) pending device tokens after authentication")
+        Logger.debug("Processing \(pendingFCMTokens.count) pending device tokens after authentication", logger: Logger.notification)
         
         let tokensToProcess = Array(pendingFCMTokens)
         for token in tokensToProcess {
@@ -480,11 +563,9 @@ import FirebaseMessaging
     // MARK: - Ensure Device Registration
     func ensureDeviceRegistration() async {
         guard let userId = UserStatusManager.shared.state.userId else {
-            print("📱 [NotificationManager] Cannot ensure device registration: No user ID")
+            Logger.debug("Cannot ensure device registration: No user ID", logger: Logger.notification)
             return
         }
-        
-        print("📱 [NotificationManager] Ensuring device registration for user: \(userId)")
         
         // Check if device is already registered
         let devicesRef = db.collection("users").document(userId).collection("devices")
@@ -492,23 +573,21 @@ import FirebaseMessaging
         do {
             let snapshot = try await devicesRef.getDocuments()
             if snapshot.documents.isEmpty {
-                print("📱 [NotificationManager] No devices found for user \(userId), attempting registration")
+                Logger.debug("No devices found for user \(userId), attempting registration", logger: Logger.notification)
                 
                 // Try to register current token if available
                 if let fcmToken = getCurrentFCMToken() {
-                    print("📱 [NotificationManager] Registering device with current FCM token")
+                    Logger.debug("Registering device with current FCM token", logger: Logger.notification)
                     updateDeviceToken(fcmToken)
                 } else {
-                    print("⚠️ [NotificationManager] No FCM token available for device registration")
+                    Logger.debug("No FCM token available for device registration", logger: Logger.notification)
                     
                     // Try to get a new token with retry logic
                     await attemptFCMTokenRetrieval(userId: userId)
                 }
-            } else {
-                print("✅ [NotificationManager] User \(userId) already has \(snapshot.documents.count) device(s) registered")
             }
         } catch {
-            print("❌ [NotificationManager] Error checking device registration: \(error.localizedDescription)")
+            Logger.error("Error checking device registration", logger: Logger.notification, error: error)
             // Retry device registration after a delay
             await retryDeviceRegistration(userId: userId)
         }
@@ -523,26 +602,25 @@ import FirebaseMessaging
         while retryCount < maxRetries {
             do {
                 let token = try await Messaging.messaging().token()
-                print("📱 [NotificationManager] Got new FCM token on attempt \(retryCount + 1), registering device")
+                Logger.debug("Got new FCM token on attempt \(retryCount + 1), registering device", logger: Logger.notification)
                 updateDeviceToken(token)
                 return
             } catch {
-                print("⚠️ [NotificationManager] Failed to get FCM token on attempt \(retryCount + 1): \(error.localizedDescription)")
+                Logger.debug("Failed to get FCM token on attempt \(retryCount + 1): \(error.localizedDescription)", logger: Logger.notification)
                 retryCount += 1
                 
                 if retryCount < maxRetries {
-                    print("📱 [NotificationManager] Retrying FCM token retrieval in \(retryDelay / 1_000_000_000) seconds...")
                     try? await Task.sleep(nanoseconds: retryDelay)
                 }
             }
         }
         
-        print("❌ [NotificationManager] Failed to get FCM token after \(maxRetries) attempts for user \(userId)")
+        Logger.error("Failed to get FCM token after \(maxRetries) attempts for user \(userId)", logger: Logger.notification)
     }
     
     // MARK: - Retry Device Registration
     private func retryDeviceRegistration(userId: String) async {
-        print("📱 [NotificationManager] Retrying device registration for user \(userId)")
+        Logger.debug("Retrying device registration for user \(userId)", logger: Logger.notification)
         
         // Wait a bit before retry
         try? await Task.sleep(nanoseconds: 2_000_000_000) // 2 seconds
@@ -553,30 +631,24 @@ import FirebaseMessaging
     
     // MARK: - Device Registration Diagnostics
     func diagnoseDeviceRegistration() async {
-        print("🔍 [NotificationManager] Starting device registration diagnostics")
+        Logger.debug("Starting device registration diagnostics", logger: Logger.notification)
         
         // Check user authentication
         let isAuthenticated = UserStatusManager.shared.state.isAuthenticated
         let userId = UserStatusManager.shared.state.userId
-        print("🔍 [NotificationManager] User authenticated: \(isAuthenticated)")
-        print("🔍 [NotificationManager] User ID: \(userId ?? "nil")")
+        Logger.debug("User authenticated: \(isAuthenticated), User ID: \(userId ?? "nil")", logger: Logger.notification)
         
         // Check FCM token availability
         let fcmToken = getCurrentFCMToken()
-        print("🔍 [NotificationManager] FCM token available: \(fcmToken != nil)")
         if let token = fcmToken {
-            print("🔍 [NotificationManager] FCM token: \(token.prefix(10))...")
+            Logger.debug("FCM token available: \(token.prefix(10))...", logger: Logger.notification)
         }
-        
-        // Check pending tokens
-        print("🔍 [NotificationManager] Pending FCM tokens: \(pendingFCMTokens.count)")
+        Logger.debug("Pending FCM tokens: \(pendingFCMTokens.count)", logger: Logger.notification)
         
         // If user is authenticated, check device registration status
         if let userId = userId {
             await checkDeviceRegistrationStatus(userId: userId)
         }
-        
-        print("🔍 [NotificationManager] Device registration diagnostics completed")
     }
     
     // MARK: - Check Device Registration Status
@@ -585,75 +657,43 @@ import FirebaseMessaging
             let devicesRef = db.collection("users").document(userId).collection("devices")
             let snapshot = try await devicesRef.getDocuments()
             
-            print("🔍 [NotificationManager] Device registration status for user \(userId):")
-            print("🔍 [NotificationManager] - Total devices: \(snapshot.documents.count)")
-            
-            for document in snapshot.documents {
-                let data = document.data()
-                let token = data["token"] as? String ?? "unknown"
-                let platform = data["platform"] as? String ?? "unknown"
-                let deviceModel = data["deviceModel"] as? String ?? "unknown"
-                let notificationsEnabled = data["notificationsEnabled"] as? Bool ?? false
-                let lastUpdated = data["lastUpdated"] as? Timestamp
-                
-                print("🔍 [NotificationManager] - Device: \(token.prefix(10))...")
-                print("🔍 [NotificationManager]   Platform: \(platform)")
-                print("🔍 [NotificationManager]   Model: \(deviceModel)")
-                print("🔍 [NotificationManager]   Notifications: \(notificationsEnabled)")
-                if let lastUpdated = lastUpdated {
-                    print("🔍 [NotificationManager]   Last Updated: \(lastUpdated.dateValue())")
-                }
-            }
+            Logger.debug("Device registration status for user \(userId): Total devices: \(snapshot.documents.count)", logger: Logger.notification)
             
         } catch {
-            print("❌ [NotificationManager] Error checking device registration status: \(error.localizedDescription)")
+            Logger.error("Error checking device registration status", logger: Logger.notification, error: error)
         }
     }
     
     // Function to remove a specific device token for a given user
     func removeDeviceTokenFromUser(userId: String, fcmToken: String) async {
-        print("📱 [NotificationManager] Attempting to remove token \(fcmToken.prefix(10))... for user \(userId)")
+        Logger.debug("Attempting to remove token \(fcmToken.prefix(10))... for user \(userId)", logger: Logger.notification)
         let deviceRef = db.collection("users").document(userId).collection("devices").document(fcmToken)
         
         do {
             try await deviceRef.delete()
-            print("📱 [NotificationManager] Successfully removed device token \(fcmToken.prefix(10))... for user \(userId)")
+            Logger.debug("Successfully removed device token \(fcmToken.prefix(10))... for user \(userId)", logger: Logger.notification)
         } catch {
-            print("❌ [NotificationManager] Failed to remove device token \(fcmToken.prefix(10))... for user \(userId): \(error.localizedDescription)")
-            // Handle error appropriately, maybe retry or log specifically
+            Logger.error("Failed to remove device token \(fcmToken.prefix(10))... for user \(userId)", logger: Logger.notification, error: error)
         }
     }
     
     // Helper to update only the badge count in Firestore
     func updateDeviceBadgeCountInFirestore(fcmToken: String, badgeCount: Int) {
         guard let userId = UserStatusManager.shared.state.userId else {
-            print("📱 [NotificationManager] Cannot update device badge count: No user ID")
+            Logger.debug("Cannot update device badge count: No user ID", logger: Logger.notification)
             return
         }
         
-        print("📱 [NotificationManager] Updating badge count in Firestore to \(badgeCount) for token: \(fcmToken.prefix(10))...")
+        Logger.debug("Updating badge count in Firestore to \(badgeCount) for token: \(fcmToken.prefix(10))...", logger: Logger.notification)
         let deviceRef = db.collection("users").document(userId).collection("devices").document(fcmToken)
         deviceRef.updateData([
             "badgeCount": badgeCount,
             "lastUpdated": FieldValue.serverTimestamp()
         ]) { error in
             if let error = error {
-                print("📱 [NotificationManager] Error updating badge count in Firestore: \(error.localizedDescription)")
+                Logger.debug("Error updating badge count in Firestore: \(error.localizedDescription)", logger: Logger.notification)
             } else {
-                print("📱 [NotificationManager] Successfully updated badge count in Firestore to \(badgeCount)")
-                
-                // Verify the update was successful by reading the document
-                deviceRef.getDocument { (document, error) in
-                    if let document = document, document.exists {
-                        if let data = document.data(), let storedBadge = data["badgeCount"] as? Int {
-                            print("📱 [NotificationManager] Verified Firestore badge count is now: \(storedBadge)")
-                        } else {
-                            print("📱 [NotificationManager] Could not read badge count from document")
-                        }
-                    } else {
-                        print("📱 [NotificationManager] Device document does not exist")
-                    }
-                }
+                Logger.debug("Successfully updated badge count in Firestore to \(badgeCount)", logger: Logger.notification)
             }
         }
     }
@@ -666,12 +706,9 @@ import FirebaseMessaging
         // Get the current system authorization status
         let isAuthorized = settings.authorizationStatus == .authorized
         
-        // Rule: Always add debug logs
-        print("📱 [NotificationManager] System notification status check: \(isAuthorized ? "authorized" : "not authorized"), Current app state: \(isNotificationsEnabled)")
-        
         // Check if the system status differs from our stored state
         if isAuthorized != isNotificationsEnabled {
-            print("📱 [NotificationManager] System status (\(isAuthorized)) differs from app state (\(isNotificationsEnabled)). Updating app state.")
+            Logger.debug("System status (\(isAuthorized)) differs from app state (\(isNotificationsEnabled)). Updating app state.", logger: Logger.notification)
             
             // Update the local state
             isNotificationsEnabled = isAuthorized
@@ -679,9 +716,6 @@ import FirebaseMessaging
             
             // Update token with current permission state
             await updateDeviceTokenWithCurrentState()
-        } else {
-            // Rule: Always add debug logs
-            print("📱 [NotificationManager] System status matches app state. No change needed.")
         }
         
         return isAuthorized
@@ -708,77 +742,39 @@ import FirebaseMessaging
     
     // MARK: - Diagnostic Functions
     func verifyDeviceTokenAndBadgeCount() {
-        print("📊 [Badge Diagnostic] Starting device token and badge count verification")
+        #if DEBUG
+        Logger.debug("Starting device token and badge count verification", logger: Logger.notification)
         
         // Check if we have a user ID
         guard let userId = UserStatusManager.shared.state.userId else {
-            print("📊 [Badge Diagnostic] No user ID available")
+            Logger.debug("No user ID available", logger: Logger.notification)
             return
         }
-        print("📊 [Badge Diagnostic] User ID: \(userId)")
         
-        // Check if we have a token directly
-        if let appDelegate = UIApplication.shared.delegate as? AppDelegate {
-            if let token = appDelegate.fcmToken {
-                print("📊 [Badge Diagnostic] FCM token from AppDelegate: \(token.prefix(15))...")
-            } else {
-                print("📊 [Badge Diagnostic] No FCM token stored in AppDelegate")
-            }
+        // Check if we have a token using the thread-safe method
+        if let token = getCurrentFCMToken() {
+            Logger.debug("FCM token from Messaging: \(token.prefix(15))..., Local badge count: \(unreadNotificationCount)", logger: Logger.notification)
         }
-        
-        // Check for token via Messaging
-        if let token = Messaging.messaging().fcmToken {
-            print("📊 [Badge Diagnostic] FCM token from Messaging: \(token.prefix(15))...")
-        } else {
-            print("📊 [Badge Diagnostic] No FCM token available from Messaging")
-        }
-        
-        // Verify badge counts
-        print("📊 [Badge Diagnostic] Local badge count: \(unreadNotificationCount)")
-        
-        // Note: As of iOS 17, there's no non-deprecated API to read the current badge count.
-        // UNUserNotificationCenter provides setBadgeCount but no getBadgeCount.
-        // We'll rely on our locally tracked count as the source of truth.
-        print("📊 [Badge Diagnostic] Using local badge count as source of truth: \(unreadNotificationCount)")
         
         // Check Firestore for all device tokens
         db.collection("users").document(userId).collection("devices").getDocuments { (snapshot, error) in
             if let error = error {
-                print("📊 [Badge Diagnostic] Error fetching devices: \(error.localizedDescription)")
+                Logger.debug("Error fetching devices: \(error.localizedDescription)", logger: Logger.notification)
                 return
             }
             
             guard let documents = snapshot?.documents else {
-                print("📊 [Badge Diagnostic] No devices found in Firestore")
                 return
             }
             
-            print("📊 [Badge Diagnostic] Found \(documents.count) devices in Firestore")
+            Logger.debug("Found \(documents.count) devices in Firestore", logger: Logger.notification)
             
-            for (index, document) in documents.enumerated() {
-                let data = document.data()
-                let tokenId = document.documentID
-                let badgeCount = data["badgeCount"] as? Int ?? -1
-                let enabled = data["notificationsEnabled"] as? Bool ?? false
-                let lastUpdated = data["lastUpdated"] as? Timestamp
-                
-                print("📊 [Badge Diagnostic] Device \(index+1):")
-                print("📊 [Badge Diagnostic] - Token ID: \(tokenId.prefix(15))...")
-                print("📊 [Badge Diagnostic] - Badge Count: \(badgeCount)")
-                print("📊 [Badge Diagnostic] - Notifications Enabled: \(enabled)")
-                if let lastUpdated = lastUpdated {
-                    print("📊 [Badge Diagnostic] - Last Updated: \(lastUpdated.dateValue())")
-                } else {
-                    print("📊 [Badge Diagnostic] - Last Updated: Unknown")
-                }
-                
-                // Check if we have a matching token in the AppDelegate
-                if let appDelegate = UIApplication.shared.delegate as? AppDelegate,
-                   let appToken = appDelegate.fcmToken,
-                   appToken == tokenId {
-                    print("📊 [Badge Diagnostic] ✅ This device matches current FCM token!")
-                }
+            // Check if we have a matching token
+            if let appToken = self.getCurrentFCMToken(),
+               documents.contains(where: { $0.documentID == appToken }) {
+                Logger.debug("Current device matches FCM token in Firestore", logger: Logger.notification)
             }
         }
+        #endif
     }
 } 

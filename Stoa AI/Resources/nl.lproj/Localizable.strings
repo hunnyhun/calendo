@@ -1,0 +1,261 @@
+/* 
+  Localizable.strings
+  Stoa AI
+*/
+
+// MARK: - Common UI Elements
+"settings" = "Instellingen";
+"language" = "Taal";
+"done" = "Klaar";
+"cancel" = "Annuleren";
+"signOut" = "Uitloggen";
+"appTitle" = "Calendo: Plan, Volg & Bereik";
+"premium" = "Premium-abonnement";
+"freeAccount" = "Gratis account";
+"anonymousUser" = "Anonieme gebruiker";
+"task_mode" = "Taak";
+"task_management" = "Taakbeheer";
+"my_tasks" = "Mijn taken";
+
+// MARK: - Onboarding
+"onboarding_welcome_title" = "Welkom bij Calendo";
+"onboarding_welcome_description" = "Je persoonlijke groeimaatje voor het opbouwen van betere gewoonten en het bereiken van je doelen. Begin je zelfverbeteringsreis met praktische begeleiding en ondersteuning.";
+"onboarding_chat_title" = "Hoe de chat te gebruiken";
+"onboarding_chat_description" = "Stel vragen over levensuitdagingen • Zoek begeleiding bij moeilijke beslissingen • Krijg hulp bij persoonlijke groei en gewoontevorming • Vraag alles wat je wilt leren";
+"onboarding_quotes_title" = "Dagelijkse inspiratie";
+"onboarding_quotes_description" = "Begin elke dag met motiverende citaten en praktische inzichten. Ontvang gepersonaliseerde begeleiding op je telefoon.";
+"onboarding_profile_title" = "Vertel ons over jezelf";
+"onboarding_profile_description" = "Help ons je ervaring met Stoa AI te personaliseren. Deze informatie helpt ons relevantere begeleiding te bieden.";
+"onboarding_goals_title" = "Wat wil je bereiken?";
+"onboarding_goals_description" = "Selecteer je hoofddoelen zodat we onze begeleiding kunnen afstemmen op je persoonlijke reis.";
+"onboarding_suffering_title" = "Hoe lang werk je hier al aan?";
+"onboarding_suffering_description" = "Begrijpen van je reis helpt ons passende begeleiding en ondersteuning te bieden.";
+"onboarding_sample_quote" = "\"De enige manier om geweldig werk te doen, is om van te houden wat je doet.\" - Steve Jobs";
+"onboarding_sample_user_message" = "Ik wil mijn... verbeteren";
+"onboarding_sample_ai_message" = "Welkom! Ik ben hier om je te helpen betere gewoonten op te bouwen en je doelen te bereiken. Hoe kan ik je vandaag helpen?";
+"onboarding_widget_title" = "Blijf verbonden met groei";
+"onboarding_widget_description" = "Voeg de Calendo-widget toe aan je startscherm voor directe toegang tot dagelijkse motivatie en gewoontebijhouden.";
+"onboarding_today_inspiration" = "Groei-inzicht van vandaag";
+"onboarding_widget_label" = "Widget";
+"onboarding_add_to_home_screen" = "Toevoegen aan startscherm";
+"onboarding_widget_instructions" = "Druk lang op je startscherm en tik op de +-knop om de Calendo-widget toe te voegen";
+"onboarding_previous" = "Vorige";
+"onboarding_next" = "Volgende";
+"onboarding_get_started" = "Aan de slag";
+"onboarding_continue" = "Doorgaan";
+"onboarding_skip" = "Overslaan";
+
+// MARK: - Onboarding Habits
+"onboarding_habits_title" = "Bouw betere gewoonten";
+"onboarding_habits_description" = "Maak en volg dagelijkse praktijken voor persoonlijke groei • Check in, bouw reeksen op en zie je voortgang";
+"onboarding_habit_morning_reflection" = "Ochtendreflectie";
+"onboarding_habit_morning_reflection_sub" = "Dagelijks • 10 min";
+"onboarding_habit_evening_review" = "Avondbeoordeling";
+"onboarding_habit_evening_review_sub" = "Dagelijks • 5 min";
+"onboarding_habit_acts_of_kindness" = "Vriendelijke daden";
+"onboarding_habit_acts_of_kindness_sub" = "Dagelijks";
+"onboarding_habit_read_philosophy" = "Lees filosofie";
+"onboarding_habit_read_philosophy_sub" = "Dagelijks • 20 min";
+
+// MARK: - Profile Setup
+"profile_name_placeholder" = "Je naam";
+"profile_age_placeholder" = "Je leeftijd";
+"profile_optional" = "(Optioneel)";
+"profile_name_label" = "Naam";
+"profile_age_label" = "Leeftijd";
+"profile_gender_label" = "Geslacht";
+
+// MARK: - Goals
+"goal_personal_growth" = "Persoonlijke groei";
+"goal_stress_reduction" = "Stressvermindering";
+"goal_emotional_resilience" = "Emotionele veerkracht";
+"goal_mindfulness" = "Mindfulness & huidig moment";
+"goal_better_relationships" = "Betere relaties";
+"goal_personal_growth_desc" = "Ontwikkel wijsheid, deugd en karakter door persoonlijke groeiprincipes";
+"goal_stress_reduction_desc" = "Leer stress te beheersen en innerlijke vrede te vinden";
+"goal_emotional_resilience_desc" = "Bouw kracht op om levensuitdagingen aan te kunnen";
+"goal_mindfulness_desc" = "Oefen aanwezigheid en bewustzijn in het dagelijks leven";
+"goal_better_relationships_desc" = "Verbeter verbindingen met anderen door wijsheid";
+
+// MARK: - Suffering Duration
+"suffering_recently_started" = "Onlangs begonnen";
+"suffering_few_months" = "Enkele maanden";
+"suffering_six_months_to_year" = "6 maanden tot 1 jaar";
+"suffering_one_to_three_years" = "1-3 jaar";
+"suffering_several_years" = "Enkele jaren";
+"suffering_not_applicable" = "Niet van toepassing op mij";
+"suffering_recently_started_desc" = "Ik ben net aan deze reis begonnen";
+"suffering_few_months_desc" = "Ik werk hier al een paar maanden aan";
+"suffering_six_months_to_year_desc" = "Ik heb hier een half jaar tot een jaar mee te maken";
+"suffering_one_to_three_years_desc" = "Dit is al 1-3 jaar een voortdurende uitdaging";
+"suffering_several_years_desc" = "Ik sta hier al jaren voor";
+"suffering_not_applicable_desc" = "Deze vraag is niet van toepassing op mijn situatie";
+
+// MARK: - Gender Options
+"gender_male" = "Man";
+"gender_female" = "Vrouw";
+"gender_non_binary" = "Non-binair";
+"gender_prefer_not_to_say" = "Zeg liever niet";
+
+// MARK: - Settings Screen
+"app" = "APP";
+"notificationPreferences" = "Meldingsvoorkeuren";
+"languageSettings" = "Taal";
+
+// MARK: - Auth Screen
+"signIn" = "Inloggen";
+"signUp" = "Registreren";
+"email" = "E-mail";
+"password" = "Wachtwoord";
+"forgotPassword" = "Wachtwoord vergeten?";
+
+// MARK: - Daily Quote
+"dailyQuote" = "Dagelijks citaat";
+"shareQuote" = "Deel citaat";
+"quotes" = "Citaten";
+"previousQuotes" = "Vorige citaten";
+"noPreviousQuotes" = "Geen vorige citaten beschikbaar";
+"noQuoteAvailable" = "Geen citaat beschikbaar vandaag.";
+"fromNotification" = "Van melding";
+
+// MARK: - Reminders
+"reminders" = "Herinneringen";
+"previousReminders" = "Vorige Herinneringen";
+"noReminderAvailable" = "Geen herinnering beschikbaar voor vandaag.";
+"noPreviousReminders" = "Geen vorige herinneringen beschikbaar.";
+"signInToViewDailyReminders" = "Log in om dagelijkse herinneringen te bekijken";
+
+// MARK: - Chat
+"chat" = "Chat";
+"send" = "Verzenden";
+"messageHint" = "Typ je bericht...";
+"newChat" = "Nieuwe chat";
+"priest" = "Wijze";
+"welcomeToChat" = "Welkom bij filosofische reflectie";
+"welcomeToStoicHabitMind" = "Welkom bij Calendo";
+"holySpirit" = "Laten we samen de diepte van wijsheid en deugd verkennen.";
+"confessSuggestion1" = "Hoe kan ik dagelijkse obstakels omzetten in kansen voor groei?";
+"confessSuggestion2" = "Ik worstel met woede - hoe kan ik het beter beheersen?";
+"confessSuggestion3" = "Help me de discipline van verlangen begrijpen vs. wat in mijn controle is";
+
+// Habit mode suggestions
+"habitSuggestion1" = "Help me een ochtendreflectiegewoonte te creëren";
+"habitSuggestion2" = "Ik wil een gewoonte opbouwen om dagelijks persoonlijke ontwikkelingsinhoud te lezen";
+"habitSuggestion3" = "Hoe kan ik een consistente avondbeoordelingspraktijk ontwikkelen?";
+
+// Task mode suggestions
+"I have an exam coming up" = "Ik heb binnenkort een examen";
+"I need to buy groceries" = "Ik moet boodschappen doen";
+"I need to make a reservation" = "Ik moet een reservering maken";
+
+// Habit mode suggestions
+"Create a morning exercise habit" = "Creëer een ochtendoefeninggewoonte";
+"Help me build a daily reading routine" = "Help me een dagelijkse leesroutine op te bouwen";
+"I want to start meditating regularly" = "Ik wil regelmatig beginnen met mediteren";
+"messageLimitReached" = "Berichtenlimiet bereikt";
+"upgradeToPremium" = "Upgrade naar Premium voor onbeperkte berichten";
+"confessThoughts" = "Deel je filosofische gedachten...";
+"noChatsYet" = "Nog geen chats";
+"newConversation" = "Nieuwe conversatie";
+
+// MARK: - Chat History Sections
+"Today" = "Vandaag";
+"Yesterday" = "Gisteren";
+"Last Week" = "Vorige week";
+"Earlier" = "Eerder";
+
+// MARK: - Sidebar
+"upgradeToPremiumButton" = "Upgrade naar Premium";
+"dailySpiritualQuote" = "Citaten";
+
+// MARK: - Paywall
+"unlockPremium" = "Premium ontgrendelen";
+"restorePurchases" = "Aankopen herstellen";
+
+// MARK: - Accessibility
+"openSettings" = "Opent systeeminstellingen om de apptaal te wijzigen"; 
+
+/* Settings View */
+"account" = "Account";
+"purchases" = "Aankopen";
+
+/* User Section */
+"anonymousUser" = "Anonieme gebruiker";
+"premium" = "Premium";
+"freeAccount" = "Gratis account";
+
+/* App Section */
+"notificationPreferences" = "Meldingsvoorkeuren";
+"language" = "Taal";
+"openSettings" = "Instellingen openen";
+
+/* Purchases Section */
+"restorePurchases" = "Aankopen herstellen";
+"restoreSuccessMessage" = "Je aankopen zijn succesvol hersteld.";
+"restoreNoPurchasesFound" = "Geen eerdere aankopen gevonden.";
+"restoreFailedMessage" = "Herstellen van aankopen mislukt. Probeer het opnieuw.";
+
+/* Account Actions */
+"deleteAccount" = "Account verwijderen";
+"signOut" = "Uitloggen";
+
+/* Delete Account Alert */
+"deleteAccountTitle" = "Account verwijderen";
+"deleteAccountConfirmMessage" = "Weet je zeker dat je je account wilt verwijderen? Deze actie kan niet ongedaan worden gemaakt en al je gegevens worden permanent verwijderd.";
+"deleteAccountFailedMessage" = "Account verwijderen mislukt.";
+
+/* Buttons */
+"cancelButton" = "Annuleren";
+"deleteButton" = "Verwijderen";
+"ok" = "OK";
+
+/* Errors */
+"errorTitle" = "Fout";
+"unknownError" = "Er is een onbekende fout opgetreden."; 
+
+/* Sidebar Anonymous Prompt */
+"signUpOrLogIn" = "Registreren of inloggen";
+"signUpBenefitText" = "Sla je chats op, personaliseer ervaring en dagelijkse filosofische citaten.";
+
+/* Daily Quote Anonymous Prompt */
+"signInToViewDailyQuotes" = "Log in om dagelijkse citaten te bekijken"; 
+
+/* Sidebar Anonymous History Prompt */
+"signInToViewHistory" = "Log in om chathistorie te bekijken.";
+
+/* Authentication View */
+"authWelcomeTitle" = "Welkom bij je groeireis! 🚀";
+"authSubtitle" = "Begin je zoektocht naar persoonlijke ontwikkeling met SmartAI";
+"authDescription" = "Sluit je aan bij duizenden die betere gewoonten opbouwen en hun doelen bereiken door betekenisvolle gesprekken met je AI persoonlijke groeimaatje.";
+"continueWithGoogle" = "Doorgaan met Google";
+"continueWithApple" = "Doorgaan met Apple";
+"authSuccessTitle" = "Welkom bij SmartAI! 📚";
+"authSuccessMessage" = "Je bent nu verbonden met SmartAI Habit & Daily Planner. Je persoonlijke groeireis wacht met onbeperkte gesprekken, gepersonaliseerde begeleiding en dagelijks gewoontebijhouden.";
+"subscriptionSuccessTitle" = "Premium ontgrendeld! ⭐";
+"subscriptionSuccessMessage" = "Gefeliciteerd! Je hebt nu toegang tot onbeperkte berichten, snellere reacties en prioriteitsbegeleiding. Je verbeterde reis van persoonlijke groei begint nu!";
+
+/* Anonymous Settings Button */
+"settingsButtonLabel" = "Instellingen"; 
+
+/* Anonymous User Limits */
+"anonymousLimitTitle" = "Gebruikslimiet bereikt";
+"signUpOrLogInButton" = "Registreren of Inloggen";
+"anonymousLimitMessage" = "Om door te gaan met chatten, registreer je of log in.";
+
+/* Anonymous Limit Sheet */
+"signUpBenefitsTitle" = "Voordelen van registreren";
+"unlimitedMessages" = "Onbeperkte berichten";
+"chatHistory" = "Chathistorie";
+"dailyQuotes" = "Dagelijkse citaten";
+"cloudSync" = "Cloudsynchronisatie";
+"continueBrowsing" = "Bladeren voortzetten";
+
+/* Premium Limit Sheet */
+"messageLimitReached" = "Berichtenlimiet bereikt";
+"freeTierLimitMessage" = "Je hebt je gratis tier-berichtenlimiet bereikt.";
+"premiumBenefitsTitle" = "Premium-voordelen";
+"fasterResponses" = "Snellere reacties";
+"unlimitedQuotes" = "Onbeperkte citaten";
+"prioritySupport" = "Prioriteitsondersteuning";
+"maybeLater" = "Misschien later";
+

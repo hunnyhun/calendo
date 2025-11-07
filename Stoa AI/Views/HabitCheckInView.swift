@@ -15,7 +15,7 @@ struct HabitCheckInView: View {
     
     // Convert string category to HabitCategory for display
     private var displayCategory: HabitCategory {
-        let categoryString = habit.category?.lowercased() ?? "personal growth"
+        let categoryString = habit.category.lowercased()
         switch categoryString {
         case "physical", "fitness", "health":
             return .physical
@@ -36,32 +36,23 @@ struct HabitCheckInView: View {
     
     // Derive frequency from schedule
     private var displayFrequency: HabitFrequency {
-        if let lowLevelSchedule = habit.lowLevelSchedule {
-            switch lowLevelSchedule.span {
-            case "daily":
+        switch habit.lowLevelSchedule.span {
+        case "day":
+            if habit.lowLevelSchedule.spanValue == 1.0 {
                 return .daily
-            case "weekly":
-                return .weekly
-            case "every-n-days":
-                if let interval = lowLevelSchedule.spanInterval {
-                    return .custom(days: interval)
-                }
-                return .daily
-            default:
-                return .daily
+            } else {
+                return .custom(days: Int(habit.lowLevelSchedule.spanValue))
             }
+        case "week":
+            return .weekly
+        default:
+            return .daily
         }
-        return .daily
     }
     
     // Derive duration from schedule
+    // Note: duration_minutes doesn't exist in new structure, return nil
     private var displayDuration: String? {
-        if let lowLevelSchedule = habit.lowLevelSchedule,
-           let firstProgram = lowLevelSchedule.program.first,
-           let firstStep = firstProgram.steps.first,
-           let durationMinutes = firstStep.durationMinutes {
-            return "\(durationMinutes) minutes"
-        }
         return nil
     }
     
@@ -73,9 +64,9 @@ struct HabitCheckInView: View {
                     VStack(spacing: 16) {
                         Image(systemName: displayCategory.icon)
                             .font(.system(size: 40))
-                            .foregroundColor(Color(displayCategory.color))
+                            .foregroundColor(displayCategory.color)
                             .frame(width: 80, height: 80)
-                            .background(Color(displayCategory.color).opacity(0.1))
+                            .background(displayCategory.color.opacity(0.1))
                             .clipShape(Circle())
                         
                         VStack(spacing: 8) {
@@ -91,15 +82,14 @@ struct HabitCheckInView: View {
                                     .foregroundColor(.secondary)
                             }
                             
-                            if let trackingMethod = habit.trackingMethod {
-                                Text("📊 \(trackingMethod)")
-                                    .font(.caption)
-                                    .foregroundColor(.blue)
-                                    .padding(.horizontal, 12)
-                                    .padding(.vertical, 4)
-                                    .background(Color.blue.opacity(0.1))
-                                    .clipShape(Capsule())
-                            }
+                            // Show difficulty instead of trackingMethod
+                            Text("📊 \(habit.difficulty.capitalized)")
+                                .font(.caption)
+                                .foregroundColor(.blue)
+                                .padding(.horizontal, 12)
+                                .padding(.vertical, 4)
+                                .background(Color.blue.opacity(0.1))
+                                .clipShape(Capsule())
                         }
                     }
                     .padding(.top, 20)
@@ -287,7 +277,7 @@ struct HabitDetailView: View {
     
     // Convert string category to HabitCategory for display
     private var displayCategory: HabitCategory {
-        let categoryString = habit.category?.lowercased() ?? "personal growth"
+        let categoryString = habit.category.lowercased()
         switch categoryString {
         case "physical", "fitness", "health":
             return .physical
@@ -308,32 +298,23 @@ struct HabitDetailView: View {
     
     // Derive frequency from schedule
     private var displayFrequency: HabitFrequency {
-        if let lowLevelSchedule = habit.lowLevelSchedule {
-            switch lowLevelSchedule.span {
-            case "daily":
+        switch habit.lowLevelSchedule.span {
+        case "day":
+            if habit.lowLevelSchedule.spanValue == 1.0 {
                 return .daily
-            case "weekly":
-                return .weekly
-            case "every-n-days":
-                if let interval = lowLevelSchedule.spanInterval {
-                    return .custom(days: interval)
-                }
-                return .daily
-            default:
-                return .daily
+            } else {
+                return .custom(days: Int(habit.lowLevelSchedule.spanValue))
             }
+        case "week":
+            return .weekly
+        default:
+            return .daily
         }
-        return .daily
     }
     
     // Derive duration from schedule
+    // Note: duration_minutes doesn't exist in new structure, return nil
     private var displayDuration: String? {
-        if let lowLevelSchedule = habit.lowLevelSchedule,
-           let firstProgram = lowLevelSchedule.program.first,
-           let firstStep = firstProgram.steps.first,
-           let durationMinutes = firstStep.durationMinutes {
-            return "\(durationMinutes) minutes"
-        }
         return nil
     }
     
@@ -351,6 +332,41 @@ struct HabitDetailView: View {
             .map { $0 }
     }
     
+    // Collect all reminders from days_indexed, weeks_indexed, and months_indexed
+    private func collectAllReminders() -> [HabitReminderNew] {
+        var reminders: [HabitReminderNew] = []
+        
+        if let firstProgram = habit.lowLevelSchedule.program.first {
+            // Collect from days_indexed
+            for dayItem in firstProgram.daysIndexed {
+                reminders.append(contentsOf: dayItem.reminders)
+            }
+            
+            // Collect from weeks_indexed
+            for weekItem in firstProgram.weeksIndexed {
+                reminders.append(contentsOf: weekItem.reminders)
+            }
+            
+            // Collect from months_indexed
+            for monthItem in firstProgram.monthsIndexed {
+                reminders.append(contentsOf: monthItem.reminders)
+            }
+        }
+        
+        // Remove duplicates
+        var uniqueReminders: [HabitReminderNew] = []
+        var seenReminders: Set<String> = []
+        for reminder in reminders {
+            let key = "\(reminder.time ?? "")|\(reminder.message ?? "")"
+            if !seenReminders.contains(key) {
+                seenReminders.insert(key)
+                uniqueReminders.append(reminder)
+            }
+        }
+        
+        return uniqueReminders
+    }
+    
     var body: some View {
         NavigationView {
             ScrollView {
@@ -359,9 +375,9 @@ struct HabitDetailView: View {
                     VStack(spacing: 16) {
                         Image(systemName: displayCategory.icon)
                             .font(.system(size: 50))
-                            .foregroundColor(Color(displayCategory.color))
+                            .foregroundColor(displayCategory.color)
                             .frame(width: 100, height: 100)
-                            .background(Color(displayCategory.color).opacity(0.1))
+                            .background(displayCategory.color.opacity(0.1))
                             .clipShape(Circle())
                         
                         VStack(spacing: 8) {
@@ -411,28 +427,26 @@ struct HabitDetailView: View {
                             )
                         }
                         
+                        // Show goal instead of motivation
+                        HabitDetailRow(
+                            icon: "target",
+                            title: "Goal",
+                            value: habit.goal
+                        )
                         
-                        if !habit.motivation.isEmpty {
-                            HabitDetailRow(
-                                icon: "heart",
-                                title: "Motivation",
-                                value: habit.motivation
-                            )
-                        }
-                        
-                        if let trackingMethod = habit.trackingMethod {
-                            HabitDetailRow(
-                                icon: "chart.line.uptrend.xyaxis",
-                                title: "Tracking Method",
-                                value: trackingMethod
-                            )
-                        }
+                        // Show difficulty instead of trackingMethod
+                        HabitDetailRow(
+                            icon: "chart.line.uptrend.xyaxis",
+                            title: "Difficulty",
+                            value: habit.difficulty.capitalized
+                        )
                         
                     }
                     .padding(.horizontal, 20)
                     
-                    // Reminders section
-                    if !habit.reminders.isEmpty {
+                    // Reminders section - collect from indexed items
+                    let allReminders = collectAllReminders()
+                    if !allReminders.isEmpty {
                         VStack(alignment: .leading, spacing: 16) {
                             HStack {
                                 Image(systemName: "bell")
@@ -445,7 +459,7 @@ struct HabitDetailView: View {
                             .padding(.horizontal, 20)
                             
                             VStack(spacing: 12) {
-                                ForEach(Array(habit.reminders.enumerated()), id: \.offset) { index, reminder in
+                                ForEach(Array(allReminders.enumerated()), id: \.offset) { index, reminder in
                                     HabitReminderRow(reminder: reminder)
                                 }
                             }
@@ -668,13 +682,44 @@ struct HabitEntryRow: View {
         habit: ComprehensiveHabit(
             name: "Morning Meditation",
             goal: "Cultivate inner peace and clarity",
-            createdAt: ISO8601DateFormatter().string(from: Date()),
             category: "mindfulness",
             description: "10 minutes of mindful breathing",
-            motivation: "To cultivate inner peace and clarity",
-            trackingMethod: "Time-based tracking",
-            milestones: [],
-            reminders: []
+            difficulty: "beginner",
+            lowLevelSchedule: HabitSchedule(
+                span: "day",
+                spanValue: 1.0,
+                habitSchedule: nil,
+                habitRepeatCount: nil,
+                program: [
+                    HabitProgramSchedule(
+                        daysIndexed: [
+                            DaysIndexedItem(
+                                index: 1,
+                                title: "Daily Meditation",
+                                content: [
+                                    DayStepContent(step: "Sit comfortably for 10 minutes", clock: "07:00")
+                                ],
+                                reminders: [
+                                    HabitReminderNew(time: "07:00", message: "Time for meditation")
+                                ]
+                            )
+                        ],
+                        weeksIndexed: [],
+                        monthsIndexed: []
+                    )
+                ]
+            ),
+            highLevelSchedule: HabitHighLevelSchedule(
+                milestones: [
+                    HabitMilestone(
+                        index: 0,
+                        description: "Foundation - Get started",
+                        completionCriteria: "streak_of_days",
+                        completionCriteriaPoint: 7,
+                        rewardMessage: "Great start!"
+                    )
+                ]
+            )
         ),
         habitManager: HabitManager()
     )
@@ -687,27 +732,21 @@ struct HabitReminderRow: View {
     
     var body: some View {
         HStack(spacing: 12) {
-            // Reminder type icon
-            Image(systemName: reminderTypeIcon)
+            // Reminder icon
+            Image(systemName: "bell")
                 .font(.system(size: 16, weight: .medium))
-                .foregroundColor(reminderTypeColor)
+                .foregroundColor(.blue)
                 .frame(width: 24, height: 24)
-                .background(reminderTypeColor.opacity(0.1))
+                .background(Color.blue.opacity(0.1))
                 .clipShape(Circle())
             
             VStack(alignment: .leading, spacing: 4) {
                 HStack {
-                    Text(reminder.time)
-                        .font(.system(size: 16, weight: .semibold))
-                        .foregroundColor(.primary)
-                    
-                    Text(reminder.type.capitalized)
-                            .font(.caption)
-                            .padding(.horizontal, 6)
-                            .padding(.vertical, 2)
-                            .background(reminderTypeColor.opacity(0.2))
-                            .foregroundColor(reminderTypeColor)
-                            .clipShape(Capsule())
+                    if let time = reminder.time {
+                        Text(time)
+                            .font(.system(size: 16, weight: .semibold))
+                            .foregroundColor(.primary)
+                    }
                     
                     Spacer()
                     
@@ -723,14 +762,12 @@ struct HabitReminderRow: View {
                     }
                 }
                 
-                Text(reminder.message)
-                    .font(.system(size: 14))
-                    .foregroundColor(.secondary)
-                    .multilineTextAlignment(.leading)
-                
-                Text(reminder.frequency.capitalized)
-                    .font(.caption)
-                    .foregroundColor(.secondary)
+                if let message = reminder.message {
+                    Text(message)
+                        .font(.system(size: 14))
+                        .foregroundColor(.secondary)
+                        .multilineTextAlignment(.leading)
+                }
             }
         }
         .padding(.vertical, 8)
@@ -739,28 +776,6 @@ struct HabitReminderRow: View {
         .clipShape(RoundedRectangle(cornerRadius: 12))
         .onAppear {
             checkNotificationStatus()
-        }
-    }
-    
-    private var reminderTypeIcon: String {
-        switch reminder.type.lowercased() {
-        case "preparation":
-            return "gearshape"
-        case "reflection":
-            return "lightbulb"
-        default:
-            return "bell"
-        }
-    }
-    
-    private var reminderTypeColor: Color {
-        switch reminder.type.lowercased() {
-        case "preparation":
-            return .orange
-        case "reflection":
-            return .purple
-        default:
-            return .blue
         }
     }
     

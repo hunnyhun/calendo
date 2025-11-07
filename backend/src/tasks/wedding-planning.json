@@ -1,0 +1,119 @@
+{
+    "name": "Plan Wedding",
+    "goal": "Organize perfect wedding day",
+    "category": "Personal",
+    "description": "Complete all wedding planning tasks",
+    "task_schedule": {
+        "steps": [
+            {
+                "index": 1,
+                "title": "Set Wedding Date",
+                "description": "Choose and confirm wedding date",
+                "date": "2024-11-15",
+                "time": null,
+                "reminders": [
+                    {
+                        "offset": {
+                            "unit": "days",
+                            "value": 1
+                        },
+                        "time": "10:00",
+                        "message": "Finalize wedding date decision"
+                    }
+                ]
+            },
+            {
+                "index": 2,
+                "title": "Book Venue",
+                "description": "Reserve wedding ceremony and reception venue",
+                "date": null,
+                "time": null,
+                "reminders": []
+            },
+            {
+                "index": 3,
+                "title": "Choose Caterer",
+                "description": "Select and book catering service",
+                "date": null,
+                "time": null,
+                "reminders": []
+            },
+            {
+                "index": 4,
+                "title": "Order Wedding Dress",
+                "description": "Select and order wedding dress",
+                "date": "2024-12-01",
+                "time": null,
+                "reminders": [
+                    {
+                        "offset": {
+                            "unit": "days",
+                            "value": 3
+                        },
+                        "time": "14:00",
+                        "message": "Don't forget to order the dress"
+                    }
+                ]
+            },
+            {
+                "index": 5,
+                "title": "Send Save the Dates",
+                "description": "Send save the date cards to guests",
+                "date": "2025-01-15",
+                "time": null,
+                "reminders": [
+                    {
+                        "offset": {
+                            "unit": "days",
+                            "value": 7
+                        },
+                        "time": "10:00",
+                        "message": "Send save the dates soon"
+                    }
+                ]
+            },
+            {
+                "index": 6,
+                "title": "Finalize Guest List",
+                "description": "Complete and confirm final guest list",
+                "date": null,
+                "time": null,
+                "reminders": []
+            },
+            {
+                "index": 7,
+                "title": "Wedding Day",
+                "description": "The big day - wedding ceremony and reception",
+                "date": "2025-06-15",
+                "time": "16:00",
+                "reminders": [
+                    {
+                        "offset": {
+                            "unit": "months",
+                            "value": 1
+                        },
+                        "time": "09:00",
+                        "message": "One month until the wedding!"
+                    },
+                    {
+                        "offset": {
+                            "unit": "weeks",
+                            "value": 1
+                        },
+                        "time": "09:00",
+                        "message": "One week until the wedding - final preparations"
+                    },
+                    {
+                        "offset": {
+                            "unit": "days",
+                            "value": 1
+                        },
+                        "time": "09:00",
+                        "message": "Wedding tomorrow at 4 PM!"
+                    }
+                ]
+            }
+        ]
+    }
+}
+

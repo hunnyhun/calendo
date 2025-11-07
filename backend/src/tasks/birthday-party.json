@@ -1,0 +1,78 @@
+{
+    "name": "Plan Birthday Party",
+    "goal": "Organize a memorable birthday celebration",
+    "category": "Personal",
+    "description": "Plan and execute a birthday party",
+    "task_schedule": {
+        "steps": [
+            {
+                "index": 1,
+                "title": "Send Invitations",
+                "description": "Create and send party invitations to guests",
+                "date": "2024-12-01",
+                "time": null,
+                "reminders": [
+                    {
+                        "offset": {
+                            "unit": "days",
+                            "value": 2
+                        },
+                        "time": "10:00",
+                        "message": "Send invitations soon"
+                    }
+                ]
+            },
+            {
+                "index": 2,
+                "title": "Book Venue",
+                "description": "Reserve party venue or location",
+                "date": null,
+                "time": null,
+                "reminders": []
+            },
+            {
+                "index": 3,
+                "title": "Order Cake",
+                "description": "Order birthday cake from bakery",
+                "date": "2024-12-10",
+                "time": null,
+                "reminders": [
+                    {
+                        "offset": {
+                            "unit": "days",
+                            "value": 1
+                        },
+                        "time": "11:00",
+                        "message": "Order cake today"
+                    }
+                ]
+            },
+            {
+                "index": 4,
+                "title": "Buy Decorations",
+                "description": "Purchase party decorations and supplies",
+                "date": null,
+                "time": null,
+                "reminders": []
+            },
+            {
+                "index": 5,
+                "title": "Party Day",
+                "description": "Set up and host the birthday party",
+                "date": "2024-12-15",
+                "time": "18:00",
+                "reminders": [
+                    {
+                        "offset": {
+                            "unit": "days",
+                            "value": 1
+                        },
+                        "time": "09:00",
+                        "message": "Party tomorrow at 6 PM - final preparations needed"
+                    }
+                ]
+            }
+        ]
+    }
+}
+

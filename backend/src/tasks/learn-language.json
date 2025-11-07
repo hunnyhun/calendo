@@ -1,0 +1,69 @@
+{
+    "name": "Learn Spanish",
+    "goal": "Achieve conversational Spanish level",
+    "category": "Education",
+    "description": "Step-by-step plan to learn Spanish",
+    "task_schedule": {
+        "steps": [
+            {
+                "index": 1,
+                "title": "Download Language App",
+                "description": "Install and set up language learning app",
+                "date": null,
+                "time": null,
+                "reminders": []
+            },
+            {
+                "index": 2,
+                "title": "Complete Basic Lessons",
+                "description": "Finish beginner level lessons",
+                "date": null,
+                "time": null,
+                "reminders": []
+            },
+            {
+                "index": 3,
+                "title": "Find Conversation Partner",
+                "description": "Find a native speaker for practice",
+                "date": null,
+                "time": null,
+                "reminders": []
+            },
+            {
+                "index": 4,
+                "title": "First Conversation Session",
+                "description": "Have first conversation practice session",
+                "date": "2024-11-10",
+                "time": "19:00",
+                "reminders": [
+                    {
+                        "offset": {
+                            "unit": "days",
+                            "value": 1
+                        },
+                        "time": "09:00",
+                        "message": "First conversation session tomorrow"
+                    }
+                ]
+            },
+            {
+                "index": 5,
+                "title": "Take Proficiency Test",
+                "description": "Take online Spanish proficiency test",
+                "date": "2024-12-20",
+                "time": null,
+                "reminders": [
+                    {
+                        "offset": {
+                            "unit": "weeks",
+                            "value": 1
+                        },
+                        "time": "10:00",
+                        "message": "Proficiency test in one week"
+                    }
+                ]
+            }
+        ]
+    }
+}
+

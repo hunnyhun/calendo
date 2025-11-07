@@ -1,0 +1,369 @@
+{
+    "name": "Comprehensive Multi-Span Habit",
+    "goal": "Build a long-term habit across multiple days, weeks, and months",
+    "category": "Personal Development",
+    "description": "Maintain a comprehensive routine with multiple days per week across multiple weeks spanning multiple months",
+    "difficulty": "advanced",
+    "high_level_schedule": {
+        "milestones": [
+            {
+                "index": 0,
+                "description": "Complete 3 months of multi-day, multi-week routine",
+                "completion_criteria": "streak_of_months",
+                "completion_criteria_point": 3,
+                "reward_message": "Great job! You've completed 3 months of comprehensive routine!"
+            },
+            {
+                "index": 1,
+                "description": "Complete 6 months of multi-day, multi-week routine",
+                "completion_criteria": "streak_of_months",
+                "completion_criteria_point": 6,
+                "reward_message": "Fantastic! 6 months of comprehensive routine. You're building mastery!"
+            },
+            {
+                "index": 2,
+                "description": "Complete 12 months of multi-day, multi-week routine",
+                "completion_criteria": "streak_of_months",
+                "completion_criteria_point": 12,
+                "reward_message": "Incredible! A full year of comprehensive routine. You've achieved true mastery!"
+            }
+        ]
+    },
+    "low_level_schedule": {
+        "span": "month",
+        "span_value": 1,
+        "habit_schedule": null,
+        "habit_repeat_count": null,
+        "program": [
+            {
+                "days_indexed": [
+                    {
+                        "index": 0,
+                        "title": "Day 1: Morning Routine",
+                        "content": [
+                            {
+                                "step": "Complete morning routine activities",
+                                "clock": "07:00"
+                            },
+                            {
+                                "step": "Review goals and plan day",
+                                "clock": "07:30"
+                            }
+                        ],
+                        "reminders": [
+                            {
+                                "time": "07:00",
+                                "message": "Time for your morning routine!"
+                            }
+                        ]
+                    },
+                    {
+                        "index": 1,
+                        "title": "Day 2: Mid-Day Focus",
+                        "content": [
+                            {
+                                "step": "Complete mid-day focus activities",
+                                "clock": "13:00"
+                            },
+                            {
+                                "step": "Track progress and adjust",
+                                "clock": "13:30"
+                            }
+                        ],
+                        "reminders": [
+                            {
+                                "time": "13:00",
+                                "message": "Mid-day focus time!"
+                            }
+                        ]
+                    },
+                    {
+                        "index": 2,
+                        "title": "Day 3: Evening Practice",
+                        "content": [
+                            {
+                                "step": "Complete evening practice session",
+                                "clock": "19:00"
+                            },
+                            {
+                                "step": "Reflect on the day",
+                                "clock": "19:30"
+                            }
+                        ],
+                        "reminders": [
+                            {
+                                "time": "19:00",
+                                "message": "Evening practice time!"
+                            }
+                        ]
+                    },
+                    {
+                        "index": 3,
+                        "title": "Day 4: Weekly Review",
+                        "content": [
+                            {
+                                "step": "Complete weekly review activities",
+                                "clock": "18:00"
+                            },
+                            {
+                                "step": "Plan for next week",
+                                "clock": "18:30"
+                            }
+                        ],
+                        "reminders": [
+                            {
+                                "time": "18:00",
+                                "message": "Weekly review time!"
+                            }
+                        ]
+                    }
+                ],
+                "weeks_indexed": [
+                    {
+                        "index": 0,
+                        "title": "Week 1: Foundation",
+                        "content": [
+                            {
+                                "step": "Start week 1 with day 1 routine",
+                                "day": "Monday"
+                            },
+                            {
+                                "step": "Continue with days 2 and 3",
+                                "day": "Wednesday"
+                            },
+                            {
+                                "step": "Complete day 4 and review week 1",
+                                "day": "Friday"
+                            }
+                        ],
+                        "reminders": [
+                            {
+                                "time": "19:00",
+                                "message": "Week 1 - building your foundation!"
+                            }
+                        ]
+                    },
+                    {
+                        "index": 1,
+                        "title": "Week 2: Consistency",
+                        "content": [
+                            {
+                                "step": "Continue with day 1 routine",
+                                "day": "Monday"
+                            },
+                            {
+                                "step": "Continue with days 2 and 3",
+                                "day": "Wednesday"
+                            },
+                            {
+                                "step": "Complete day 4 and review week 2",
+                                "day": "Friday"
+                            }
+                        ],
+                        "reminders": [
+                            {
+                                "time": "19:00",
+                                "message": "Week 2 - maintaining consistency!"
+                            }
+                        ]
+                    },
+                    {
+                        "index": 2,
+                        "title": "Week 3: Growth",
+                        "content": [
+                            {
+                                "step": "Continue with day 1 routine",
+                                "day": "Monday"
+                            },
+                            {
+                                "step": "Continue with days 2 and 3",
+                                "day": "Wednesday"
+                            },
+                            {
+                                "step": "Complete day 4 and review week 3",
+                                "day": "Friday"
+                            }
+                        ],
+                        "reminders": [
+                            {
+                                "time": "19:00",
+                                "message": "Week 3 - focus on growth!"
+                            }
+                        ]
+                    },
+                    {
+                        "index": 3,
+                        "title": "Week 4: Mastery",
+                        "content": [
+                            {
+                                "step": "Continue with day 1 routine",
+                                "day": "Monday"
+                            },
+                            {
+                                "step": "Continue with days 2 and 3",
+                                "day": "Wednesday"
+                            },
+                            {
+                                "step": "Complete day 4 and review monthly progress",
+                                "day": "Friday"
+                            }
+                        ],
+                        "reminders": [
+                            {
+                                "time": "19:00",
+                                "message": "Week 4 - working towards mastery!"
+                            }
+                        ]
+                    }
+                ],
+                "months_indexed": [
+                    {
+                        "index": 0,
+                        "title": "Month 1: Beginning",
+                        "content": [
+                            {
+                                "step": "Begin your comprehensive multi-span journey",
+                                "day": "start_of_month"
+                            },
+                            {
+                                "step": "Continue through all weeks and days",
+                                "day": "15"
+                            },
+                            {
+                                "step": "Review month 1 progress",
+                                "day": "end_of_month"
+                            }
+                        ],
+                        "reminders": [
+                            {
+                                "time": "19:00",
+                                "message": "Month 1 - beginning your journey!"
+                            }
+                        ]
+                    },
+                    {
+                        "index": 1,
+                        "title": "Month 2: Building",
+                        "content": [
+                            {
+                                "step": "Continue your comprehensive routine",
+                                "day": "start_of_month"
+                            },
+                            {
+                                "step": "Maintain consistency across all weeks and days",
+                                "day": "15"
+                            },
+                            {
+                                "step": "Review month 2 progress",
+                                "day": "end_of_month"
+                            }
+                        ],
+                        "reminders": [
+                            {
+                                "time": "19:00",
+                                "message": "Month 2 - building your habit!"
+                            }
+                        ]
+                    },
+                    {
+                        "index": 2,
+                        "title": "Month 3: Strengthening",
+                        "content": [
+                            {
+                                "step": "Continue strengthening your comprehensive habit",
+                                "day": "start_of_month"
+                            },
+                            {
+                                "step": "Focus on improvement across all spans",
+                                "day": "15"
+                            },
+                            {
+                                "step": "Review 3-month milestone progress",
+                                "day": "end_of_month"
+                            }
+                        ],
+                        "reminders": [
+                            {
+                                "time": "19:00",
+                                "message": "Month 3 - strengthening your habit!"
+                            }
+                        ]
+                    },
+                    {
+                        "index": 3,
+                        "title": "Month 4: Advancing",
+                        "content": [
+                            {
+                                "step": "Continue advancing your routine",
+                                "day": "start_of_month"
+                            },
+                            {
+                                "step": "Build on your established patterns",
+                                "day": "15"
+                            },
+                            {
+                                "step": "Review month 4 progress",
+                                "day": "end_of_month"
+                            }
+                        ],
+                        "reminders": [
+                            {
+                                "time": "19:00",
+                                "message": "Month 4 - advancing your routine!"
+                            }
+                        ]
+                    },
+                    {
+                        "index": 4,
+                        "title": "Month 5: Refining",
+                        "content": [
+                            {
+                                "step": "Continue refining your comprehensive routine",
+                                "day": "start_of_month"
+                            },
+                            {
+                                "step": "Optimize your approach",
+                                "day": "15"
+                            },
+                            {
+                                "step": "Review month 5 progress",
+                                "day": "end_of_month"
+                            }
+                        ],
+                        "reminders": [
+                            {
+                                "time": "19:00",
+                                "message": "Month 5 - refining your routine!"
+                            }
+                        ]
+                    },
+                    {
+                        "index": 5,
+                        "title": "Month 6: Mastery",
+                        "content": [
+                            {
+                                "step": "Continue towards mastery",
+                                "day": "start_of_month"
+                            },
+                            {
+                                "step": "Demonstrate consistent excellence",
+                                "day": "15"
+                            },
+                            {
+                                "step": "Review 6-month milestone and celebrate",
+                                "day": "end_of_month"
+                            }
+                        ],
+                        "reminders": [
+                            {
+                                "time": "19:00",
+                                "message": "Month 6 - achieving mastery!"
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    }
+}
+

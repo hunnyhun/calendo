@@ -1,1 +1,10 @@
-CFBundleDisplayName = "S-Tier"; 
+/* 
+  InfoPlist.strings
+  Stoa AI
+*/
+
+CFBundleDisplayName = "Calendo";
+
+"NSUserNotificationUsageDescription" = "Gostaríamos de enviar citações espirituais diárias para inspirar sua jornada.";
+"NSAppleMusicUsageDescription" = "Precisamos de acesso para enviar citações inspiradoras diárias.";
+"NSUserTrackingUsageDescription" = "Isso nos permite fornecer conteúdo personalizado e melhorar sua experiência com insights relevantes."; 

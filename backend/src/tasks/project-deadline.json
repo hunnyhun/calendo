@@ -1,0 +1,68 @@
+{
+    "name": "Complete Project Report",
+    "goal": "Finish and submit project report",
+    "category": "Work",
+    "description": "Complete all sections of the quarterly project report",
+    "task_schedule": {
+        "steps": [
+            {
+                "index": 1,
+                "title": "Gather Data",
+                "description": "Collect all necessary data and statistics",
+                "date": null,
+                "time": null,
+                "reminders": []
+            },
+            {
+                "index": 2,
+                "title": "Write Introduction",
+                "description": "Complete the introduction section",
+                "date": null,
+                "time": null,
+                "reminders": []
+            },
+            {
+                "index": 3,
+                "title": "Write Analysis",
+                "description": "Complete the analysis and findings section",
+                "date": null,
+                "time": null,
+                "reminders": []
+            },
+            {
+                "index": 4,
+                "title": "Review and Edit",
+                "description": "Review the entire report and make edits",
+                "date": null,
+                "time": null,
+                "reminders": []
+            },
+            {
+                "index": 5,
+                "title": "Submit Report",
+                "description": "Submit the final report to supervisor",
+                "date": "2024-11-30",
+                "time": "17:00",
+                "reminders": [
+                    {
+                        "offset": {
+                            "unit": "days",
+                            "value": 3
+                        },
+                        "time": "09:00",
+                        "message": "Report due in 3 days"
+                    },
+                    {
+                        "offset": {
+                            "unit": "days",
+                            "value": 1
+                        },
+                        "time": "09:00",
+                        "message": "Report due tomorrow at 5 PM"
+                    }
+                ]
+            }
+        ]
+    }
+}
+

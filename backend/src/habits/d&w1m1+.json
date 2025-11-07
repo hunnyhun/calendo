@@ -1,0 +1,181 @@
+{
+    "name": "Gym Workout Split",
+    "goal": "Build strength and muscle through structured gym training",
+    "category": "Fitness",
+    "description": "Follow a 4-day split: chest day, back day, leg day, and rest day",
+    "difficulty": "intermediate",
+    "high_level_schedule": {
+        "milestones": [
+            {
+                "index": 0,
+                "description": "Complete 28 days of gym workouts",
+                "completion_criteria": "streak_of_days",
+                "completion_criteria_point": 28,
+                "reward_message": "Great job! 4 weeks of consistent gym training. Your strength is improving!"
+            },
+            {
+                "index": 1,
+                "description": "Complete 60 days of gym workouts",
+                "completion_criteria": "streak_of_days",
+                "completion_criteria_point": 60,
+                "reward_message": "Excellent! 60 days of gym training. You're building serious strength!"
+            },
+            {
+                "index": 2,
+                "description": "Complete 90 days of gym workouts",
+                "completion_criteria": "streak_of_days",
+                "completion_criteria_point": 90,
+                "reward_message": "Incredible! 90 days of gym training. You're a dedicated lifter now!"
+            }
+        ]
+    },
+    "low_level_schedule": {
+        "span": "day",
+        "span_value": 4,
+        "habit_schedule": null,
+        "habit_repeat_count": null,
+        "program": [
+            {
+                "days_indexed": [
+                    {
+                        "index": 0,
+                        "title": "Day 1: Chest Day",
+                        "content": [
+                            {
+                                "step": "Warm up with 5 minutes of light cardio",
+                                "clock": "18:00"
+                            },
+                            {
+                                "step": "Perform chest exercises: bench press, incline dumbbell press, push-ups",
+                                "clock": "18:05"
+                            },
+                            {
+                                "step": "Cool down with stretching",
+                                "clock": "18:45"
+                            }
+                        ],
+                        "reminders": [
+                            {
+                                "time": "18:00",
+                                "message": "Chest day! Let's build those pecs!"
+                            }
+                        ]
+                    },
+                    {
+                        "index": 1,
+                        "title": "Day 2: Back Day",
+                        "content": [
+                            {
+                                "step": "Warm up with 5 minutes of light cardio",
+                                "clock": "18:00"
+                            },
+                            {
+                                "step": "Perform back exercises: pull-ups, rows, lat pulldowns",
+                                "clock": "18:05"
+                            },
+                            {
+                                "step": "Cool down with stretching",
+                                "clock": "18:45"
+                            }
+                        ],
+                        "reminders": [
+                            {
+                                "time": "18:00",
+                                "message": "Back day! Time to build a strong back!"
+                            }
+                        ]
+                    },
+                    {
+                        "index": 2,
+                        "title": "Day 3: Leg Day",
+                        "content": [
+                            {
+                                "step": "Warm up with 5 minutes of light cardio",
+                                "clock": "18:00"
+                            },
+                            {
+                                "step": "Perform leg exercises: squats, lunges, leg press",
+                                "clock": "18:05"
+                            },
+                            {
+                                "step": "Cool down with stretching",
+                                "clock": "18:45"
+                            }
+                        ],
+                        "reminders": [
+                            {
+                                "time": "18:00",
+                                "message": "Leg day! Build strong and powerful legs!"
+                            }
+                        ]
+                    },
+                    {
+                        "index": 3,
+                        "title": "Day 4: Rest Day",
+                        "content": [
+                            {
+                                "step": "Take a complete rest day or do light stretching/yoga",
+                                "clock": null
+                            }
+                        ],
+                        "reminders": [
+                            {
+                                "time": null,
+                                "message": "Rest day - let your muscles recover!"
+                            }
+                        ]
+                    }
+                ],
+                "weeks_indexed": [
+                    {
+                        "index": 0,
+                        "title": "Weekly Gym Schedule",
+                        "content": [
+                            {
+                                "step": "Follow the 4-day cycle: chest, back, legs, rest",
+                                "day": "Monday"
+                            },
+                            {
+                                "step": "Track your progress and weights lifted",
+                                "day": "Sunday"
+                            }
+                        ],
+                        "reminders": [
+                            {
+                                "time": "18:00",
+                                "message": "Continue your weekly gym routine!"
+                            }
+                        ]
+                    }
+                ],
+                "months_indexed": [
+                    {
+                        "index": 0,
+                        "title": "Monthly Gym Progress",
+                        "content": [
+                            {
+                                "step": "Continue the 4-day gym workout cycle",
+                                "day": "start_of_month"
+                            },
+                            {
+                                "step": "Review your strength progress and weights",
+                                "day": "15"
+                            },
+                            {
+                                "step": "Assess improvements and adjust your training",
+                                "day": "end_of_month"
+                            }
+                        ],
+                        "reminders": [
+                            {
+                                "time": "18:00",
+                                "message": "Keep up your monthly gym training!"
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    }
+}
+

@@ -55,33 +55,33 @@ struct HabitCardDeckView: View {
     
     private let habitCards: [OnboardingHabitCard] = [
         OnboardingHabitCard(
-            emoji: "💻",
+            emoji: "",
             title: "Deep Work Session",
-            description: "Master focused productivity with 90-minute uninterrupted work blocks.\n\n✨ Eliminate distractions completely\n✨ Work on your most important tasks\n✨ Build concentration muscle memory\n\n🪜 Foundation — 4 sessions\n🪜 Building — 8 total sessions\n🪜 Mastery — 16 total sessions",
+            description: "Create \nHabit Cards\nin Any Subject",
             color: .brandBrightGreen
         ),
         OnboardingHabitCard(
-            emoji: "📝",
+            emoji: "",
             title: "Evening Journal",
-            description: "Write a daily reflection for 5 minutes each evening.\n\n🪜 Foundation — 7 days of journaling\n🪜 Building — 21 total entries\n🪜 Mastery — 60 total entries",
+            description: "",
             color: .brandBrightCyan
         ),
         OnboardingHabitCard(
-            emoji: "🏋️",
+            emoji: "",
             title: "Gym Strength Training",
-            description: "Train at the gym 3 times per week focusing on progressive overload.\n\n🪜 Foundation — 6 gym sessions\n🪜 Building — 18 gym sessions\n🪜 Mastery — 50 gym sessions",
+            description: "",
             color: .brandBrightMagenta
         ),
         OnboardingHabitCard(
-            emoji: "🗣️",
+            emoji: "",
             title: "Language Learning Sprint",
-            description: "Study a new language for 20 minutes daily and complete one milestone per month.\n\n🪜 Foundation — 14 daily study sessions\n🪜 Building — 60 sessions\n🪜 Mastery — 180 sessions",
+            description: "",
             color: .brandBrightRed
         ),
         OnboardingHabitCard(
-            emoji: "🌅",
+            emoji: "",
             title: "Morning Walk & Sunlight",
-            description: "Start the day with 15 minutes of walking and sunlight exposure.\n\n🪜 Foundation — 7 days of walking\n🪜 Building — 21 total walks\n🪜 Mastery — 60 total walks",
+            description: "",
             color: .brandBrightPurple
         )
     ]
@@ -137,32 +137,41 @@ struct HabitCardView: View {
     let card: OnboardingHabitCard
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            // Title
+        VStack(alignment: .leading, spacing: 16) {
+            // Title - Left aligned
             Text(card.title)
-                .font(.system(size: 32, weight: .semibold))
+                .font(.system(size: 36, weight: .semibold))
                 .foregroundColor(.black)
                 .multilineTextAlignment(.leading)
+                .frame(maxWidth: .infinity, alignment: .leading)
             
-            // Description
-            ScrollView {
+            // Description - Left aligned
+            if !card.description.isEmpty {
                 Text(card.description)
-                    .font(.system(size: 12, weight: .medium))
+                    .font(.system(size: 28, weight: .medium))
                     .foregroundColor(.black.opacity(0.8))
                     .multilineTextAlignment(.leading)
                     .lineSpacing(4)
+                    .frame(maxWidth: .infinity, alignment: .leading)
             }
+            
+            Spacer()
         }
         .padding(.horizontal, 32)
         .padding(.vertical, 28)
-        .frame(width: 300, height: 400) // Smaller cards to prevent overlap
+        .frame(width: 300, height: 330, alignment: .topLeading)
         .background(
-            RoundedRectangle(cornerRadius: 30)
-                .fill(Color.white)
-        )
-        .overlay(
-            RoundedRectangle(cornerRadius: 30)
-                .stroke(card.color, lineWidth: 40)
+            ZStack {
+                // Outer colored border
+                RoundedRectangle(cornerRadius: 30)
+                    .fill(card.color)
+                
+                // Inner white content (inset by border width)
+                // Corner radius = outer radius - border width (since border extends inward)
+                RoundedRectangle(cornerRadius: max(20, 30 - 10))
+                    .fill(Color.white)
+                    .padding(20)
+            }
         )
         .clipShape(RoundedRectangle(cornerRadius: 30))
         .shadow(color: .black.opacity(0.1), radius: 8, x: 0, y: 4)
@@ -174,6 +183,7 @@ struct NewOnboardingChatDemoView: View {
     @State private var showUserMessage = false
     @State private var showAIMessage = false
     @State private var showStudyPlan = false
+    @State private var showPushButton = false
     @State private var userMessageOffset: CGFloat = 300
     @State private var aiMessageOffset: CGFloat = -300
     @State private var studyPlanOffset: CGFloat = 200
@@ -240,7 +250,7 @@ struct NewOnboardingChatDemoView: View {
             
             // Study Plan Card
             if showStudyPlan {
-                StudyPlanCardView(studyPlan: studyPlan)
+                StudyPlanCardView(studyPlan: studyPlan, showPushButton: showPushButton)
                     .offset(y: studyPlanOffset)
                     .opacity(showStudyPlan ? 1 : 0)
             }
@@ -280,47 +290,95 @@ struct NewOnboardingChatDemoView: View {
                 studyPlanOffset = 0
             }
         }
+        
+        // Show push button after all 3 messages have appeared
+        DispatchQueue.main.asyncAfter(deadline: .now() + 3.5) {
+            withAnimation(.easeOut(duration: 0.5)) {
+                showPushButton = true
+            }
+        }
     }
 }
 
 // MARK: - Study Plan Card View
 struct StudyPlanCardView: View {
     let studyPlan: StudyPlanDemo
+    var showPushButton: Bool = false
+    
+    @State private var pulseScale: CGFloat = 1.0
+    @State private var pulseOpacity: Double = 0.7
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            VStack(alignment: .leading, spacing: 8) {
-                Text(studyPlan.title)
-                    .font(.headline)
-                    .fontWeight(.bold)
-                    .foregroundColor(.black)
+        ZStack(alignment: .topTrailing) {
+            VStack(alignment: .leading, spacing: 16) {
+                VStack(alignment: .leading, spacing: 8) {
+                    Text(studyPlan.title)
+                        .font(.headline)
+                        .fontWeight(.bold)
+                        .foregroundColor(.black)
+                    
+                    Text(studyPlan.subtitle)
+                        .font(.subheadline)
+                        .foregroundColor(.black.opacity(0.7))
+                }
                 
-                Text(studyPlan.subtitle)
-                    .font(.subheadline)
-                    .foregroundColor(.black.opacity(0.7))
-            }
-            
-            VStack(alignment: .leading, spacing: 12) {
-                ForEach(Array(studyPlan.sections.enumerated()), id: \.offset) { index, section in
-                    VStack(alignment: .leading, spacing: 6) {
-                        Text("\(index + 1). \(section.title)")
-                            .font(.subheadline)
-                            .fontWeight(.semibold)
-                            .foregroundColor(.black)
-                        
-                        Text(section.content)
-                            .font(.caption)
-                            .foregroundColor(.black.opacity(0.8))
-                            .lineSpacing(2)
+                VStack(alignment: .leading, spacing: 12) {
+                    ForEach(Array(studyPlan.sections.enumerated()), id: \.offset) { index, section in
+                        VStack(alignment: .leading, spacing: 6) {
+                            Text("\(index + 1). \(section.title)")
+                                .font(.subheadline)
+                                .fontWeight(.semibold)
+                                .foregroundColor(.black)
+                            
+                            Text(section.content)
+                                .font(.caption)
+                                .foregroundColor(.black.opacity(0.8))
+                                .lineSpacing(2)
+                        }
                     }
                 }
             }
+            .padding(16)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(Color.green.opacity(0.1))
+            .cornerRadius(16)
+            .padding(.horizontal, 16)
+            
+            // Push to Calendar Button - Top Right Corner
+            if showPushButton {
+                Button(action: {}) {
+                    VStack(spacing: 2) {
+                        Text("Push to")
+                            .font(.system(size: 14, weight: .medium))
+                        Text("Calendar +")
+                            .font(.system(size: 14, weight: .medium))
+                    }
+                    .foregroundColor(.white)
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 8)
+                    .background(Color.brandBrightGreen)
+                    .cornerRadius(20)
+                    .shadow(color: Color.brandBrightGreen.opacity(pulseOpacity * 0.6), radius: 8)
+                    .scaleEffect(pulseScale)
+                }
+                .padding(.top, 8)
+                .padding(.trailing, 32)
+                .onAppear {
+                    startPulseAnimation()
+                }
+            }
         }
-        .padding(16)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Color.green.opacity(0.1))
-        .cornerRadius(16)
-        .padding(.horizontal, 16)
+    }
+    
+    private func startPulseAnimation() {
+        // Continuous pulsing animation
+        withAnimation(.easeInOut(duration: 1.2).repeatForever(autoreverses: true)) {
+            pulseScale = 1.15
+        }
+        
+        withAnimation(.easeInOut(duration: 1.2).repeatForever(autoreverses: true).delay(0.6)) {
+            pulseOpacity = 1.0
+        }
     }
 }
 
@@ -746,6 +804,291 @@ struct FlowResult {
     }
 }
 
+// MARK: - Gender Selection View
+struct GenderSelectionView: View {
+    @Binding var selectedGender: Models.Gender?
+    
+    var body: some View {
+        VStack(spacing: 40) {
+            Text("Personalize\nYour Experience")
+                .font(.system(size: 40, weight: .bold, design: .default))
+                .foregroundColor(.black)
+                .multilineTextAlignment(.center)
+                .shadow(color: .black.opacity(0.1), radius: 2, x: 1, y: 1)
+                .padding(.top, 60)
+            
+            Text("This helps us provide more relevant content and recommendations")
+                .font(.title3)
+                .fontWeight(.medium)
+                .foregroundColor(.black.opacity(0.7))
+                .multilineTextAlignment(.center)
+                .padding(.horizontal, 40)
+            
+            VStack(spacing: 16) {
+                ForEach(Models.Gender.allCases, id: \.self) { gender in
+                    GenderOptionView(
+                        gender: gender,
+                        isSelected: selectedGender == gender
+                    ) {
+                        withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+                            selectedGender = gender
+                        }
+                    }
+                }
+            }
+            .padding(.horizontal, 40)
+            
+            Spacer()
+        }
+    }
+}
+
+// MARK: - Gender Option View
+struct GenderOptionView: View {
+    let gender: Models.Gender
+    let isSelected: Bool
+    let onTap: () -> Void
+    
+    var body: some View {
+        Button(action: onTap) {
+            HStack(spacing: 16) {
+                Text(gender.displayName)
+                    .font(.title2)
+                    .fontWeight(.semibold)
+                    .foregroundColor(.black)
+                
+                Spacer()
+                
+                if isSelected {
+                    Image(systemName: "checkmark.circle.fill")
+                        .font(.title2)
+                        .foregroundColor(.green)
+                }
+            }
+            .padding(.horizontal, 24)
+            .padding(.vertical, 20)
+            .background(
+                RoundedRectangle(cornerRadius: 16)
+                    .fill(isSelected ? Color.green.opacity(0.1) : Color.gray.opacity(0.05))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 16)
+                            .stroke(isSelected ? Color.green : Color.gray.opacity(0.3), lineWidth: isSelected ? 2 : 1)
+                    )
+            )
+        }
+        .buttonStyle(PlainButtonStyle())
+        .scaleEffect(isSelected ? 1.02 : 1.0)
+        .animation(.spring(response: 0.3, dampingFraction: 0.7), value: isSelected)
+    }
+}
+
+// MARK: - Age Selection View
+struct AgeSelectionView: View {
+    @Binding var selectedAge: Int?
+    @State private var currentAge: Int = 25
+    
+    private let ages = Array(13...100)
+    
+    var body: some View {
+        VStack(spacing: 40) {
+            Text("Better Content for\nYour Life Stage")
+                .font(.system(size: 40, weight: .bold, design: .default))
+                .foregroundColor(.black)
+                .multilineTextAlignment(.center)
+                .shadow(color: .black.opacity(0.1), radius: 2, x: 1, y: 1)
+                .padding(.top, 60)
+            
+            Text("This helps us provide age-appropriate content and recommendations")
+                .font(.title3)
+                .fontWeight(.medium)
+                .foregroundColor(.black.opacity(0.7))
+                .multilineTextAlignment(.center)
+                .padding(.horizontal, 40)
+            
+            // Age Picker
+            VStack(spacing: 20) {
+                Text("\(currentAge)")
+                    .font(.system(size: 72, weight: .bold))
+                    .foregroundColor(.green)
+                    .padding(.vertical, 20)
+                
+                Picker("Age", selection: $currentAge) {
+                    ForEach(ages, id: \.self) { age in
+                        Text("\(age)")
+                            .tag(age)
+                    }
+                }
+                .pickerStyle(.wheel)
+                .frame(height: 200)
+            }
+            .padding(.horizontal, 40)
+            
+            Spacer()
+        }
+        .onChange(of: currentAge) { oldValue, newValue in
+            selectedAge = newValue
+        }
+        .onAppear {
+            if selectedAge == nil {
+                selectedAge = currentAge
+            } else {
+                currentAge = selectedAge ?? 25
+            }
+        }
+    }
+}
+
+// MARK: - Social Proof View
+struct SocialProofView: View {
+    @State private var visibleReviews: Set<Int> = []
+    
+    private let reviews = [
+        AppReview(
+            rating: 5,
+            text: "This app has completely transformed my daily routine. The AI suggestions are spot-on and the habit tracking keeps me motivated.",
+            author: "Sarah M.",
+            date: "2 days ago"
+        ),
+        AppReview(
+            rating: 5,
+            text: "Finally, an app that understands personal growth. The quotes and insights are exactly what I needed during tough times.",
+            author: "Michael R.",
+            date: "1 week ago"
+        ),
+        AppReview(
+            rating: 5,
+            text: "The calendar integration is brilliant. I can see my progress at a glance and stay on track with my goals.",
+            author: "Emma L.",
+            date: "3 days ago"
+        ),
+        AppReview(
+            rating: 5,
+            text: "Love how personalized everything feels. The AI really gets me and provides relevant advice for my situation.",
+            author: "David K.",
+            date: "5 days ago"
+        )
+    ]
+    
+    var body: some View {
+        ScrollView {
+            VStack(spacing: 30) {
+                Text("Join Thousands of\nSatisfied Users")
+                    .font(.system(size: 40, weight: .bold, design: .default))
+                    .foregroundColor(.black)
+                    .multilineTextAlignment(.center)
+                    .shadow(color: .black.opacity(0.1), radius: 2, x: 1, y: 1)
+                    .padding(.top, 60)
+                
+                // Show reviews with staggered animation
+                VStack(spacing: 16) {
+                    ForEach(0..<reviews.count, id: \.self) { index in
+                        ReviewCardView(review: reviews[index], reviewerIndex: index + 1)
+                            .opacity(visibleReviews.contains(index) ? 1.0 : 0.0)
+                            .scaleEffect(visibleReviews.contains(index) ? 1.0 : 0.95)
+                            .animation(.easeOut(duration: 0.5).delay(Double(index) * 0.15), value: visibleReviews.contains(index))
+                    }
+                }
+                .padding(.horizontal, 20)
+                
+                Spacer(minLength: 20)
+            }
+        }
+        .onAppear {
+            startReviewAnimation()
+        }
+    }
+    
+    private func startReviewAnimation() {
+        // Animate each review card in sequence
+        for index in 0..<reviews.count {
+            DispatchQueue.main.asyncAfter(deadline: .now() + Double(index) * 0.15) {
+                withAnimation(.easeOut(duration: 0.5)) {
+                    let _ = visibleReviews.insert(index)
+                }
+            }
+        }
+        
+        // Show native App Store review popup after 1 second
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+            AppReviewManager.shared.requestReview()
+        }
+    }
+}
+
+// MARK: - App Review Model
+struct AppReview {
+    let rating: Int
+    let text: String
+    let author: String
+    let date: String
+}
+
+// MARK: - Review Card View
+struct ReviewCardView: View {
+    let review: AppReview
+    let reviewerIndex: Int
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            // Profile photo and rating stars
+            HStack(alignment: .center, spacing: 12) {
+                // Circular profile photo
+                Image("reviewer-\(reviewerIndex)")
+                    .resizable()
+                    .aspectRatio(contentMode: .fill)
+                    .frame(width: 40, height: 40)
+                    .clipShape(Circle())
+                    .overlay(
+                        Circle()
+                            .stroke(Color.gray.opacity(0.2), lineWidth: 1)
+                    )
+                
+                // Rating stars
+                HStack(spacing: 4) {
+                    ForEach(0..<review.rating, id: \.self) { _ in
+                        Image(systemName: "star.fill")
+                            .font(.system(size: 16))
+                            .foregroundColor(.yellow)
+                    }
+                }
+                
+                Spacer()
+            }
+            
+            // Review text
+            Text(review.text)
+                .font(.body)
+                .fontWeight(.medium)
+                .foregroundColor(.black)
+                .lineSpacing(4)
+            
+            // Author and date
+            HStack {
+                Text(review.author)
+                    .font(.subheadline)
+                    .fontWeight(.semibold)
+                    .foregroundColor(.black.opacity(0.8))
+                
+                Spacer()
+                
+                Text(review.date)
+                    .font(.caption)
+                    .foregroundColor(.black.opacity(0.6))
+            }
+        }
+        .padding(24)
+        .background(
+            RoundedRectangle(cornerRadius: 20)
+                .fill(Color.white)
+                .shadow(color: .black.opacity(0.1), radius: 12, x: 0, y: 6)
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 20)
+                .stroke(Color.green.opacity(0.2), lineWidth: 1)
+        )
+    }
+}
+
 // MARK: - Widget Logo
 struct WidgetStoicColumn: View {
     let width: CGFloat
@@ -768,6 +1111,8 @@ struct OnboardingView: View {
     @State private var currentPage = 0
     @State private var showCalendar = false
     @State private var selectedKeywords: Set<UUID> = []
+    @State private var selectedGender: Models.Gender? = nil
+    @State private var selectedAge: Int? = nil
     @Binding var isPresented: Bool
     var onCompletion: (() -> Void)? = nil
     
@@ -811,25 +1156,26 @@ struct OnboardingView: View {
                     // TabView pages - Full screen content
                     TabView(selection: $currentPage) {
                         // Page 1: Welcome with Habit Cards
-                        VStack(spacing: 40) {
-                            Text("Welcome to Calendo:\nPlan, Track & Achieve")
-                                .font(.system(.largeTitle, design: .default))
-                                .fontWeight(.bold)
+                        VStack(spacing: 0) {
+                            Text("Welcome to Calendo")
+                                .font(.system(size: 40, weight: .bold, design: .default))
                                 .foregroundColor(.black)
                                 .multilineTextAlignment(.center)
                                 .shadow(color: .black.opacity(0.1), radius: 2, x: 1, y: 1)
-                                .padding(.top, 40)
+                                .padding(.top, 20)
+                                .padding(.bottom, 10)
+                            Spacer()
+                                .frame(height: 60) // Space between text and cards
                             
                             HabitCardDeckView()
-                                .frame(maxHeight: geometry.size.height * 0.65)
+                                .frame(maxHeight: geometry.size.height * 0.55)
                         }
                         .tag(0)
                         
                         // Page 2: Chat Demo
                         VStack(spacing: 20) {
                             Text("Plan Everything\nEasy and Fast")
-                                .font(.system(.largeTitle, design: .default))
-                                .fontWeight(.bold)
+                                .font(.system(size: 40, weight: .bold, design: .default))
                                 .foregroundColor(.black)
                                 .multilineTextAlignment(.center)
                                 .shadow(color: .black.opacity(0.1), radius: 2, x: 1, y: 1)
@@ -850,8 +1196,7 @@ struct OnboardingView: View {
                         VStack(spacing: 20) {
                             // Title section
                             Text("Plan Your Day\nWeek and Month")
-                                .font(.system(.largeTitle, design: .default))
-                                .fontWeight(.bold)
+                                .font(.system(size: 40, weight: .bold, design: .default))
                                 .foregroundColor(.black)
                                 .multilineTextAlignment(.center)
                                 .shadow(color: .black.opacity(0.1), radius: 2, x: 1, y: 1)
@@ -887,8 +1232,7 @@ struct OnboardingView: View {
                         // Page 4: Keyword Selection
                         VStack(spacing: 0) {
                             Text("Select Topics\nThat Fit You Best")
-                                .font(.system(.largeTitle, design: .default))
-                                .fontWeight(.bold)
+                                .font(.system(size: 40, weight: .bold, design: .default))
                                 .foregroundColor(.black)
                                 .multilineTextAlignment(.center)
                                 .padding(.top, 40)
@@ -921,36 +1265,110 @@ struct OnboardingView: View {
                             }
                         }
                         .tag(4)
-
-                        // Page 6: Completion with Fade Animation
-                        CompletionPageView()
+                        
+                        // Page 6: Gender Selection
+                        GenderSelectionView(selectedGender: $selectedGender)
                             .tag(5)
+                            .onAppear {
+                                // Request notification permission when gender page appears
+                                requestNotificationPermission()
+                            }
+                        
+                        // Page 7: Age Selection
+                        AgeSelectionView(selectedAge: $selectedAge)
+                            .tag(6)
+                        
+                        // Page 8: Social Proof with App Reviews
+                        SocialProofView()
+                            .tag(7)
+
+                        // Page 9: Authentication
+                        OnboardingAuthPageView(
+                            onAuthenticationSuccess: {
+                                // Authentication successful - proceed to complete onboarding
+                                Task {
+                                    // Save selected gender and age to user profile
+                                    if let gender = selectedGender {
+                                        UserStatusManager.shared.state.profile.gender = gender
+                                    }
+                                    if let age = selectedAge {
+                                        UserStatusManager.shared.state.profile.age = age
+                                    }
+                                    
+                                    await OnboardingManager.shared.markOnboardingCompleted()
+                                    await MainActor.run {
+                                        isPresented = false
+                                        onCompletion?()
+                                    }
+                                }
+                            }
+                        )
+                            .tag(8)
                     }
                     #if os(iOS)
                     .tabViewStyle(.page(indexDisplayMode: .never))
                     #endif
                     .ignoresSafeArea(.all)
                     
+                    // Page indicators - Top (Horizontal Progress Bar) - Very top of screen
+                    VStack {
+                        GeometryReader { geometry in
+                            ZStack(alignment: .leading) {
+                                // Background line
+                                Rectangle()
+                                    .fill(Color.black.opacity(0.2))
+                                    .frame(height: 3)
+                                    .cornerRadius(1.5)
+                                
+                                    // Filled progress line
+                                    Rectangle()
+                                        .fill(Color.brandBrightGreen)
+                                        .frame(width: geometry.size.width * CGFloat(currentPage + 1) / 9.0, height: 3)
+                                        .cornerRadius(1.5)
+                                        .animation(.easeInOut(duration: 0.3), value: currentPage)
+                            }
+                        }
+                        .frame(height: 3)
+                        .padding(.horizontal, 50)
+                        .padding(.top, 8) // Very top padding
+                        Spacer()
+                    }
+                    
+                    // Back Button - Top Left (Above everything, separate layer)
+                    if currentPage > 0 {
+                        VStack {
+                            HStack {
+                                Button(action: {
+                                    withAnimation(.easeInOut(duration: 0.4)) {
+                                        currentPage -= 1
+                                    }
+                                }) {
+                                    Image(systemName: "chevron.left")
+                                        .font(.system(size: 20, weight: .semibold))
+                                        .foregroundColor(.black)
+                                        .frame(width: 50, height: 50)
+                                        .background(Color.clear)
+                                        .contentShape(Rectangle())
+                                }
+                                .buttonStyle(PlainButtonStyle())
+                                .padding(.leading, 10)
+                                .padding(.top, 8)
+                                Spacer()
+                            }
+                            Spacer()
+                        }
+                        .allowsHitTesting(true)
+                    }
+                    
                     // Navigation Section - Overlay at bottom
                     VStack {
                         Spacer()
                         
                         VStack(spacing: 16) {
-                            // Page indicators
-                            HStack(spacing: 8) {
-                                ForEach(0..<6, id: \.self) { index in
-                                    Circle()
-                                        .fill(currentPage == index ? Color.green : Color.black.opacity(0.3))
-                                        .frame(width: 8, height: 8)
-                                        .scaleEffect(currentPage == index ? 1.2 : 1.0)
-                                        .animation(.spring(response: 0.3, dampingFraction: 0.6), value: currentPage)
-                                }
-                            }
-                            .padding(.bottom, 8)
                             
-                            // Navigation button with enhanced styling
-                            Button(action: {
-                                if currentPage < 5 {
+                            // Navigation button - only show if not on auth page (page 8)
+                                if currentPage < 8 {
+                                Button(action: {
                                     // Check if transitioning from keyword selection page (page 3) to widget page (page 4)
                                     if currentPage == 3 {
                                         // Validate that at least one keyword is selected
@@ -959,64 +1377,67 @@ struct OnboardingView: View {
                                         }
                                     }
                                     
-                                    // Check if transitioning from widget page (page 4) to profile completion (page 5)
-                                    if currentPage == 4 {
-                                        // Request notification permission when transitioning from widget page
-                                        requestNotificationPermission()
+                                    // Check if transitioning from gender selection page (page 5) to age selection page (page 6)
+                                    if currentPage == 5 {
+                                        // Validate that a gender is selected
+                                        if selectedGender == nil {
+                                            return // Don't proceed if no gender selected
+                                        }
+                                    }
+                                    
+                                    // Check if transitioning from age selection page (page 6) to social proof page (page 7)
+                                    if currentPage == 6 {
+                                        // Validate that an age is selected
+                                        if selectedAge == nil {
+                                            return // Don't proceed if no age selected
+                                        }
                                     }
                                     
                                     withAnimation(.easeInOut(duration: 0.4)) {
                                         currentPage += 1
-                                    }
-                                } else {
-                                    // Mark onboarding as completed and dismiss
-                                    Task {
-                                        await OnboardingManager.shared.markOnboardingCompleted()
-                                        await MainActor.run {
-                                            isPresented = false
-                                            onCompletion?()
-                                        }
-                                    }
                                 }
                             }) {
                                 HStack(spacing: 12) {
-                                    Text(currentPage == 5 ? NSLocalizedString("onboarding_get_started", comment: "") : NSLocalizedString("onboarding_continue", comment: ""))
+                                        Text(NSLocalizedString("onboarding_continue", comment: ""))
                                         .font(.title2)
                                         .foregroundColor(.white)
                                         .fontWeight(.semibold)
                                     
-                                    if currentPage < 5 {
                                         Image(systemName: "arrow.right")
                                             .font(.title2)
                                             .foregroundColor(.white)
                                             .fontWeight(.semibold)
-                                    }
                                 }
                                 .frame(maxWidth: .infinity)
                                 .padding(.horizontal, 20)
                                 .padding(.vertical, 16)
                                 .background(
                                     RoundedRectangle(cornerRadius: 25)
-                                        .fill(currentPage == 3 && selectedKeywords.isEmpty ? Color.gray : Color.green)
-                                        .shadow(color: currentPage == 3 && selectedKeywords.isEmpty ? Color.gray.opacity(0.3) : Color.green.opacity(0.3), radius: 8, x: 0, y: 4)
+                                        .fill((currentPage == 3 && selectedKeywords.isEmpty) || (currentPage == 5 && selectedGender == nil) || (currentPage == 6 && selectedAge == nil) ? Color.gray : Color.brandBrightGreen)
+                                        .shadow(color: (currentPage == 3 && selectedKeywords.isEmpty) || (currentPage == 5 && selectedGender == nil) || (currentPage == 6 && selectedAge == nil) ? Color.gray.opacity(0.3) : Color.brandBrightGreen.opacity(0.3), radius: 8, x: 0, y: 4)
                                 )
                             }
                             .buttonStyle(PlainButtonStyle())
                             .padding(.horizontal, 30)
+                            }
                             
-                            // Promotional text under the button
-                            Text(currentPage == 0 ? "Your Personal Growth Companion" : 
-                                 currentPage == 1 ? "Trusted by 1,000+ Users" :
-                                 currentPage == 2 ? "Build Better Habits Daily" :
-                                 currentPage == 3 ? "AI-Powered  Personalized Goal Achievement" : 
-                                 currentPage == 4 ? "Plan, Track & Achieve" : 
-                                 currentPage == 5 ? "Ready to Begin Your Journey" : "")
-                                .font(.subheadline)
-                                .fontWeight(.bold)
-                                .foregroundColor(.black)
-                                .multilineTextAlignment(.center)
-                                .padding(.top, 8)
-                                .padding(.horizontal, 30)
+                            // Promotional text under the button - hide for auth page (page 8)
+                            if currentPage < 8 {
+                                Text(currentPage == 0 ? "Your Personal Growth Companion" : 
+                                     currentPage == 1 ? "Trusted by 1,000+ Users" :
+                                     currentPage == 2 ? "Build Better Habits Daily" :
+                                     currentPage == 3 ? "AI-Powered Personalized Goal Achievement" :
+                                     currentPage == 4 ? "Plan, Track & Achieve" :
+                                     currentPage == 5 ? "Help Us Personalize Your Experience" :
+                                     currentPage == 6 ? "Better Content for Your Life Stage" : 
+                                     "Join Thousands of Satisfied Users")
+                                    .font(.subheadline)
+                                    .fontWeight(.bold)
+                                    .foregroundColor(.black)
+                                    .multilineTextAlignment(.center)
+                                    .padding(.top, 8)
+                                    .padding(.horizontal, 30)
+                            }
                         }
                         .padding(.bottom, 40)
                         .background(
@@ -1032,6 +1453,121 @@ struct OnboardingView: View {
 }
 
 // MARK: - Completion Page View
+// MARK: - Onboarding Auth Page View
+struct OnboardingAuthPageView: View {
+    var onAuthenticationSuccess: (() -> Void)? = nil
+    let userStatusManager = UserStatusManager.shared
+    let authManager = AuthenticationManager.shared
+    @State private var isLoading = false
+    @State private var errorMessage: String?
+    
+    var body: some View {
+        ZStack {
+            // Simple white background
+            Color.white
+                .ignoresSafeArea()
+            
+            VStack(spacing: 20) {
+                Spacer()
+                
+                // Authentication Buttons - Simple and clean, centered
+                VStack(spacing: 16) {
+                    // Google Sign In
+                    Button(action: handleGoogleSignIn) {
+                        HStack {
+                            Image("googleicon")
+                                .resizable()
+                                .aspectRatio(contentMode: .fit)
+                                .frame(width: 24, height: 24)
+                            Text("continueWithGoogle".localized)
+                                .font(.system(size: 20, weight: .medium))
+                        }
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 18)
+                        .padding(.horizontal, 20)
+                        .background(Color.white)
+                        .foregroundColor(.black)
+                        .cornerRadius(20)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 20)
+                                .stroke(Color.gray.opacity(0.3), lineWidth: 1)
+                        )
+                    }
+                    .opacity(isLoading ? 0.6 : 1.0)
+                    .disabled(isLoading)
+                    
+                    // Apple Sign In
+                    Button(action: handleAppleSignIn) {
+                        HStack {
+                            Image(systemName: "apple.logo")
+                                .font(.title2)
+                            Text("continueWithApple".localized)
+                                .font(.system(size: 20, weight: .medium))
+                        }
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 18)
+                        .padding(.horizontal, 20)
+                        .background(Color.black)
+                        .foregroundColor(.white)
+                        .cornerRadius(20)
+                    }
+                    .opacity(isLoading ? 0.6 : 1.0)
+                    .disabled(isLoading)
+                }
+                .padding(.horizontal, 30)
+                
+                // Error Message
+                if let error = errorMessage {
+                    Text(error)
+                        .font(.system(size: 14))
+                        .foregroundColor(.red)
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal, 30)
+                        .padding(.top, 8)
+                }
+                
+                Spacer()
+            }
+        }
+        .onReceive(NotificationCenter.default.publisher(for: Notification.Name("UserStateChanged"))) { notification in
+            if let userInfo = notification.userInfo,
+               let authStatus = userInfo["authStatus"] as? String,
+               authStatus == "authenticated" {
+                // User just authenticated, call success callback
+                onAuthenticationSuccess?()
+            }
+        }
+    }
+    
+    private func handleGoogleSignIn() {
+        Task {
+            isLoading = true
+            errorMessage = nil
+            do {
+                try await authManager.signInWithGoogle()
+                // Success will be handled by notification observer
+            } catch {
+                errorMessage = error.localizedDescription
+            }
+            isLoading = false
+        }
+    }
+    
+    private func handleAppleSignIn() {
+        Task {
+            isLoading = true
+            errorMessage = nil
+            do {
+                try await authManager.signInWithApple()
+                // Success will be handled by notification observer
+            } catch {
+                errorMessage = error.localizedDescription
+            }
+            isLoading = false
+        }
+    }
+}
+
 struct CompletionPageView: View {
     @State private var showTitle = false
     @State private var showSubtitle = false
@@ -1091,81 +1627,6 @@ struct CompletionPageView: View {
                 }
             }
         }
-    }
-}
-
-// MARK: - Onboarding Habit Demo View
-struct OnboardingHabitDemoView: View {
-    @State private var pulse = false
-    
-    var body: some View {
-        VStack(spacing: 10) {
-            HabitCardPreview(
-                title: NSLocalizedString("onboarding_habit_morning_reflection", comment: ""),
-                subtitle: NSLocalizedString("onboarding_habit_morning_reflection_sub", comment: ""),
-                icon: "sun.max.fill"
-            )
-            HabitCardPreview(
-                title: NSLocalizedString("onboarding_habit_evening_review", comment: ""),
-                subtitle: NSLocalizedString("onboarding_habit_evening_review_sub", comment: ""),
-                icon: "moon.fill"
-            )
-            HabitCardPreview(
-                title: NSLocalizedString("onboarding_habit_acts_of_kindness", comment: ""),
-                subtitle: NSLocalizedString("onboarding_habit_acts_of_kindness_sub", comment: ""),
-                icon: "heart.fill"
-            )
-        }
-        .padding(14)
-        .background(
-            RoundedRectangle(cornerRadius: 24)
-                .fill(Color.white)
-                .shadow(color: Color.black.opacity(0.1), radius: 12, x: 0, y: 6)
-        )
-        .overlay(
-            RoundedRectangle(cornerRadius: 24)
-                .stroke(Color.brandPrimary.opacity(0.2), lineWidth: 1)
-        )
-        .padding(.horizontal, 20)
-        .frame(maxHeight: 260) // Cap height for better readability
-        .scaleEffect(pulse ? 1.0 : 0.99)
-        .animation(.easeInOut(duration: 1.6).repeatForever(autoreverses: true), value: pulse)
-        .onAppear { pulse = true }
-    }
-}
-
-private struct HabitCardPreview: View {
-    let title: String
-    let subtitle: String
-    let icon: String
-    
-    var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            HStack(spacing: 8) {
-                Image(systemName: icon)
-                    .foregroundColor(.white)
-                    .padding(6)
-                    .background(Color.brandPrimary)
-                    .clipShape(RoundedRectangle(cornerRadius: 8))
-                
-                Text(title)
-                    .font(.headline)
-                    .foregroundColor(.black)
-                    .lineLimit(1)
-            }
-            
-            Text(subtitle)
-                .font(.caption)
-                .foregroundColor(.black.opacity(0.7))
-        }
-        .padding(10)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Color.white)
-        .overlay(
-            RoundedRectangle(cornerRadius: 16)
-                .stroke(Color.gray.opacity(0.15), lineWidth: 1)
-        )
-        .cornerRadius(14)
     }
 }
 
@@ -1293,14 +1754,14 @@ struct OnboardingWidgetDemoView: View {
             // Main Stoa AI Widget
             VStack(spacing: 16) {
                 WidgetStoicColumn(
-                    width: 40,
+                    width: 50,
                     color: Color.brandBrightGreen,
                     shadowColor: Color.brandBrightGreen.opacity(0.4)
                 )
                 .frame(height: 100)
                 
-                Text("\"You have power over your mind - not outside events. Realize this, and you will find strength.\"")
-                    .font(.system(.subheadline, design: .default))
+                Text("Take your vitamins and get some sunbathing")
+                    .font(.system(.headline, design: .default))
                     .foregroundColor(.black.opacity(0.8))
                     .multilineTextAlignment(.center)
                     .lineLimit(4)
@@ -1410,8 +1871,7 @@ struct OnboardingPageView: View {
         VStack(spacing: 32) {
             // Title with enhanced styling
             Text(title)
-                .font(.system(.largeTitle, design: .default))
-                .fontWeight(.bold)
+                .font(.system(size: 40, weight: .bold, design: .default))
                 .foregroundColor(textColor)
                 .multilineTextAlignment(.center)
                 .shadow(color: textColor == .white ? .black.opacity(0.3) : .gray.opacity(0.2), radius: 3, x: 1, y: 1)

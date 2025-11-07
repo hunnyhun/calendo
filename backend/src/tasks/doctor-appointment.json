@@ -1,0 +1,61 @@
+{
+    "name": "Annual Health Checkup",
+    "goal": "Complete annual medical examination",
+    "category": "Health",
+    "description": "Schedule and prepare for annual health checkup",
+    "task_schedule": {
+        "steps": [
+            {
+                "index": 1,
+                "title": "Schedule Appointment",
+                "description": "Call and book the doctor's appointment",
+                "date": "2024-11-01",
+                "time": "10:00",
+                "reminders": [
+                    {
+                        "offset": {
+                            "unit": "days",
+                            "value": 1
+                        },
+                        "time": "09:00",
+                        "message": "Don't forget to schedule your appointment"
+                    }
+                ]
+            },
+            {
+                "index": 2,
+                "title": "Prepare Medical History",
+                "description": "Gather previous medical records and test results",
+                "date": null,
+                "time": null,
+                "reminders": []
+            },
+            {
+                "index": 3,
+                "title": "Write Questions",
+                "description": "List questions to ask the doctor",
+                "date": null,
+                "time": null,
+                "reminders": []
+            },
+            {
+                "index": 4,
+                "title": "Attend Appointment",
+                "description": "Go to the doctor's office for checkup",
+                "date": "2024-11-15",
+                "time": "14:00",
+                "reminders": [
+                    {
+                        "offset": {
+                            "unit": "days",
+                            "value": 1
+                        },
+                        "time": "09:00",
+                        "message": "Doctor appointment tomorrow at 2 PM"
+                    }
+                ]
+            }
+        ]
+    }
+}
+

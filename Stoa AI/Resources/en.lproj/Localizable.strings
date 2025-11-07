@@ -118,6 +118,13 @@
 "noQuoteAvailable" = "No quote available today.";
 "fromNotification" = "From Notification";
 
+// MARK: - Reminders
+"reminders" = "Reminders";
+"previousReminders" = "Previous Reminders";
+"noReminderAvailable" = "No reminder available for today.";
+"noPreviousReminders" = "No previous reminders available.";
+"signInToViewDailyReminders" = "Sign in to view Daily Reminders";
+
 // MARK: - Chat
 "chat" = "Chat";
 "send" = "Send";
@@ -135,6 +142,16 @@
 "habitSuggestion1" = "Help me create a morning reflection habit";
 "habitSuggestion2" = "I want to build a habit of reading personal development content daily";
 "habitSuggestion3" = "How can I develop a consistent evening review practice?";
+
+// Task mode suggestions
+"I have an exam coming up" = "I have an exam coming up";
+"I need to buy groceries" = "I need to buy groceries";
+"I need to make a reservation" = "I need to make a reservation";
+
+// Habit mode suggestions
+"Create a morning exercise habit" = "Create a morning exercise habit";
+"Help me build a daily reading routine" = "Help me build a daily reading routine";
+"I want to start meditating regularly" = "I want to start meditating regularly";
 "messageLimitReached" = "Message limit reached";
 "upgradeToPremium" = "Upgrade to Premium for unlimited messages";
 "confessThoughts" = "Share your philosophical thoughts...";

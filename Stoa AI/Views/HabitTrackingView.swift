@@ -4,29 +4,16 @@ import FirebaseAuth
 // MARK: - Main Habit Tracking View
 struct HabitTrackingView: View {
     @ObservedObject private var habitManager = HabitManager.shared
-    let userStatusManager = UserStatusManager.shared
+    @StateObject private var importService = ImportService.shared
     var onNavigateToHabitChat: (() -> Void)? = nil
     var onNavigateBack: (() -> Void)? = nil
     
     @State private var showingHabitCreation = false
     @State private var showingHabitDetail: ComprehensiveHabit?
     @State private var selectedTab = 0
-    @State private var showingAnonymousAlert = false
-    @State private var showingLimitAlert = false
-    @State private var showingAuthView = false
-    @State private var showingPaywall = false
-    
-    private var userStatus: Models.UserStatus {
-        if userStatusManager.state.isAuthenticated {
-            return .loggedIn(isPremium: userStatusManager.state.isPremium)
-        } else {
-            return .anonymous
-        }
-    }
-    
-    private var canAccessHabits: Bool {
-        Models.HabitAccessHelper.canAccessHabitMode(userStatus: userStatus)
-    }
+    @State private var showingImportAlert = false
+    @State private var showingImportSheet = false
+    @State private var shareLink: URL?
     
     var body: some View {
         VStack(spacing: 0) {
@@ -52,225 +39,202 @@ struct HabitTrackingView: View {
                         .font(.largeTitle)
                         .fontWeight(.bold)
                         .foregroundColor(.primary)
-                    
-                    Text("Build virtue through consistent practice")
-                        .font(.subheadline)
-                        .foregroundColor(.secondary)
                 }
                 
                 Spacer()
                 
+                HStack(spacing: 12) {
+                    // Import button
+                    Button(action: {
+                        checkClipboardForImport()
+                    }) {
+                        Image(systemName: "square.and.arrow.down")
+                            .font(.title2)
+                            .foregroundColor(.brandPrimary)
+                    }
+                    
+                    // Add button
                 Button(action: {
                     handleHabitCreation()
                 }) {
                     Image(systemName: "plus.circle.fill")
                         .font(.title2)
                         .foregroundColor(.brandPrimary)
+                    }
                 }
             }
             .padding(.horizontal, 20)
             .padding(.top, 10)
                 
-                // Tab selection
-                Picker("View", selection: $selectedTab) {
-                    Text("Today").tag(0)
-                    Text("All Habits").tag(1)
-                    Text("Progress").tag(2)
-                }
-                .pickerStyle(SegmentedPickerStyle())
+                // Custom tab toggle
+                ViewTypeToggle(selectedTab: $selectedTab)
                 .padding(.horizontal, 20)
                 .padding(.vertical, 16)
                 
                 // Content based on selected tab
-                if canAccessHabits {
-                    TabView(selection: $selectedTab) {
-                        // Today's habits
-                        TodayHabitsView(
-                            habitManager: habitManager,
-                            onCreateHabit: handleHabitCreation
-                        )
-                        .tag(0)
-                        
-                        // All habits
-                        AllHabitsView(
-                            habitManager: habitManager,
-                            showingHabitDetail: $showingHabitDetail
-                        )
-                        .tag(1)
-                        
-                        // Progress view
-                        HabitProgressView(habitManager: habitManager)
-                            .tag(2)
-                    }
-                    .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
-                } else {
-                    // Show login required view
-                    VStack(spacing: 24) {
-                        Spacer()
-                        
-                        Image(systemName: "person.crop.circle.badge.plus")
-                            .font(.system(size: 80))
-                            .foregroundColor(.brandPrimary)
-                        
-                        VStack(spacing: 12) {
-                            Text("Sign In Required")
-                                .font(.title2)
-                                .fontWeight(.bold)
-                                .foregroundColor(.primary)
-                            
-                            Text("Create an account to access habit tracking and build your philosophical practices")
-                                .font(.body)
-                                .foregroundColor(.secondary)
-                                .multilineTextAlignment(.center)
-                                .padding(.horizontal, 40)
-                        }
-                        
-                        Button(action: {
-                            showingAuthView = true
-                        }) {
-                            HStack {
-                                Image(systemName: "person.badge.plus")
-                                Text("Sign Up or Log In")
-                            }
-                            .font(.headline)
-                            .foregroundColor(.black)
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, 16)
-                            .background(Color.brandPrimary)
-                            .clipShape(RoundedRectangle(cornerRadius: 12))
-                        }
-                        .padding(.horizontal, 40)
-                        
-                        Spacer()
-                    }
+                TabView(selection: $selectedTab) {
+                    // Active habits
+                    ActiveHabitsView(
+                        habitManager: habitManager,
+                        onCreateHabit: handleHabitCreation
+                    )
+                    .tag(0)
+                    
+                    // All habits
+                    AllHabitsView(
+                        habitManager: habitManager,
+                        showingHabitDetail: $showingHabitDetail
+                    )
+                    .tag(1)
+                    
+                    // Completed habits
+                    CompletedHabitsView(
+                        habitManager: habitManager,
+                        showingHabitDetail: $showingHabitDetail
+                    )
+                        .tag(2)
                 }
+                .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
             }
             .onAppear {
-                if canAccessHabits {
+                Task {
+                    await habitManager.loadHabits()
+                }
+            }
+            .onReceive(NotificationCenter.default.publisher(for: Notification.Name("ImportFromDeepLink"))) { notification in
+                if let userInfo = notification.userInfo,
+                   let url = userInfo["url"] as? URL {
                     Task {
-                        await habitManager.loadHabits()
+                        if await importService.parseFromURL(url) {
+                            if importService.importableHabit != nil {
+                                showingImportSheet = true
+                            } else {
+                                showingImportAlert = true
+                            }
+                        } else {
+                            showingImportAlert = true
+                        }
                     }
                 }
             }
             .sheet(item: $showingHabitDetail) { habit in
                 HabitDetailView(habit: habit, habitManager: habitManager)
             }
-            .sheet(isPresented: $showingAnonymousAlert) {
-                AnonymousHabitLimitSheet(
-                    isPresented: $showingAnonymousAlert,
-                    onSignUp: {
-                        showingAnonymousAlert = false
-                        showingAuthView = true
-                    },
-                    onDismiss: {
-                        showingAnonymousAlert = false
+            .sheet(isPresented: $showingImportSheet) {
+                if let habit = importService.importableHabit {
+                    ImportHabitView(habit: habit, habitManager: habitManager) {
+                        importService.clearImport()
+                        showingImportSheet = false
                     }
-                )
+                }
             }
-            .sheet(isPresented: $showingLimitAlert) {
-                FreeUserHabitLimitSheet(
-                    isPresented: $showingLimitAlert,
-                    currentHabitCount: habitManager.habits.count,
-                    onUpgrade: {
-                        showingLimitAlert = false
-                        showingPaywall = true
-                    },
-                    onDismiss: {
-                        showingLimitAlert = false
-                    }
-                )
-            }
-            .sheet(isPresented: $showingAuthView) {
-                AuthenticationView()
-            }
-            .sheet(isPresented: $showingPaywall) {
-                PaywallView()
+            .alert("Import Error", isPresented: $showingImportAlert) {
+                Button("OK", role: .cancel) {
+                    importService.clearImport()
+                }
+            } message: {
+                Text(importService.importError ?? "Could not import habit.")
             }
         }
         
         // MARK: - Helper Functions
         
-        private func handleHabitCreation() {
-            let accessResult = Models.HabitAccessHelper.canCreateHabit(
-                userStatus: userStatus,
-                currentHabitCount: habitManager.habits.count
-            )
-            
-            switch accessResult {
-            case .allowed:
-                // Call the navigation callback if provided, otherwise post notification
-                if let onNavigateToHabitChat = onNavigateToHabitChat {
-                    onNavigateToHabitChat()
-                } else {
-                    // Fallback: Post notification to switch ChatView to habit mode
-                    NotificationCenter.default.post(name: Notification.Name("SwitchToHabitMode"), object: nil)
+        func checkClipboardForImport() {
+            let pasteboard = UIPasteboard.general
+            if let clipboardText = pasteboard.string, !clipboardText.isEmpty {
+                Task {
+                    if await importService.parseFromText(clipboardText) {
+                        if importService.importableHabit != nil {
+                            showingImportSheet = true
+                        } else {
+                            showingImportAlert = true
+                        }
+                    } else {
+                        showingImportAlert = true
+                    }
                 }
-            case .requiresLogin:
-                showingAnonymousAlert = true
-            case .requiresPremium:
-                showingLimitAlert = true
+            } else {
+                importService.importError = "Clipboard is empty. Please copy a shared habit first."
+                showingImportAlert = true
+            }
+        }
+        
+        private func handleHabitCreation() {
+            // All users can create habits now
+            // Call the navigation callback if provided, otherwise post notification
+            if let onNavigateToHabitChat = onNavigateToHabitChat {
+                onNavigateToHabitChat()
+            } else {
+                // Fallback: Post notification to switch ChatView to habit mode
+                NotificationCenter.default.post(name: Notification.Name("SwitchToHabitMode"), object: nil)
             }
         }
     }
 
-// MARK: - Today's Habits View
-struct TodayHabitsView: View {
+// MARK: - Active Habits View
+struct ActiveHabitsView: View {
     @ObservedObject var habitManager: HabitManager
     let onCreateHabit: () -> Void
     @State private var showingCheckIn: ComprehensiveHabit?
+    @State private var showingDeleteAlert: ComprehensiveHabit?
+    @State private var showingShareSheet = false
+    @State private var shareText = ""
+    @State private var shareLink: URL?
     
-    private var todayHabits: [ComprehensiveHabit] {
-        habitManager.habits.filter { habit in
-            // Derive frequency from schedule
-            let frequency: HabitFrequency
-            if let lowLevelSchedule = habit.lowLevelSchedule {
-                switch lowLevelSchedule.span {
-                case "daily":
-                    frequency = .daily
-                case "weekly":
-                    frequency = .weekly
-                case "every-n-days":
-                    if let interval = lowLevelSchedule.spanInterval {
-                        frequency = .custom(days: interval)
-                    } else {
-                        frequency = .daily
-                    }
-                default:
-                    frequency = .daily
-                }
-            } else {
-                frequency = .daily
-            }
-            
-            // Filter habits that should be done today
-            switch frequency {
-            case .daily:
-                return true
-            case .weekly:
-                return Calendar.current.component(.weekday, from: Date()) == 2 // Monday
-            case .custom(let days):
-                let formatter = ISO8601DateFormatter()
-                let createdAt = formatter.date(from: habit.createdAt) ?? Date()
-                let daysSinceCreation = Calendar.current.dateComponents([.day], from: createdAt, to: Date()).day ?? 0
-                return daysSinceCreation % days == 0
-            }
-        }
+    // Show only active habits
+    private var activeHabits: [ComprehensiveHabit] {
+        let filtered = habitManager.habits.filter { $0.isActive }
+        print("🔍 [ActiveHabitsView] activeHabits computed - Total habits: \(habitManager.habits.count), Active: \(filtered.count)")
+        print("🔍 [ActiveHabitsView] Habit states: \(habitManager.habits.map { "\($0.name): \($0.isActive ? "ACTIVE" : "INACTIVE")" })")
+        return filtered
     }
     
     var body: some View {
         ScrollView {
             LazyVStack(spacing: 16) {
-                if todayHabits.isEmpty {
+                if activeHabits.isEmpty {
                     EmptyHabitsView(onCreateHabit: onCreateHabit)
                 } else {
-                    ForEach(todayHabits) { habit in
+                    ForEach(activeHabits) { habit in
                         TodayHabitCard(
                             habit: habit,
                             isCompleted: habitManager.isHabitCompletedToday(habit),
                             onCheckIn: {
                                 showingCheckIn = habit
+                            },
+                            onToggleActive: {
+                                Task {
+                                    await habitManager.toggleHabitActive(habit)
+                                }
+                            },
+                            onDelete: {
+                                showingDeleteAlert = habit
+                            },
+                            onShare: {
+                                Task {
+                                    let shareResult = await habitManager.shareHabit(habit)
+                                    shareText = shareResult.text
+                                    shareLink = shareResult.link
+                                    showingShareSheet = true
+                                }
                             }
                         )
+                        .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+                            Button(role: .destructive) {
+                                showingDeleteAlert = habit
+                            } label: {
+                                Label("Delete", systemImage: "trash")
+                            }
+                            
+                            Button {
+                                Task {
+                                    await habitManager.toggleHabitActive(habit)
+                                }
+                            } label: {
+                                Label(habit.isActive ? "Deactivate" : "Activate", systemImage: habit.isActive ? "pause.circle" : "play.circle")
+                            }
+                            .tint(.orange)
+                        }
                     }
                 }
             }
@@ -280,6 +244,132 @@ struct TodayHabitsView: View {
         .sheet(item: $showingCheckIn) { habit in
             HabitCheckInView(habit: habit, habitManager: habitManager)
         }
+        .alert(item: $showingDeleteAlert) { habit in
+            Alert(
+                title: Text("Delete Habit"),
+                message: Text("Are you sure you want to delete \"\(habit.name)\"? This action cannot be undone."),
+                primaryButton: .destructive(Text("Delete")) {
+                    Task {
+                        await habitManager.deleteHabit(habit)
+                    }
+                },
+                secondaryButton: .cancel()
+            )
+        }
+        .sheet(isPresented: $showingShareSheet) {
+            if let link = shareLink {
+                ShareSheet(activityItems: [shareText, link])
+            } else {
+                ShareSheet(activityItems: [shareText])
+            }
+        }
+    }
+}
+
+// MARK: - Completed Habits View
+struct CompletedHabitsView: View {
+    @ObservedObject var habitManager: HabitManager
+    @Binding var showingHabitDetail: ComprehensiveHabit?
+    @State private var showingDeleteAlert: ComprehensiveHabit?
+    @State private var showingShareSheet = false
+    @State private var shareText = ""
+    @State private var shareLink: URL?
+    
+    // Filter completed habits (only habits with habit_schedule number that have reached their end date)
+    private var completedHabits: [ComprehensiveHabit] {
+        habitManager.habits.filter { habit in
+            habit.isCompleted // Only habits with habit_schedule (not null) that have reached their end date
+        }
+    }
+    
+    var body: some View {
+        ScrollView {
+            LazyVStack(spacing: 12) {
+                if completedHabits.isEmpty {
+                    VStack(spacing: 20) {
+                        Image(systemName: "checkmark.circle")
+                            .font(.system(size: 60))
+                            .foregroundColor(.gray)
+                        
+                        VStack(spacing: 8) {
+                            Text("No Completed Habits")
+                                .font(.title2)
+                                .fontWeight(.semibold)
+                                .foregroundColor(.primary)
+                            
+                            Text("Completed habits will appear here")
+                                .font(.subheadline)
+                                .foregroundColor(.secondary)
+                                .multilineTextAlignment(.center)
+                        }
+                    }
+                    .padding(40)
+                } else {
+                    ForEach(completedHabits) { habit in
+                        HabitSummaryCard(
+                            habit: habit,
+                            stats: habitManager.getStats(for: habit),
+                            onTap: {
+                                showingHabitDetail = habit
+                            },
+                            onToggleActive: {
+                                Task {
+                                    await habitManager.toggleHabitActive(habit)
+                                }
+                            },
+                            onDelete: {
+                                showingDeleteAlert = habit
+                            },
+                            onShare: {
+                                Task {
+                                    let shareResult = await habitManager.shareHabit(habit)
+                                    shareText = shareResult.text
+                                    shareLink = shareResult.link
+                                    showingShareSheet = true
+                                }
+                            }
+                        )
+                        .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+                            Button(role: .destructive) {
+                                showingDeleteAlert = habit
+                            } label: {
+                                Label("Delete", systemImage: "trash")
+                            }
+                            
+                            Button {
+                                Task {
+                                    await habitManager.toggleHabitActive(habit)
+                                }
+                            } label: {
+                                Label(habit.isActive ? "Deactivate" : "Activate", systemImage: habit.isActive ? "pause.circle" : "play.circle")
+                            }
+                            .tint(.orange)
+                        }
+                    }
+                }
+            }
+            .padding(.horizontal, 20)
+            .padding(.vertical, 16)
+        }
+        .alert(item: $showingDeleteAlert) { habit in
+            Alert(
+                title: Text("Delete Habit"),
+                message: Text("Are you sure you want to delete \"\(habit.name)\"? This action cannot be undone."),
+                primaryButton: .destructive(Text("Delete")) {
+                    Task {
+                        await habitManager.deleteHabit(habit)
+                    }
+                },
+                secondaryButton: .cancel()
+            )
+        }
+        .sheet(isPresented: $showingShareSheet) {
+            if let link = shareLink {
+                ShareSheet(activityItems: [shareText, link])
+            } else {
+                ShareSheet(activityItems: [shareText])
+            }
+        }
     }
 }
 
@@ -288,20 +378,24 @@ struct TodayHabitCard: View {
     let habit: ComprehensiveHabit
     let isCompleted: Bool
     let onCheckIn: () -> Void
+    let onToggleActive: () -> Void
+    let onDelete: () -> Void
+    let onShare: () -> Void
+    @State private var showingMenu = false
     
     // Break down complex expressions into computed properties
     private var categoryIcon: some View {
         Image(systemName: displayCategory.icon)
             .font(.title2)
-            .foregroundColor(Color(displayCategory.color))
+            .foregroundColor(displayCategory.color)
             .frame(width: 40, height: 40)
-            .background(Color(displayCategory.color).opacity(0.1))
+            .background(displayCategory.color.opacity(0.1))
             .clipShape(Circle())
     }
     
     // Convert string category to HabitCategory for display
     private var displayCategory: HabitCategory {
-        let categoryString = habit.category?.lowercased() ?? "personal growth"
+        let categoryString = habit.category.lowercased()
         switch categoryString {
         case "physical", "fitness", "health":
             return .physical
@@ -322,32 +416,23 @@ struct TodayHabitCard: View {
     
     // Derive frequency from schedule
     private var displayFrequency: HabitFrequency {
-        if let lowLevelSchedule = habit.lowLevelSchedule {
-            switch lowLevelSchedule.span {
-            case "daily":
+        switch habit.lowLevelSchedule.span {
+        case "day":
+            if habit.lowLevelSchedule.spanValue == 1.0 {
                 return .daily
-            case "weekly":
-                return .weekly
-            case "every-n-days":
-                if let interval = lowLevelSchedule.spanInterval {
-                    return .custom(days: interval)
-                }
-                return .daily
-            default:
-                return .daily
+            } else {
+                return .custom(days: Int(habit.lowLevelSchedule.spanValue))
             }
+        case "week":
+            return .weekly
+        default:
+            return .daily
         }
-        return .daily
     }
     
     // Derive duration from schedule
+    // Note: duration_minutes doesn't exist in new structure, return nil
     private var displayDuration: String? {
-        if let lowLevelSchedule = habit.lowLevelSchedule,
-           let firstProgram = lowLevelSchedule.program.first,
-           let firstStep = firstProgram.steps.first,
-           let durationMinutes = firstStep.durationMinutes {
-            return "\(durationMinutes) minutes"
-        }
         return nil
     }
     
@@ -377,15 +462,15 @@ struct TodayHabitCard: View {
         }
     }
     
+    // Tracking method no longer exists in new structure
+    // Show goal or difficulty instead
     @ViewBuilder
     private var trackingInfo: some View {
-        if let trackingMethod = habit.trackingMethod {
-            Text("📊 \(trackingMethod)")
-                .font(.caption2)
-                .foregroundColor(.blue)
-                .padding(.top, 2)
-                .lineLimit(1)
-        }
+        Text("📊 \(habit.difficulty.capitalized)")
+            .font(.caption2)
+            .foregroundColor(.blue)
+            .padding(.top, 2)
+            .lineLimit(1)
     }
     
     private var checkInButton: some View {
@@ -410,10 +495,33 @@ struct TodayHabitCard: View {
             categoryIcon
             habitInfo
             Spacer()
+            HStack(spacing: 12) {
             checkInButton
+                
+                Menu {
+                    Button(action: onToggleActive) {
+                        Label(habit.isActive ? "Deactivate" : "Activate", systemImage: habit.isActive ? "pause.circle" : "play.circle")
+                    }
+                    
+                    Button(action: onShare) {
+                        Label("Share", systemImage: "square.and.arrow.up")
+                    }
+                    
+                    Divider()
+                    
+                    Button(role: .destructive, action: onDelete) {
+                        Label("Delete", systemImage: "trash")
+                    }
+                } label: {
+                    Image(systemName: "ellipsis.circle")
+                        .font(.title3)
+                        .foregroundColor(.secondary)
+                }
+            }
         }
         .padding(16)
         .background(cardBackground)
+        .opacity(habit.isActive ? 1.0 : 0.6)
     }
 }
 
@@ -421,6 +529,10 @@ struct TodayHabitCard: View {
 struct AllHabitsView: View {
     @ObservedObject var habitManager: HabitManager
     @Binding var showingHabitDetail: ComprehensiveHabit?
+    @State private var showingDeleteAlert: ComprehensiveHabit?
+    @State private var showingShareSheet = false
+    @State private var shareText = ""
+    @State private var shareLink: URL?
     
     var body: some View {
         ScrollView {
@@ -431,12 +543,63 @@ struct AllHabitsView: View {
                         stats: habitManager.getStats(for: habit),
                         onTap: {
                             showingHabitDetail = habit
+                        },
+                        onToggleActive: {
+                            Task {
+                                await habitManager.toggleHabitActive(habit)
+                            }
+                        },
+                        onDelete: {
+                            showingDeleteAlert = habit
+                        },
+                        onShare: {
+                            Task { @MainActor in
+                                let shareResult = await habitManager.shareHabit(habit)
+                                shareText = shareResult.text
+                                shareLink = shareResult.link
+                                showingShareSheet = true
+                            }
                         }
                     )
+                    .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+                        Button(role: .destructive) {
+                            showingDeleteAlert = habit
+                        } label: {
+                            Label("Delete", systemImage: "trash")
+                        }
+                        
+                        Button {
+                            Task {
+                                await habitManager.toggleHabitActive(habit)
+                            }
+                        } label: {
+                            Label(habit.isActive ? "Deactivate" : "Activate", systemImage: habit.isActive ? "pause.circle" : "play.circle")
+                        }
+                        .tint(.orange)
+                    }
                 }
             }
             .padding(.horizontal, 20)
             .padding(.vertical, 16)
+        }
+        .alert(item: $showingDeleteAlert) { habit in
+            Alert(
+                title: Text("Delete Habit"),
+                message: Text("Are you sure you want to delete \"\(habit.name)\"? This action cannot be undone."),
+                primaryButton: .destructive(Text("Delete")) {
+                    Task {
+                        await habitManager.deleteHabit(habit)
+                    }
+                },
+                secondaryButton: .cancel()
+            )
+        }
+        .sheet(isPresented: $showingShareSheet) {
+            if let link = shareLink {
+                ShareSheet(activityItems: [shareText, link])
+            } else {
+                ShareSheet(activityItems: [shareText])
+            }
         }
     }
 }
@@ -446,10 +609,13 @@ struct HabitSummaryCard: View {
     let habit: ComprehensiveHabit
     let stats: HabitStats?
     let onTap: () -> Void
+    let onToggleActive: () -> Void
+    let onDelete: () -> Void
+    let onShare: () -> Void
     
     // Convert string category to HabitCategory for display
     private var displayCategory: HabitCategory {
-        let categoryString = habit.category?.lowercased() ?? "personal growth"
+        let categoryString = habit.category.lowercased()
         switch categoryString {
         case "physical", "fitness", "health":
             return .physical
@@ -470,32 +636,23 @@ struct HabitSummaryCard: View {
     
     // Derive frequency from schedule
     private var displayFrequency: HabitFrequency {
-        if let lowLevelSchedule = habit.lowLevelSchedule {
-            switch lowLevelSchedule.span {
-            case "daily":
+        switch habit.lowLevelSchedule.span {
+        case "day":
+            if habit.lowLevelSchedule.spanValue == 1.0 {
                 return .daily
-            case "weekly":
-                return .weekly
-            case "every-n-days":
-                if let interval = lowLevelSchedule.spanInterval {
-                    return .custom(days: interval)
-                }
-                return .daily
-            default:
-                return .daily
+            } else {
+                return .custom(days: Int(habit.lowLevelSchedule.spanValue))
             }
+        case "week":
+            return .weekly
+        default:
+            return .daily
         }
-        return .daily
     }
     
     // Derive duration from schedule
+    // Note: duration_minutes doesn't exist in new structure, return nil
     private var displayDuration: String? {
-        if let lowLevelSchedule = habit.lowLevelSchedule,
-           let firstProgram = lowLevelSchedule.program.first,
-           let firstStep = firstProgram.steps.first,
-           let durationMinutes = firstStep.durationMinutes {
-            return "\(durationMinutes) minutes"
-        }
         return nil
     }
     
@@ -505,7 +662,7 @@ struct HabitSummaryCard: View {
                 HStack {
                     Image(systemName: displayCategory.icon)
                         .font(.title3)
-                        .foregroundColor(Color(displayCategory.color))
+                        .foregroundColor(displayCategory.color)
                     
                     VStack(alignment: .leading, spacing: 2) {
                         Text(habit.name)
@@ -519,6 +676,7 @@ struct HabitSummaryCard: View {
                     
                     Spacer()
                     
+                    HStack(spacing: 12) {
                     if let stats = stats {
                         VStack(alignment: .trailing, spacing: 2) {
                             Text("\(Int(stats.completionRate * 100))%")
@@ -527,6 +685,27 @@ struct HabitSummaryCard: View {
                             
                             Text("\(stats.currentStreak) day streak")
                                 .font(.caption2)
+                                    .foregroundColor(.secondary)
+                            }
+                        }
+                        
+                        Menu {
+                            Button(action: onToggleActive) {
+                                Label(habit.isActive ? "Deactivate" : "Activate", systemImage: habit.isActive ? "pause.circle" : "play.circle")
+                            }
+                            
+                            Button(action: onShare) {
+                                Label("Share", systemImage: "square.and.arrow.up")
+                            }
+                            
+                            Divider()
+                            
+                            Button(role: .destructive, action: onDelete) {
+                                Label("Delete", systemImage: "trash")
+                            }
+                        } label: {
+                            Image(systemName: "ellipsis.circle")
+                                .font(.title3)
                                 .foregroundColor(.secondary)
                         }
                     }
@@ -635,3 +814,4 @@ struct HabitProgressView: View {
 #Preview {
     HabitTrackingView()
 }
+

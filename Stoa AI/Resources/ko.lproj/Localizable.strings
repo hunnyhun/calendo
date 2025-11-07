@@ -1,0 +1,261 @@
+/* 
+  Localizable.strings
+  Stoa AI
+*/
+
+// MARK: - Common UI Elements
+"settings" = "설정";
+"language" = "언어";
+"done" = "완료";
+"cancel" = "취소";
+"signOut" = "로그아웃";
+"appTitle" = "Calendo: 계획, 추적 및 달성";
+"premium" = "프리미엄 구독";
+"freeAccount" = "무료 계정";
+"anonymousUser" = "익명 사용자";
+"task_mode" = "작업";
+"task_management" = "작업 관리";
+"my_tasks" = "내 작업";
+
+// MARK: - Onboarding
+"onboarding_welcome_title" = "Calendo에 오신 것을 환영합니다";
+"onboarding_welcome_description" = "더 나은 습관을 만들고 목표를 달성하기 위한 개인 성장 동반자. 실용적인 지도와 지원으로 자기 계발 여정을 시작하세요.";
+"onboarding_chat_title" = "채팅 사용 방법";
+"onboarding_chat_description" = "인생의 도전에 대해 질문하기 • 어려운 결정에 대한 지도 요청 • 개인 성장 및 습관 형성 도움 • 배우고 싶은 것을 자유롭게 질문";
+"onboarding_quotes_title" = "일일 영감";
+"onboarding_quotes_description" = "동기 부여 명언과 실용적인 통찰로 매일을 시작하세요. 휴대폰으로 개인화된 지도를 받으세요.";
+"onboarding_profile_title" = "자신에 대해 알려주세요";
+"onboarding_profile_description" = "Stoa AI로 경험을 개인화하는 데 도움을 주세요. 이 정보는 더 관련성 높은 지도를 제공하는 데 도움이 됩니다.";
+"onboarding_goals_title" = "무엇을 달성하고 싶으신가요?";
+"onboarding_goals_description" = "주요 목표를 선택하여 개인 여정에 맞춘 지도를 받을 수 있습니다.";
+"onboarding_suffering_title" = "이것에 얼마나 오래 작업하고 계신가요?";
+"onboarding_suffering_description" = "여정을 이해하면 적절한 지도와 지원을 제공할 수 있습니다.";
+"onboarding_sample_quote" = "\"훌륭한 일을 하는 유일한 방법은 자신이 하는 일을 사랑하는 것입니다.\" - 스티브 잡스";
+"onboarding_sample_user_message" = "나는...을 개선하고 싶습니다";
+"onboarding_sample_ai_message" = "환영합니다! 더 나은 습관을 만들고 목표를 달성하는 데 도움을 드립니다. 오늘 어떻게 도와드릴까요?";
+"onboarding_widget_title" = "성장과 연결 유지";
+"onboarding_widget_description" = "Calendo 위젯을 홈 화면에 추가하여 일일 동기 부여 및 습관 추적에 즉시 액세스할 수 있습니다.";
+"onboarding_today_inspiration" = "오늘의 성장 통찰";
+"onboarding_widget_label" = "위젯";
+"onboarding_add_to_home_screen" = "홈 화면에 추가";
+"onboarding_widget_instructions" = "홈 화면을 길게 누른 다음 + 버튼을 눌러 Calendo 위젯을 추가합니다";
+"onboarding_previous" = "이전";
+"onboarding_next" = "다음";
+"onboarding_get_started" = "시작하기";
+"onboarding_continue" = "계속";
+"onboarding_skip" = "건너뛰기";
+
+// MARK: - Onboarding Habits
+"onboarding_habits_title" = "더 나은 습관 만들기";
+"onboarding_habits_description" = "개인 성장을 위한 일일 실천 생성 및 추적 • 체크인, 연속 기록 구축, 진행 상황 확인";
+"onboarding_habit_morning_reflection" = "아침 반성";
+"onboarding_habit_morning_reflection_sub" = "매일 • 10분";
+"onboarding_habit_evening_review" = "저녁 검토";
+"onboarding_habit_evening_review_sub" = "매일 • 5분";
+"onboarding_habit_acts_of_kindness" = "친절한 행동";
+"onboarding_habit_acts_of_kindness_sub" = "매일";
+"onboarding_habit_read_philosophy" = "철학 읽기";
+"onboarding_habit_read_philosophy_sub" = "매일 • 20분";
+
+// MARK: - Profile Setup
+"profile_name_placeholder" = "이름";
+"profile_age_placeholder" = "나이";
+"profile_optional" = "(선택사항)";
+"profile_name_label" = "이름";
+"profile_age_label" = "나이";
+"profile_gender_label" = "성별";
+
+// MARK: - Goals
+"goal_personal_growth" = "개인 성장";
+"goal_stress_reduction" = "스트레스 감소";
+"goal_emotional_resilience" = "감정적 회복력";
+"goal_mindfulness" = "마음챙김 및 현재 순간";
+"goal_better_relationships" = "더 나은 관계";
+"goal_personal_growth_desc" = "개인 성장 원칙을 통해 지혜, 덕목 및 성격 발달";
+"goal_stress_reduction_desc" = "스트레스를 관리하고 내적 평화를 찾는 방법 배우기";
+"goal_emotional_resilience_desc" = "인생의 도전을 처리할 힘 구축";
+"goal_mindfulness_desc" = "일상 생활에서 존재와 인식 실천";
+"goal_better_relationships_desc" = "지혜를 통해 타인과의 연결 개선";
+
+// MARK: - Suffering Duration
+"suffering_recently_started" = "최근 시작함";
+"suffering_few_months" = "몇 개월";
+"suffering_six_months_to_year" = "6개월 ~ 1년";
+"suffering_one_to_three_years" = "1~3년";
+"suffering_several_years" = "수년";
+"suffering_not_applicable" = "해당 없음";
+"suffering_recently_started_desc" = "이 여정을 막 시작했습니다";
+"suffering_few_months_desc" = "이것에 몇 개월간 작업하고 있습니다";
+"suffering_six_months_to_year_desc" = "반년에서 1년 동안 이것을 다루고 있습니다";
+"suffering_one_to_three_years_desc" = "이것은 1~3년 동안 지속된 도전입니다";
+"suffering_several_years_desc" = "수년 동안 이것에 직면했습니다";
+"suffering_not_applicable_desc" = "이 질문은 내 상황에 해당하지 않습니다";
+
+// MARK: - Gender Options
+"gender_male" = "남성";
+"gender_female" = "여성";
+"gender_non_binary" = "논바이너리";
+"gender_prefer_not_to_say" = "답변하지 않음";
+
+// MARK: - Settings Screen
+"app" = "앱";
+"notificationPreferences" = "알림 설정";
+"languageSettings" = "언어";
+
+// MARK: - Auth Screen
+"signIn" = "로그인";
+"signUp" = "가입";
+"email" = "이메일";
+"password" = "비밀번호";
+"forgotPassword" = "비밀번호를 잊으셨나요?";
+
+// MARK: - Daily Quote
+"dailyQuote" = "일일 명언";
+"shareQuote" = "명언 공유";
+"quotes" = "명언";
+"previousQuotes" = "이전 명언";
+"noPreviousQuotes" = "이전 명언이 없습니다";
+"noQuoteAvailable" = "오늘 사용 가능한 명언이 없습니다.";
+"fromNotification" = "알림에서";
+
+// MARK: - Reminders
+"reminders" = "알림";
+"previousReminders" = "이전 알림";
+"noReminderAvailable" = "오늘 사용 가능한 알림이 없습니다.";
+"noPreviousReminders" = "이전 알림이 없습니다.";
+"signInToViewDailyReminders" = "일일 알림을 보려면 로그인하세요";
+
+// MARK: - Chat
+"chat" = "채팅";
+"send" = "보내기";
+"messageHint" = "메시지 입력...";
+"newChat" = "새 채팅";
+"priest" = "현자";
+"welcomeToChat" = "철학적 사고에 오신 것을 환영합니다";
+"welcomeToStoicHabitMind" = "Calendo에 오신 것을 환영합니다";
+"holySpirit" = "지혜와 덕의 깊이를 함께 탐구합시다.";
+"confessSuggestion1" = "일일 장애물을 성장 기회로 어떻게 전환할 수 있을까요?";
+"confessSuggestion2" = "분노로 어려움을 겪고 있습니다 - 어떻게 더 잘 관리할 수 있을까요?";
+"confessSuggestion3" = "욕구의 규율과 내가 통제할 수 있는 것에 대한 이해를 도와주세요";
+
+// Habit mode suggestions
+"habitSuggestion1" = "아침 반성 습관을 만드는 것을 도와주세요";
+"habitSuggestion2" = "매일 자기 계발 콘텐츠를 읽는 습관을 만들고 싶습니다";
+"habitSuggestion3" = "일관된 저녁 검토 연습을 어떻게 개발할 수 있을까요?";
+
+// Task mode suggestions
+"I have an exam coming up" = "곧 시험이 있습니다";
+"I need to buy groceries" = "식료품을 사야 합니다";
+"I need to make a reservation" = "예약을 해야 합니다";
+
+// Habit mode suggestions
+"Create a morning exercise habit" = "아침 운동 습관 만들기";
+"Help me build a daily reading routine" = "매일 독서 루틴 만들기";
+"I want to start meditating regularly" = "정기적으로 명상하기를 시작하고 싶어요";
+"messageLimitReached" = "메시지 한도 도달";
+"upgradeToPremium" = "무제한 메시지를 위해 프리미엄으로 업그레이드";
+"confessThoughts" = "철학적 생각을 공유...";
+"noChatsYet" = "아직 채팅이 없습니다";
+"newConversation" = "새 대화";
+
+// MARK: - Chat History Sections
+"Today" = "오늘";
+"Yesterday" = "어제";
+"Last Week" = "지난 주";
+"Earlier" = "이전";
+
+// MARK: - Sidebar
+"upgradeToPremiumButton" = "프리미엄으로 업그레이드";
+"dailySpiritualQuote" = "명언";
+
+// MARK: - Paywall
+"unlockPremium" = "프리미엄 잠금 해제";
+"restorePurchases" = "구매 복원";
+
+// MARK: - Accessibility
+"openSettings" = "앱 언어를 변경하기 위해 시스템 설정을 엽니다"; 
+
+/* Settings View */
+"account" = "계정";
+"purchases" = "구매";
+
+/* User Section */
+"anonymousUser" = "익명 사용자";
+"premium" = "프리미엄";
+"freeAccount" = "무료 계정";
+
+/* App Section */
+"notificationPreferences" = "알림 설정";
+"language" = "언어";
+"openSettings" = "설정 열기";
+
+/* Purchases Section */
+"restorePurchases" = "구매 복원";
+"restoreSuccessMessage" = "구매가 성공적으로 복원되었습니다.";
+"restoreNoPurchasesFound" = "이전 구매를 찾을 수 없습니다.";
+"restoreFailedMessage" = "구매 복원에 실패했습니다. 다시 시도해 주세요.";
+
+/* Account Actions */
+"deleteAccount" = "계정 삭제";
+"signOut" = "로그아웃";
+
+/* Delete Account Alert */
+"deleteAccountTitle" = "계정 삭제";
+"deleteAccountConfirmMessage" = "계정을 삭제하시겠습니까? 이 작업은 취소할 수 없으며 모든 데이터가 영구적으로 삭제됩니다.";
+"deleteAccountFailedMessage" = "계정 삭제에 실패했습니다.";
+
+/* Buttons */
+"cancelButton" = "취소";
+"deleteButton" = "삭제";
+"ok" = "확인";
+
+/* Errors */
+"errorTitle" = "오류";
+"unknownError" = "알 수 없는 오류가 발생했습니다."; 
+
+/* Sidebar Anonymous Prompt */
+"signUpOrLogIn" = "가입 또는 로그인";
+"signUpBenefitText" = "채팅 저장, 경험 개인화 및 일일 철학 명언.";
+
+/* Daily Quote Anonymous Prompt */
+"signInToViewDailyQuotes" = "일일 명언을 보려면 로그인하세요"; 
+
+/* Sidebar Anonymous History Prompt */
+"signInToViewHistory" = "채팅 기록을 보려면 로그인하세요.";
+
+/* Authentication View */
+"authWelcomeTitle" = "성장 여정에 오신 것을 환영합니다! 🚀";
+"authSubtitle" = "SmartAI로 개인 개발 탐구 시작";
+"authDescription" = "AI 개인 성장 동반자와의 의미 있는 대화를 통해 더 나은 습관을 만들고 목표를 달성하는 수천 명에 참여하세요.";
+"continueWithGoogle" = "Google로 계속";
+"continueWithApple" = "Apple로 계속";
+"authSuccessTitle" = "SmartAI에 오신 것을 환영합니다! 📚";
+"authSuccessMessage" = "이제 SmartAI 습관 및 일일 플래너에 연결되었습니다. 무제한 대화, 개인화된 지도 및 일일 습관 추적을 갖춘 개인 성장 여정이 기다리고 있습니다.";
+"subscriptionSuccessTitle" = "프리미엄이 잠금 해제되었습니다! ⭐";
+"subscriptionSuccessMessage" = "축하합니다! 이제 무제한 메시지, 더 빠른 응답 및 우선 순위 지도에 액세스할 수 있습니다. 향상된 개인 성장 여정이 지금 시작됩니다!";
+
+/* Anonymous Settings Button */
+"settingsButtonLabel" = "설정"; 
+
+/* Anonymous User Limits */
+"anonymousLimitTitle" = "사용 한도 도달";
+"signUpOrLogInButton" = "가입 또는 로그인";
+"anonymousLimitMessage" = "채팅을 계속하려면 가입하거나 로그인하세요.";
+
+/* Anonymous Limit Sheet */
+"signUpBenefitsTitle" = "가입의 이점";
+"unlimitedMessages" = "무제한 메시지";
+"chatHistory" = "채팅 기록";
+"dailyQuotes" = "일일 명언";
+"cloudSync" = "클라우드 동기화";
+"continueBrowsing" = "탐색 계속";
+
+/* Premium Limit Sheet */
+"messageLimitReached" = "메시지 한도 도달";
+"freeTierLimitMessage" = "무료 계층 메시지 한도에 도달했습니다.";
+"premiumBenefitsTitle" = "프리미엄 혜택";
+"fasterResponses" = "더 빠른 응답";
+"unlimitedQuotes" = "무제한 명언";
+"prioritySupport" = "우선 지원";
+"maybeLater" = "나중에";
+

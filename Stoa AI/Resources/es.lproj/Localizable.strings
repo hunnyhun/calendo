@@ -55,6 +55,13 @@
 "noQuoteAvailable" = "No hay cita disponible hoy.";
 "fromNotification" = "De Notificación";
 
+// MARK: - Reminders
+"reminders" = "Recordatorios";
+"previousReminders" = "Recordatorios Anteriores";
+"noReminderAvailable" = "No hay recordatorio disponible para hoy.";
+"noPreviousReminders" = "No hay recordatorios anteriores disponibles.";
+"signInToViewDailyReminders" = "Inicia sesión para ver los Recordatorios Diarios";
+
 // MARK: - Chat
 "chat" = "Chat";
 "send" = "Enviar";
@@ -171,4 +178,14 @@
 "fasterResponses" = "Respuestas más rápidas";
 "unlimitedQuotes" = "Citas ilimitadas";
 "prioritySupport" = "Soporte prioritario";
-"maybeLater" = "Tal vez más tarde"; 
+"maybeLater" = "Tal vez más tarde";
+
+// Task mode suggestions
+"I have an exam coming up" = "Tengo un examen próximamente";
+"I need to buy groceries" = "Necesito comprar comida";
+"I need to make a reservation" = "Necesito hacer una reserva";
+
+// Habit mode suggestions
+"Create a morning exercise habit" = "Crear un hábito de ejercicio matutino";
+"Help me build a daily reading routine" = "Ayúdame a crear una rutina de lectura diaria";
+"I want to start meditating regularly" = "Quiero empezar a meditar regularmente"; 
