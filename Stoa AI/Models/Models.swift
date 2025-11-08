@@ -12,6 +12,7 @@ public enum Models {
         case settings
         case tasks
         case habits
+        case blog
     }
     
     // MARK: - Auth Status

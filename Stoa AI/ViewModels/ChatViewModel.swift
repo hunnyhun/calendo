@@ -187,15 +187,19 @@ struct SectionedChatHistory {
                                 // Create Date from timestamp
                                 let date = Date(timeIntervalSince1970: timestamp)
                                 
-                            // Parse mode if provided by backend
-                            let modeRaw = historyItem["chatMode"] as? String
-                            let parsedMode = modeRaw.flatMap { ChatMode(rawValue: $0) }
+                                // Parse mode if provided by backend
+                                let modeRaw = historyItem["chatMode"] as? String ?? historyItem["mode"] as? String
+                                let parsedMode = modeRaw.flatMap { ChatMode(rawValue: $0) }
+                                
+                                // Process messages to detect suggestions before creating ChatHistory
+                                // This ensures lastMessage shows habit/task names instead of JSON
+                                let processedMessages = processMessagesForSuggestions(messages, chatMode: parsedMode ?? .task)
                                 
                                 let chatHistory = ChatHistory(
                                     id: id,
                                     title: title,
                                     timestamp: date,
-                                    messages: messages,
+                                    messages: processedMessages,
                                     mode: parsedMode
                                 )
                                 history.append(chatHistory)
@@ -454,12 +458,13 @@ struct SectionedChatHistory {
         do {
             print("[ChatVM] 📡 Making API call with streaming...")
             
-            // Make the API call with streaming support (always use streaming now)
-            let _ = try await cloudService.sendMessageWithStreaming(
+            // Make the API call with V3 (LangChain) support (always use streaming now)
+            let _ = try await cloudService.sendMessageV3(
                 message: text,
                 conversationId: currentConversation?.id,
                 enableStreaming: true,  // Always enable streaming
-                chatMode: currentChatMode.rawValue
+                chatMode: currentChatMode.rawValue,
+                useFunctionCalling: false  // Can be enabled for more deterministic JSON
             )
             
             // Don't process responseData here for streaming - it's handled in delegate methods
@@ -621,12 +626,16 @@ struct SectionedChatHistory {
                 self.currentConversationId = newConversationId
             }
             
+            // V3 response format: { response, conversationId, intent, confidence, json, needsClarification }
+            // Get the response text (V3 uses "response" field, but we map it to "message" for compatibility)
+            let completeMessage = (response["response"] as? String) ?? (response["message"] as? String) ?? ""
+            
             // Check for suggestions in the complete message based on current chat mode
             // NOTE: Save conversation AFTER updating message text, so the saved conversation includes full text with JSON
             if let messageId = self.currentStreamingMessageId,
                let index = self.messages.firstIndex(where: { $0.id == messageId }),
                let userId = self.userStatusManager.state.userId,
-               let completeMessage = response["message"] as? String {
+               !completeMessage.isEmpty {
                 
                 print("[Chat] Checking for \(self.currentChatMode.displayName.lowercased()) suggestions in complete message (length: \(completeMessage.count))")
                 
@@ -635,49 +644,151 @@ struct SectionedChatHistory {
                 var updatedMessage = self.messages[index]
                 updatedMessage.text = completeMessage  // Save full text with JSON for history
                 
-                // Detect suggestions based on current chat mode
-                if self.currentChatMode == .habit {
-                    // In habit mode, only check for habit suggestions
-                    if let detectedHabit = HabitDetectionService.shared.detectHabitSuggestion(
-                        in: completeMessage,
-                        messageId: messageId,
-                        userId: userId
-                    ) {
-                        print("✅ [Chat] Detected habit suggestion: \(detectedHabit.name)")
-                        
-                        // Update the message with detected habit and cleaned text
-                        updatedMessage.detectedHabitSuggestion = detectedHabit
-                        updatedMessage.cleanedText = HabitDetectionService.shared.cleanTextFromHabitSuggestion(completeMessage)
-                    } else {
-                        print("❌ [Chat] No habit suggestion detected in complete message")
-                        // Still clean the text to remove HABITGEN flags and JSON
-                        updatedMessage.cleanedText = HabitDetectionService.shared.cleanTextFromHabitSuggestion(completeMessage)
-                    }
-                } else if self.currentChatMode == .task {
-                    // In task mode, only check for task suggestions
-                    if let detectedTask = TaskDetectionService.shared.detectTaskSuggestion(
-                        in: completeMessage,
-                        userId: userId
-                    ) {
-                        print("✅ [Chat] Detected task suggestion: \(detectedTask.name)")
-                        
-                        // Update the message with detected task and cleaned text
-                        updatedMessage.detectedTaskSuggestion = detectedTask
-                        updatedMessage.cleanedText = TaskDetectionService.shared.cleanTextFromTaskSuggestion(completeMessage)
-                    } else {
-                        print("❌ [Chat] No task suggestion detected in complete message")
-                        // Still clean the text to remove any flags and JSON
-                        updatedMessage.cleanedText = TaskDetectionService.shared.cleanTextFromTaskSuggestion(completeMessage)
+                // Detect suggestions using unified logic (habit OR task, not both)
+                // V3 response format: Check for direct JSON field first (already validated by backend)
+                var detectionSucceeded = false
+                
+                if let jsonData = response["json"] as? [String: Any] {
+                    print("[Chat] ✅ V3 response contains validated JSON data directly")
+                    
+                    // Check JSON structure to determine type
+                    let hasHabitMarkers = jsonData["high_level_schedule"] != nil || 
+                                        jsonData["low_level_schedule"] != nil ||
+                                        jsonData["milestones"] != nil
+                    let hasTaskMarkers = jsonData["task_schedule"] != nil
+                    
+                    // Detect based on JSON structure or chat mode
+                    if hasHabitMarkers || (self.currentChatMode == .habit && !hasTaskMarkers) {
+                        // Try to detect habit - use direct dictionary parsing first
+                        if let detectedHabit = HabitDetectionService.shared.detectHabitSuggestion(
+                            from: jsonData,
+                            messageId: messageId,
+                            userId: userId
+                        ) {
+                            print("✅ [Chat] Detected habit from V3 JSON: \(detectedHabit.name)")
+                            updatedMessage.detectedHabitSuggestion = detectedHabit
+                            updatedMessage.detectedTaskSuggestion = nil // Clear task
+                            updatedMessage.cleanedText = HabitDetectionService.shared.cleanTextFromHabitSuggestion(completeMessage)
+                            detectionSucceeded = true
+                        } else {
+                            // Fallback to text-based detection with JSON embedded
+                            if let jsonString = try? JSONSerialization.data(withJSONObject: jsonData),
+                                  let jsonText = String(data: jsonString, encoding: .utf8) {
+                            let messageWithJSON = completeMessage + "\n\n```json\n\(jsonText)\n```"
+                            if let detectedHabit = HabitDetectionService.shared.detectHabitSuggestion(
+                                in: messageWithJSON,
+                                messageId: messageId,
+                                userId: userId
+                            ) {
+                                    print("✅ [Chat] Detected habit from V3 JSON text (fallback): \(detectedHabit.name)")
+                                updatedMessage.detectedHabitSuggestion = detectedHabit
+                                updatedMessage.detectedTaskSuggestion = nil // Clear task
+                                updatedMessage.cleanedText = HabitDetectionService.shared.cleanTextFromHabitSuggestion(completeMessage)
+                                    detectionSucceeded = true
+                                }
+                            }
+                        }
+                    } else if hasTaskMarkers || self.currentChatMode == .task {
+                        // Try to detect task - use direct dictionary parsing first
+                        if let detectedTask = TaskDetectionService.shared.detectTaskSuggestion(
+                            from: jsonData,
+                            userId: userId
+                        ) {
+                            print("✅ [Chat] Detected task from V3 JSON: \(detectedTask.name)")
+                            updatedMessage.detectedTaskSuggestion = detectedTask
+                            updatedMessage.detectedHabitSuggestion = nil // Clear habit
+                            updatedMessage.cleanedText = TaskDetectionService.shared.cleanTextFromTaskSuggestion(completeMessage)
+                            detectionSucceeded = true
+                        } else {
+                            // Fallback to text-based detection with JSON embedded
+                            if let jsonString = try? JSONSerialization.data(withJSONObject: jsonData),
+                                  let jsonText = String(data: jsonString, encoding: .utf8) {
+                            let messageWithJSON = completeMessage + "\n\n```json\n\(jsonText)\n```"
+                            if let detectedTask = TaskDetectionService.shared.detectTaskSuggestion(
+                                in: messageWithJSON,
+                                userId: userId
+                            ) {
+                                    print("✅ [Chat] Detected task from V3 JSON text (fallback): \(detectedTask.name)")
+                                updatedMessage.detectedTaskSuggestion = detectedTask
+                                updatedMessage.detectedHabitSuggestion = nil // Clear habit
+                                updatedMessage.cleanedText = TaskDetectionService.shared.cleanTextFromTaskSuggestion(completeMessage)
+                                    detectionSucceeded = true
+                                }
+                            }
+                        }
                     }
                 }
                 
-                // Save the updated message with full text
+                // If detection from JSON field failed or JSON field is missing, try text-based detection
+                if !detectionSucceeded {
+                    print("[Chat] Attempting text-based detection (JSON field missing or detection failed)")
+                    let text = completeMessage
+                    let hasHabitMarkers = text.contains("\"milestones\"") || 
+                                        text.contains("\"low_level_schedule\"") || 
+                                        text.contains("\"high_level_schedule\"") ||
+                                        text.contains("ai_habit_suggestion")
+                    let hasTaskMarkers = text.contains("\"task_schedule\"") || 
+                                       text.contains("ai_task_suggestion") ||
+                                       (text.contains("\"steps\"") && !hasHabitMarkers && text.contains("\"name\""))
+                    
+                    // Try habit detection first if markers found or in habit mode
+                    if hasHabitMarkers || (self.currentChatMode == .habit && !hasTaskMarkers) {
+                        if let detectedHabit = HabitDetectionService.shared.detectHabitSuggestion(
+                            in: text,
+                            messageId: messageId,
+                            userId: userId
+                        ) {
+                            print("✅ [Chat] Detected habit from text: \(detectedHabit.name)")
+                            updatedMessage.detectedHabitSuggestion = detectedHabit
+                            updatedMessage.detectedTaskSuggestion = nil
+                            updatedMessage.cleanedText = HabitDetectionService.shared.cleanTextFromHabitSuggestion(text)
+                            detectionSucceeded = true
+                        } else {
+                            // Still clean the text even if detection failed
+                            updatedMessage.cleanedText = HabitDetectionService.shared.cleanTextFromHabitSuggestion(text)
+                        }
+                    }
+                    
+                    // Try task detection if habit detection failed and task markers found or in task mode
+                    if !detectionSucceeded && (hasTaskMarkers || self.currentChatMode == .task) {
+                        if let detectedTask = TaskDetectionService.shared.detectTaskSuggestion(
+                            in: text,
+                            userId: userId
+                        ) {
+                            print("✅ [Chat] Detected task from text: \(detectedTask.name)")
+                            updatedMessage.detectedTaskSuggestion = detectedTask
+                            updatedMessage.detectedHabitSuggestion = nil
+                            updatedMessage.cleanedText = TaskDetectionService.shared.cleanTextFromTaskSuggestion(text)
+                            detectionSucceeded = true
+                        } else {
+                            // Still clean the text even if detection failed
+                            updatedMessage.cleanedText = TaskDetectionService.shared.cleanTextFromTaskSuggestion(text)
+                        }
+                    }
+                    
+                    // If no detection succeeded, clean both to be safe
+                    if !detectionSucceeded && updatedMessage.cleanedText == nil {
+                        var cleaned = HabitDetectionService.shared.cleanTextFromHabitSuggestion(text)
+                        cleaned = TaskDetectionService.shared.cleanTextFromTaskSuggestion(cleaned)
+                        updatedMessage.cleanedText = cleaned
+                    }
+                }
+                
+                // Save the updated message with full text and detected suggestions
                 self.messages[index] = updatedMessage
+                
+                if detectionSucceeded {
+                    print("✅ [Chat] Detection completed successfully - habit: \(updatedMessage.detectedHabitSuggestion != nil), task: \(updatedMessage.detectedTaskSuggestion != nil)")
+                } else {
+                    print("⚠️ [Chat] Detection did not find any suggestions in message")
+                }
             }
             
             // Save updated conversation with title from backend (AFTER updating message text)
             // This ensures the saved conversation includes the full message text with JSON
-            self.saveConversation(withTitle: response["title"] as? String)
+            // V3 response includes title, use it if available
+            let backendTitle = response["title"] as? String
+            self.saveConversation(withTitle: backendTitle)
             
             // Reset all streaming and loading states
             self.isLoading = false
@@ -806,23 +917,14 @@ struct SectionedChatHistory {
         // Update current chat mode
         currentChatMode = effectiveMode
         
-        // Process messages for suggestions based on the effective chat mode
-        // Always process messages to ensure habit/task cards are detected when reopening chats
+        // Process messages for suggestions - detect based on message content, not just mode
+        // This ensures suggestion cards are shown when reopening chats
         print("🔄 [ChatViewModel] Processing messages with mode: \(effectiveMode.displayName)")
         print("🔄 [ChatViewModel] Processing \(history.messages.count) messages from history")
         
-        if effectiveMode == .habit {
-            messages = processMessagesForHabitSuggestions(history.messages)
-            print("✅ [ChatViewModel] Processed \(messages.count) messages for habit mode")
-        } else if effectiveMode == .task {
-            messages = processMessagesForTaskSuggestions(history.messages)
-            print("✅ [ChatViewModel] Processed \(messages.count) messages for task mode")
-        } else {
-            // If mode is unclear, process for both to be safe (though this shouldn't happen with current modes)
-            let habitProcessed = processMessagesForHabitSuggestions(history.messages)
-            messages = processMessagesForTaskSuggestions(habitProcessed)
-            print("✅ [ChatViewModel] Processed \(messages.count) messages for both modes")
-        }
+        // Process messages to detect suggestions - only one type per message (habit OR task)
+        messages = processMessagesForSuggestions(history.messages, chatMode: effectiveMode)
+        print("✅ [ChatViewModel] Processed \(messages.count) messages for suggestion detection")
         
         // Debug: Count how many messages have detected habits/tasks
         let habitCount = messages.filter { $0.detectedHabitSuggestion != nil }.count
@@ -835,11 +937,11 @@ struct SectionedChatHistory {
         hasUnsavedChanges = false
     }
     
-    // Process messages to detect habit suggestions that weren't processed before
-    private func processMessagesForHabitSuggestions(_ messages: [ChatMessage]) -> [ChatMessage] {
-        print("🔍 [ChatViewModel] Processing \(messages.count) messages for habit suggestions")
+    // Unified method to process messages and detect suggestions (habit OR task, not both)
+    private func processMessagesForSuggestions(_ messages: [ChatMessage], chatMode: ChatMode) -> [ChatMessage] {
+        print("🔍 [ChatViewModel] Processing \(messages.count) messages for suggestions (mode: \(chatMode.displayName))")
         guard let userId = userStatusManager.state.userId else {
-            print("⚠️ [ChatViewModel] No userId available, skipping habit detection")
+            print("⚠️ [ChatViewModel] No userId available, skipping suggestion detection")
             return messages
         }
         
@@ -850,74 +952,113 @@ struct SectionedChatHistory {
             }
             
             var updatedMessage = message
+            let text = message.text
             
-            // Always try to detect habit suggestion (re-detect even if one exists, to ensure accuracy)
-            print("🔍 [ChatViewModel] Checking AI message for habit suggestion (text length: \(message.text.count))")
+            // If suggestions already exist, keep them but ensure cleaned text is set
+            let hasHabit = updatedMessage.detectedHabitSuggestion != nil
+            let hasTask = updatedMessage.detectedTaskSuggestion != nil
             
-            if let detectedHabit = HabitDetectionService.shared.detectHabitSuggestion(
-                in: message.text,
-                messageId: message.id,
-                userId: userId
-            ) {
-                print("✅ [ChatViewModel] Detected habit suggestion: \(detectedHabit.name)")
-                updatedMessage.detectedHabitSuggestion = detectedHabit
+            if hasHabit || hasTask {
+                // Suggestions already exist, just ensure cleaned text
+                if updatedMessage.cleanedText == nil {
+                    if hasHabit {
+                        updatedMessage.cleanedText = HabitDetectionService.shared.cleanTextFromHabitSuggestion(text)
+                    } else if hasTask {
+                        updatedMessage.cleanedText = TaskDetectionService.shared.cleanTextFromTaskSuggestion(text)
+                    }
+                }
+                print("✅ [ChatViewModel] Keeping existing suggestions (habit: \(hasHabit), task: \(hasTask))")
+                return updatedMessage
+            }
+            
+                // No suggestions exist, try to detect
+                print("🔍 [ChatViewModel] Analyzing message text (length: \(text.count)) for suggestions")
+                
+                // Check for habit markers in text (more comprehensive)
+                // Support both "name" and "habitName" fields
+                let hasHabitMarkers = text.contains("\"milestones\"") || 
+                                     text.contains("\"low_level_schedule\"") || 
+                                     text.contains("\"high_level_schedule\"") ||
+                                     text.contains("ai_habit_suggestion") ||
+                                     (text.contains("\"name\"") && text.contains("\"goal\"") && 
+                                      (text.contains("\"milestones\"") || text.contains("\"tracking_method\""))) ||
+                                     (text.contains("\"habitName\"") && text.contains("\"description\"")) ||
+                                     (text.contains("\"description\"") && text.contains("\"goal\"") && 
+                                      (text.contains("\"category\"") || text.contains("\"difficulty\"")))
+                
+            // Check for task markers in text (more comprehensive)
+                let hasTaskMarkers = text.contains("\"task_schedule\"") || 
+                               text.contains("ai_task_suggestion") ||
+                               (text.contains("\"steps\"") && text.contains("\"name\"") && !hasHabitMarkers) ||
+                               (text.contains("\"task_name\"") || text.contains("\"taskName\""))
+                
+                // Check if text contains JSON-like content (code fences or JSON objects)
+                let hasJSONContent = text.contains("```json") || 
+                                    text.contains("```") ||
+                                (text.contains("{") && text.contains("}") && (text.contains("\"name\"") || text.contains("\"description\"")))
+                
+                print("🔍 [ChatViewModel] Markers - Habit: \(hasHabitMarkers), Task: \(hasTaskMarkers), JSON: \(hasJSONContent)")
+            
+            var detectionSucceeded = false
+                
+                // Try to detect habit if we have habit markers, or if we're in habit mode and have JSON content
+                if hasHabitMarkers || (chatMode == .habit && hasJSONContent && !hasTaskMarkers) {
+                    print("🔍 [ChatViewModel] Attempting habit detection...")
+                    if let detectedHabit = HabitDetectionService.shared.detectHabitSuggestion(
+                        in: text,
+                        messageId: message.id,
+                        userId: userId
+                    ) {
+                        print("✅ [ChatViewModel] Detected habit: \(detectedHabit.name)")
+                        updatedMessage.detectedHabitSuggestion = detectedHabit
+                        updatedMessage.detectedTaskSuggestion = nil // Clear task if habit found
+                        updatedMessage.cleanedText = HabitDetectionService.shared.cleanTextFromHabitSuggestion(text)
+                    detectionSucceeded = true
+                    } else {
+                        print("⚠️ [ChatViewModel] Habit detection failed despite markers")
+                    }
+                }
+                
+                // Try to detect task if we have task markers, or if we're in task mode and have JSON content (and no habit was detected)
+            if !detectionSucceeded {
+                    if hasTaskMarkers || (chatMode == .task && hasJSONContent) {
+                        print("🔍 [ChatViewModel] Attempting task detection...")
+                    if let detectedTask = TaskDetectionService.shared.detectTaskSuggestion(
+                        in: text,
+                        userId: userId
+                    ) {
+                        print("✅ [ChatViewModel] Detected task: \(detectedTask.name)")
+                        updatedMessage.detectedTaskSuggestion = detectedTask
+                        updatedMessage.detectedHabitSuggestion = nil // Clear habit if task found
+                        updatedMessage.cleanedText = TaskDetectionService.shared.cleanTextFromTaskSuggestion(text)
+                        detectionSucceeded = true
+                        } else {
+                            print("⚠️ [ChatViewModel] Task detection failed despite markers")
+                        }
+                    }
+                }
+                
+            // Clean text if not already cleaned (always clean to remove JSON even if detection failed)
+                if updatedMessage.cleanedText == nil {
+                if detectionSucceeded {
+                    // Use the appropriate cleaner based on what was detected
+                    if updatedMessage.detectedHabitSuggestion != nil {
+                        updatedMessage.cleanedText = HabitDetectionService.shared.cleanTextFromHabitSuggestion(text)
+                    } else if updatedMessage.detectedTaskSuggestion != nil {
+                        updatedMessage.cleanedText = TaskDetectionService.shared.cleanTextFromTaskSuggestion(text)
+                    }
+                    } else {
+                    // No detection succeeded, clean both to be safe
+                        var cleaned = HabitDetectionService.shared.cleanTextFromHabitSuggestion(text)
+                        cleaned = TaskDetectionService.shared.cleanTextFromTaskSuggestion(cleaned)
+                        updatedMessage.cleanedText = cleaned
+                    }
+                }
+            
+            if detectionSucceeded {
+                print("✅ [ChatViewModel] Detection succeeded - habit: \(updatedMessage.detectedHabitSuggestion != nil), task: \(updatedMessage.detectedTaskSuggestion != nil)")
             } else {
-                print("❌ [ChatViewModel] No habit suggestion detected")
-                // Clear any existing suggestion if detection fails (data might be stale)
-                updatedMessage.detectedHabitSuggestion = nil
-            }
-            
-            // ALWAYS clean the text to remove HABITGEN flags and JSON, even if no habit detected
-            // This ensures we never show "HABITGEN=True" or JSON to users
-            let cleaned = HabitDetectionService.shared.cleanTextFromHabitSuggestion(message.text)
-            if cleaned != message.text || updatedMessage.detectedHabitSuggestion != nil {
-                // Only update cleanedText if it changed or if we detected a habit
-                updatedMessage.cleanedText = cleaned
-                print("🧹 [ChatViewModel] Cleaned text (length: \(cleaned.count), original: \(message.text.count))")
-            }
-            
-            return updatedMessage
-        }
-    }
-    
-    // Process messages to detect task suggestions that weren't processed before
-    private func processMessagesForTaskSuggestions(_ messages: [ChatMessage]) -> [ChatMessage] {
-        print("🔍 [ChatViewModel] Processing \(messages.count) messages for task suggestions")
-        guard let userId = userStatusManager.state.userId else {
-            print("⚠️ [ChatViewModel] No userId available, skipping task detection")
-            return messages
-        }
-        
-        return messages.map { message in
-            // Skip user messages
-            guard !message.isUser else {
-                return message
-            }
-            
-            var updatedMessage = message
-            
-            // Always try to detect task suggestion (re-detect even if one exists, to ensure accuracy)
-            print("🔍 [ChatViewModel] Checking AI message for task suggestion (text length: \(message.text.count))")
-            
-            if let detectedTask = TaskDetectionService.shared.detectTaskSuggestion(
-                in: message.text,
-                userId: userId
-            ) {
-                print("✅ [ChatViewModel] Detected task suggestion: \(detectedTask.name)")
-                updatedMessage.detectedTaskSuggestion = detectedTask
-            } else {
-                print("❌ [ChatViewModel] No task suggestion detected")
-                // Clear any existing suggestion if detection fails (data might be stale)
-                updatedMessage.detectedTaskSuggestion = nil
-            }
-            
-            // ALWAYS clean the text to remove any flags and JSON, even if no task detected
-            // This ensures we never show flags or JSON to users
-            let cleaned = TaskDetectionService.shared.cleanTextFromTaskSuggestion(message.text)
-            if cleaned != message.text || updatedMessage.detectedTaskSuggestion != nil {
-                // Only update cleanedText if it changed or if we detected a task
-                updatedMessage.cleanedText = cleaned
-                print("🧹 [ChatViewModel] Cleaned text (length: \(cleaned.count), original: \(message.text.count))")
+                print("⚠️ [ChatViewModel] No suggestions detected in message")
             }
             
             return updatedMessage

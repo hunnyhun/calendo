@@ -42,7 +42,7 @@ extension Color {
     static var brandCurrentDay: Color { Color(hex: 0x0E0B95) }
     
     /// Premium user color: #110F7D
-    static var brandPremium: Color { Color(hex: 0x110F7D) }
+    static var brandBlue: Color { Color(hex: 0x110F7D) }
 }
 
 

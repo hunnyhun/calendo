@@ -5,6 +5,33 @@ import { onCall, HttpsError, onRequest } from 'firebase-functions/v2/https';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { defineSecret } from 'firebase-functions/params';
 import { AuthData } from 'firebase-functions/v2/tasks'; // Import AuthData type if needed elsewhere
+// LangChain services
+import {
+    getSessionState,
+    updateSessionState,
+    clearSessionState,
+    createSessionState,
+    SessionState,
+} from './services/sessionManager';
+import {
+    createLangChainModel,
+    executeConversation,
+    executeConversationStream,
+} from './services/langchainService';
+// Clarification service available for future enhancements
+// import {
+//     analyzeCompleteness,
+//     identifyMissingFields,
+//     generateClarifyingQuestion,
+// } from './services/clarificationService';
+import {
+    generateHabitJson as generateHabitJsonWithLangChain,
+    generateTaskJson as generateTaskJsonWithLangChain,
+    JsonGenerationConfig,
+} from './services/jsonGenerator';
+// Schemas available for validation
+// import { habitSchema } from './schemas/habitSchema';
+// import { taskSchema } from './schemas/taskSchema';
 
 // Define the Gemini API key secret with a different name to avoid conflicts
 const geminiSecretKey = defineSecret('GEMINI_SECRET_KEY');
@@ -2341,6 +2368,310 @@ ${conversation}`;
         }
         
         throw new HttpsError('internal', `Failed to generate habit JSON: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    }
+});
+
+/**
+ * LangChain-based conversation endpoint with session state and clarifying questions
+ */
+export const processChatMessageV3 = onRequest({
+    region: 'us-central1',
+    secrets: [geminiSecretKey]
+}, async (req, res) => {
+    try {
+        // Set CORS headers
+        res.setHeader('Access-Control-Allow-Origin', '*');
+        res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+        res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+        res.setHeader('Access-Control-Max-Age', '86400');
+        
+        // Handle CORS preflight
+        if (req.method === 'OPTIONS') {
+            res.status(200).end();
+            return;
+        }
+        
+        // Validate HTTP method
+        if (req.method !== 'POST') {
+            res.status(405).send('Method Not Allowed');
+            return;
+        }
+
+        // Parse request data
+        const { message, conversationId, stream = false, chatMode = 'task', useFunctionCalling = false } = req.body;
+        
+        if (!message || typeof message !== 'string') {
+            res.status(400).json({ error: 'Message is required' });
+            return;
+        }
+
+        const isStreamingRequest = stream === true;
+
+        // Set up headers
+        if (isStreamingRequest) {
+            res.writeHead(200, {
+                'Content-Type': 'text/plain; charset=utf-8',
+                'Cache-Control': 'no-cache',
+                'Connection': 'keep-alive',
+            });
+        } else {
+            res.setHeader('Content-Type', 'application/json');
+        }
+
+        // Helper functions
+        const sendSSE = (type: string, data: any) => {
+            if (isStreamingRequest) {
+                const payload = JSON.stringify({ type, data });
+                res.write(`data: ${payload}\n\n`);
+            }
+        };
+
+        const sendResponse = (responseData: any, statusCode: number = 200) => {
+            if (isStreamingRequest) {
+                sendSSE('complete', responseData);
+                res.end();
+            } else {
+                res.status(statusCode).json(responseData);
+            }
+        };
+
+        const sendError = (message: string, statusCode: number = 500) => {
+            if (isStreamingRequest) {
+                sendSSE('error', { message });
+                res.end();
+            } else {
+                res.status(statusCode).json({ error: message });
+            }
+        };
+
+        // Authentication
+        const authHeader = req.headers.authorization;
+        const idToken = authHeader?.replace('Bearer ', '');
+        if (!idToken) {
+            sendError('Missing authentication token', 401);
+            return;
+        }
+
+        let uid: string;
+        try {
+            const decodedToken = await auth.verifyIdToken(idToken);
+            uid = decodedToken.uid;
+        } catch (authError) {
+            console.error('[processChatMessageV3] Authentication failed:', authError);
+            sendError('Invalid authentication token', 401);
+            return;
+        }
+
+        // Subscription check
+        const isPremium = await checkUserSubscription(uid);
+        if (!isPremium) {
+            sendError('A premium subscription is required to use AI features.', 403);
+            return;
+        }
+
+        // Get or create conversation
+        const conversationRef = conversationId
+            ? db.collection('users').doc(uid).collection('conversations').doc(conversationId)
+            : db.collection('users').doc(uid).collection('conversations').doc();
+
+        const finalConversationId = conversationRef.id;
+
+        // Load or create session state
+        let sessionState: SessionState | null = null;
+        if (conversationId) {
+            sessionState = await getSessionState(uid, conversationId);
+        }
+
+        if (!sessionState) {
+            sessionState = await createSessionState(uid, finalConversationId, {
+                messages: [],
+                chatMode: chatMode,
+                intent: 'unknown',
+                confidence: 0,
+            });
+        }
+
+        // Add user message
+        const userMessage = {
+            role: 'user',
+            content: message,
+            timestamp: new Date(),
+        };
+
+        const updatedMessages = [...sessionState.messages, userMessage];
+
+        // Initialize LangChain model
+        const langChainModel = createLangChainModel({
+            apiKey: geminiSecretKey.value(),
+            modelName: 'gemini-2.0-flash',
+            temperature: 0.7,
+            useFunctionCalling: useFunctionCalling,
+        });
+
+        // Execute conversation
+        let conversationResponse;
+        if (isStreamingRequest) {
+            sendSSE('start', { conversationId: finalConversationId });
+            
+            let fullResponse = '';
+            for await (const chunk of executeConversationStream(
+                langChainModel,
+                message,
+                { ...sessionState, messages: updatedMessages },
+                chatMode
+            )) {
+                fullResponse += chunk;
+                sendSSE('chunk', { text: chunk });
+            }
+            
+            conversationResponse = {
+                text: fullResponse,
+                intent: sessionState.intent || 'unknown',
+                confidence: sessionState.confidence || 0.5,
+            };
+        } else {
+            conversationResponse = await executeConversation(
+                langChainModel,
+                message,
+                { ...sessionState, messages: updatedMessages },
+                chatMode
+            );
+        }
+
+        // Add assistant response to messages
+        const assistantMessage = {
+            role: 'assistant',
+            content: conversationResponse.text,
+            timestamp: new Date(),
+        };
+
+        const finalMessages = [...updatedMessages, assistantMessage];
+
+        // Analyze extracted data and determine if we need clarification
+        // For now, we'll use the conversation response to determine intent
+        // In a more sophisticated implementation, we could extract structured data from the conversation
+        const extractedData = sessionState.extractedData || {};
+        
+        // Check if the response indicates readiness to generate JSON
+        const responseLower = conversationResponse.text.toLowerCase();
+        const indicatesReadiness = 
+            responseLower.includes('ready') ||
+            responseLower.includes('create') ||
+            responseLower.includes('generate') ||
+            responseLower.includes('here is') ||
+            responseLower.includes('here\'s');
+
+        let finalIntent = conversationResponse.intent || 'unknown';
+        let finalConfidence = conversationResponse.confidence || 0.5;
+        let responseText = conversationResponse.text;
+        let generatedJson: any = null;
+        let needsClarification = false;
+        let clarifyingQuestion = '';
+
+        // Check if we should generate JSON or ask clarifying questions
+        const shouldGenerateJson = 
+            (finalIntent === 'habit' || finalIntent === 'task' || chatMode === 'habit' || chatMode === 'task') &&
+            (indicatesReadiness || finalConfidence >= 0.7);
+
+        if (shouldGenerateJson) {
+            // Generate final JSON
+            const jsonConfig: JsonGenerationConfig = {
+                model: langChainModel,
+                apiKey: geminiSecretKey.value(),
+                useFunctionCalling: useFunctionCalling,
+            };
+
+            const conversationContext = finalMessages
+                .map((msg) => `${msg.role}: ${msg.content}`)
+                .join('\n\n');
+
+            if (chatMode === 'habit') {
+                const result = await generateHabitJsonWithLangChain(conversationContext, sessionState, jsonConfig);
+                if (result.success && result.json) {
+                    generatedJson = result.json;
+                    responseText += `\n\n**Your Personalized Habit Program:**\n\`\`\`json\n${JSON.stringify(generatedJson, null, 2)}\n\`\`\``;
+                    // Clear session state after successful generation
+                    await clearSessionState(uid, finalConversationId);
+                } else {
+                    needsClarification = true;
+                    clarifyingQuestion = result.error || 'Could you provide more details about your habit?';
+                }
+            } else {
+                const result = await generateTaskJsonWithLangChain(conversationContext, sessionState, jsonConfig);
+                if (result.success && result.json) {
+                    generatedJson = result.json;
+                    responseText += `\n\n**Your Task Breakdown:**\n\`\`\`json\n${JSON.stringify(generatedJson, null, 2)}\n\`\`\``;
+                    // Clear session state after successful generation
+                    await clearSessionState(uid, finalConversationId);
+                } else {
+                    needsClarification = true;
+                    clarifyingQuestion = result.error || 'Could you provide more details about your task?';
+                }
+            }
+        } else if (finalConfidence < 0.5 || !indicatesReadiness) {
+            // Need clarification - ask a general question if confidence is low
+            needsClarification = true;
+            if (chatMode === 'habit') {
+                clarifyingQuestion = 'Could you tell me more about this habit? For example, how often would you like to do it, and what\'s your main goal?';
+            } else {
+                clarifyingQuestion = 'Could you tell me more about this task? For example, what are the main steps, and are there any deadlines?';
+            }
+            responseText += `\n\n${clarifyingQuestion}`;
+            finalIntent = 'clarifying';
+        }
+
+        // Generate or get conversation title
+        let conversationTitle: string | undefined = sessionState.title;
+        
+        // Only generate title if it doesn't exist (new conversation)
+        if (!conversationTitle) {
+            try {
+                // Get the first user message for title generation
+                const firstUserMessage = finalMessages.find(m => m.role === 'user')?.content || message;
+                conversationTitle = await generateConversationTitle(firstUserMessage, responseText, chatMode);
+                console.log('[processChatMessageV3] Generated title:', conversationTitle);
+            } catch (titleError) {
+                console.error('[processChatMessageV3] Error generating title:', titleError);
+                // Fallback: use first few words of user message
+                const words = message.split(' ').slice(0, 4);
+                conversationTitle = words.join(' ') + (words.length >= 4 ? '...' : '');
+            }
+        }
+
+        // Update session state (only include defined values)
+        const sessionUpdates: Partial<SessionState> = {
+            messages: finalMessages,
+            chatMode: chatMode,
+            title: conversationTitle,
+        };
+        
+        if (finalIntent !== undefined) {
+            sessionUpdates.intent = finalIntent;
+        }
+        if (finalConfidence !== undefined) {
+            sessionUpdates.confidence = finalConfidence;
+        }
+        if (extractedData !== undefined && Object.keys(extractedData).length > 0) {
+            sessionUpdates.extractedData = extractedData;
+        }
+        
+        await updateSessionState(uid, finalConversationId, sessionUpdates);
+
+        // Send response
+        sendResponse({
+            response: responseText,
+            conversationId: finalConversationId,
+            intent: finalIntent,
+            confidence: finalConfidence,
+            json: generatedJson,
+            needsClarification: needsClarification,
+            title: conversationTitle, // Include title in response
+        });
+
+    } catch (error) {
+        console.error('[processChatMessageV3] Error:', error);
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+        res.status(500).json({ error: errorMessage });
     }
 });
 

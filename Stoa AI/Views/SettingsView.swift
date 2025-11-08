@@ -55,9 +55,10 @@ struct SettingsView: View {
                         HStack {
                             Image(systemName: "globe")
                             Text("language".localized)
+                                .foregroundColor(colorScheme == .dark ? .white : .black)
                             Spacer()
                             Text(localizationManager.getCurrentLanguageDisplayName())
-                                .foregroundColor(.gray)
+                                .foregroundColor(colorScheme == .dark ? .white : .black)
                             Image(systemName: "chevron.right")
                                 .font(.caption)
                                 .foregroundColor(.gray)
@@ -101,6 +102,7 @@ struct SettingsView: View {
                                     Image(systemName: "arrow.clockwise")
                                 }
                                 Text("restorePurchases".localized)
+                                    .foregroundColor(colorScheme == .dark ? .white : .black)
                             }
                         }
                         .disabled(isRestoring)
@@ -225,7 +227,7 @@ struct SettingsView: View {
                     
                     Text(userStatusManager.state.isPremium ? "premium".localized : "freeAccount".localized)
                         .font(.subheadline)
-                        .foregroundColor(userStatusManager.state.isPremium ? .green : .secondary)
+                        .foregroundColor(userStatusManager.state.isPremium ? (colorScheme == .dark ? .green : .primary) : .secondary)
                 }
                 
                 Spacer()
@@ -242,6 +244,7 @@ struct SettingsView: View {
             HStack {
                 Image(systemName: "bell.fill")
                 Text("notificationPreferences".localized)
+                    .foregroundColor(colorScheme == .dark ? .white : .black)
                 Spacer()
                 Image(systemName: "chevron.right")
                     .font(.caption)

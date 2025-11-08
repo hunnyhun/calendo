@@ -79,11 +79,11 @@ class CalendarManager: ObservableObject {
             await taskManager.loadTasks()
         }
         
-        // Load habits and tasks for schedule parsing
-        let habits = habitManager.habits
-        let tasks = taskManager.tasks
+        // Load habits and tasks for schedule parsing - only include active ones
+        let habits = habitManager.habits.filter { $0.isActive }
+        let tasks = taskManager.tasks.filter { $0.isActive }
         
-        print("📅 [CalendarManager] Loaded \(habits.count) habits and \(tasks.count) tasks")
+        print("📅 [CalendarManager] Loaded \(habits.count) active habits and \(tasks.count) active tasks")
         
         // Get all days that will be displayed in the calendar (includes adjacent month days)
         let displayedDays = getDisplayedDaysForMonth(month, calendar: calendar)
@@ -308,8 +308,11 @@ class CalendarManager: ObservableObject {
         // Clear old cache
         habitMappingsCache.removeAll()
         
-        // Calculate mappings for each habit
+        // Calculate mappings for each habit (only active habits are passed in)
         for habit in habits {
+            // Skip inactive habits (shouldn't happen since we filter, but double-check)
+            guard habit.isActive else { continue }
+            
             // Use startDate from habit (when user pushed to calendar)
             // Fallback to createdAt (when AI created it) if startDate is not set
             // Final fallback to current date
@@ -669,10 +672,10 @@ class CalendarManager: ObservableObject {
         // Clear old cache
         taskMappingsCache.removeAll()
         
-        // Calculate mappings for each task
+        // Calculate mappings for each task (only active tasks are passed in)
         for task in tasks {
-            // Skip completed tasks
-            guard !task.isCompleted else { continue }
+            // Skip inactive or completed tasks (shouldn't happen since we filter, but double-check)
+            guard task.isActive && !task.isCompleted else { continue }
             
             // Get combined mappings for daily view (shows all content)
             let combinedMappings = combineTaskMappingsForDailyView(task: task, dateRange: (normalizedStart, normalizedEnd))
@@ -932,8 +935,8 @@ class CalendarManager: ObservableObject {
         let targetDate = calendar.startOfDay(for: date)
         
         for task in tasks {
-            // Skip completed tasks
-            guard !task.isCompleted else { continue }
+            // Skip inactive or completed tasks (shouldn't happen since we filter, but double-check)
+            guard task.isActive && !task.isCompleted else { continue }
             
             // Use cached mappings if available
             if let cachedItems = taskMappingsCache[task.id]?[targetDate] {

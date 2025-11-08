@@ -235,6 +235,13 @@ struct ContentView: View {
                             HabitTrackingView(onNavigateBack: {
                                 selectedFeature = .chat
                             })
+                        case .blog:
+                            BlogView(
+                                selectedFeature: Binding(
+                                    get: { selectedFeature ?? .blog },
+                                    set: { selectedFeature = $0 }
+                                )
+                            )
                         case .none:
                             ChatView(
                                 viewModel: chatViewModel,

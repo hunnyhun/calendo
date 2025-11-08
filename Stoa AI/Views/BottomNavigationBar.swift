@@ -19,19 +19,6 @@ struct BottomNavigationBar: View {
                     .padding(.vertical, 6)
             }
             
-            // Chat Button
-            Button(action: {
-                withAnimation(.easeInOut(duration: 0.2)) {
-                    selectedFeature = .chat
-                }
-            }) {
-                Image(systemName: "message.fill")
-                    .font(.system(size: 28))
-                    .foregroundColor(selectedFeature == .chat ? Color.brandPrimary : .gray)
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 6)
-            }
-            
             // Calendar Button
             Button(action: {
                 withAnimation(.easeInOut(duration: 0.2)) {
@@ -41,6 +28,19 @@ struct BottomNavigationBar: View {
                 Image(systemName: "calendar")
                     .font(.system(size: 28))
                     .foregroundColor(selectedFeature == .calendar ? Color.brandPrimary : .gray)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 6)
+            }
+            
+            // Chat Button
+            Button(action: {
+                withAnimation(.easeInOut(duration: 0.2)) {
+                    selectedFeature = .chat
+                }
+            }) {
+                Image(systemName: "message.fill")
+                    .font(.system(size: 28))
+                    .foregroundColor(selectedFeature == .chat ? Color.brandPrimary : .gray)
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 6)
             }
@@ -58,15 +58,15 @@ struct BottomNavigationBar: View {
                     .padding(.vertical, 6)
             }
             
-            // Settings Button
+            // Blog Button
             Button(action: {
                 withAnimation(.easeInOut(duration: 0.2)) {
-                    selectedFeature = .settings
+                    selectedFeature = .blog
                 }
             }) {
-                Image(systemName: "gearshape.fill")
+                Image(systemName: "square.and.arrow.up.fill")
                     .font(.system(size: 28))
-                    .foregroundColor(selectedFeature == .settings ? Color.brandPrimary : .gray)
+                    .foregroundColor(selectedFeature == .blog ? Color.brandPrimary : .gray)
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 6)
             }

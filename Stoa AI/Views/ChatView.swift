@@ -135,11 +135,6 @@ struct ChatView: View {
         VStack(spacing: 0) {
             chatToolbar
             
-            Divider()
-                .opacity(0.5)
-            
-            chatModeToggle
-            
             messagesListView
                 .gesture(
                     TapGesture()
@@ -152,35 +147,42 @@ struct ChatView: View {
         }
         .background(Color.clear)
         .overlay(darkModeShadow)
+        .overlay(chatModeToggleOverlay, alignment: .top)
         .safeAreaInset(edge: .bottom, spacing: 0) {
             // Input area - automatically adjusts with keyboard
-            inputArea
-                .transition(.move(edge: .bottom).combined(with: .opacity))
-        }
-        .safeAreaInset(edge: .bottom, spacing: 0) {
-            // Reserve space for navigation bar (only when keyboard is hidden)
-            if !isTextFieldFocused {
-                Color.clear
-                    .frame(height: 54) // Height of navigation bar + padding (reduced further)
-                    .transition(.opacity)
+            VStack(spacing: 0) {
+                inputArea
+                    .transition(.move(edge: .bottom).combined(with: .opacity))
+                
+                // Extend background to cover navigation bar area when keyboard is hidden
+                if !isTextFieldFocused {
+                    Color(.systemBackground)
+                        .frame(height: 54) // Height of navigation bar + padding
+                        .transition(.opacity)
+                }
             }
+            .frame(maxWidth: .infinity)
+            .background(Color(.systemBackground))
+            .ignoresSafeArea(edges: .bottom)
         }
         .animation(.easeOut(duration: 0.3), value: isTextFieldFocused)
     }
     
-    // MARK: - Chat Mode Toggle
-    private var chatModeToggle: some View {
-        HStack {
-            Spacer()
-            ChatModeToggle(mode: $viewModel.currentChatMode) { newMode in
-                viewModel.switchChatMode(to: newMode)
+    // MARK: - Chat Mode Toggle (as floating overlay - no background banner)
+    private var chatModeToggleOverlay: some View {
+        VStack {
+            HStack {
+                Spacer()
+                ChatModeToggle(mode: $viewModel.currentChatMode) { newMode in
+                    viewModel.switchChatMode(to: newMode)
+                }
+                .frame(width: 140, height: 34)
+                Spacer()
             }
-            .frame(width: 140, height: 34)
+            .padding(.top, 55) // Position below toolbar with more spacing
             Spacer()
         }
-        .padding(.top, 6)
-        .padding(.bottom, 4)
-        .background(Color.clear)
+        .background(Color.clear) // No background banner - only toggle visible
     }
     
     // MARK: - Dark Mode Shadow
@@ -250,92 +252,104 @@ struct ChatView: View {
     
     // MARK: - Toolbar View
     private var chatToolbar: some View {
-        HStack(spacing: 16) {
-            // Menu button with notification badge
-            Button(action: {
-                print("[Navigation] Menu button tapped")
-                withAnimation(.easeInOut(duration: 0.3)) {
-                    showSidebarCallback = true
-                }
-            }) {
-                ZStack {
-                    Image(systemName: "line.3.horizontal")
-                        .foregroundColor(colorScheme == .dark ? .white : .black)
-                        .font(.system(size: 22, weight: .semibold))
-                    
-                    // Notification badge for unread daily quotes
-                    if NotificationManager.shared.unreadNotificationCount > 0 {
-                        VStack {
-                            HStack {
-                                Spacer()
-                                ZStack {
-                                    Circle()
-                                        .fill(Color.red)
-                                        .frame(width: 18, height: 18)
-                                    
-                                    Text("\(NotificationManager.shared.unreadNotificationCount)")
-                                        .font(.system(size: 10, weight: .bold))
-                                        .foregroundColor(.white)
-                                        .lineLimit(1)
-                                        .minimumScaleFactor(0.7)
+        VStack(spacing: 0) {
+            HStack(spacing: 16) {
+                // Menu button with notification badge
+                Button(action: {
+                    print("[Navigation] Menu button tapped")
+                    withAnimation(.easeInOut(duration: 0.3)) {
+                        showSidebarCallback = true
+                    }
+                }) {
+                    ZStack {
+                        // Custom three-line icon with shorter middle and bottom lines
+                        VStack(alignment: .leading, spacing: 4) {
+                            // Top line - full width
+                            Rectangle()
+                                .fill(colorScheme == .dark ? Color.white : Color.black)
+                                .frame(width: 22, height: 2.5)
+                                .cornerRadius(1.25)
+                            
+                            // Middle line - shorter
+                            Rectangle()
+                                .fill(colorScheme == .dark ? Color.white : Color.black)
+                                .frame(width: 16, height: 2.5)
+                                .cornerRadius(1.25)
+                            
+                            // Bottom line - shorter
+                            Rectangle()
+                                .fill(colorScheme == .dark ? Color.white : Color.black)
+                                .frame(width: 16, height: 2.5)
+                                .cornerRadius(1.25)
+                        }
+                        
+                        // Notification badge for unread daily quotes
+                        if NotificationManager.shared.unreadNotificationCount > 0 {
+                            VStack {
+                                HStack {
+                                    Spacer()
+                                    ZStack {
+                                        Circle()
+                                            .fill(Color.red)
+                                            .frame(width: 18, height: 18)
+                                        
+                                        Text("\(NotificationManager.shared.unreadNotificationCount)")
+                                            .font(.system(size: 10, weight: .bold))
+                                            .foregroundColor(.white)
+                                            .lineLimit(1)
+                                            .minimumScaleFactor(0.7)
+                                    }
+                                    .offset(x: 8, y: -8)
                                 }
-                                .offset(x: 8, y: -8)
+                                Spacer()
                             }
-                            Spacer()
                         }
                     }
                 }
-            }
-            .frame(width: 36, height: 36)
-            
-            // Title only
-            VStack(spacing: 4) {
-                // Title with better styling
-                Group {
-                    if let conversation = viewModel.currentConversation {
-                        Text(conversation.title)
-                            .font(.system(size: 16, weight: .semibold))
-                            .foregroundColor(colorScheme == .dark ? .white : .black)
-                            .lineLimit(1)
-                            .multilineTextAlignment(.center)
-                            .transition(.opacity.animation(.easeInOut(duration: 0.8)))
-                    } else {
-                        Text("newChat".localized)
-                            .font(.system(size: 16, weight: .semibold))
-                            .foregroundColor(colorScheme == .dark ? .white : .black)
-                            .multilineTextAlignment(.center)
-                            .transition(.opacity.animation(.easeInOut(duration: 0.8)))
+                .frame(width: 36, height: 36)
+                
+                // Title only
+                VStack(spacing: 4) {
+                    // Title with better styling
+                    Group {
+                        if let conversation = viewModel.currentConversation {
+                            Text(conversation.title)
+                                .font(.system(size: 16, weight: .semibold))
+                                .foregroundColor(colorScheme == .dark ? .white : .black)
+                                .lineLimit(1)
+                                .multilineTextAlignment(.center)
+                                .transition(.opacity.animation(.easeInOut(duration: 0.8)))
+                        } else {
+                            Text("newChat".localized)
+                                .font(.system(size: 16, weight: .semibold))
+                                .foregroundColor(colorScheme == .dark ? .white : .black)
+                                .multilineTextAlignment(.center)
+                                .transition(.opacity.animation(.easeInOut(duration: 0.8)))
+                        }
                     }
-                }
-                
-                
-            }
-            .id(viewModel.currentConversation?.id ?? "newChat")
-            .frame(maxWidth: .infinity, alignment: .center)
-            
-            // New Chat button
-            Button(action: {
-                print("[Navigation] New chat button tapped")
-                withAnimation(.spring(response: 0.5, dampingFraction: 0.8)) {
-                    viewModel.clearConversation()
-                }
-            }) {
-                // Simple plus in circle like the image - made smaller
-                ZStack {
-                    Circle()
-                        .stroke(colorScheme == .dark ? Color.white : Color.black, lineWidth: 1.5)
-                        .frame(width: 22, height: 22)
                     
-                    Image(systemName: "plus")
-                        .font(.system(size: 12, weight: .semibold))
+                    
+                }
+                .id(viewModel.currentConversation?.id ?? "newChat")
+                .frame(maxWidth: .infinity, alignment: .center)
+                
+                // New Chat button
+                Button(action: {
+                    print("[Navigation] New chat button tapped")
+                    withAnimation(.spring(response: 0.5, dampingFraction: 0.8)) {
+                        viewModel.clearConversation()
+                    }
+                }) {
+                    Image(systemName: "square.and.pencil")
+                        .font(.system(size: 22, weight: .semibold))
                         .foregroundColor(colorScheme == .dark ? .white : .black)
                 }
+                .disabled(viewModel.isLoading)
             }
-            .disabled(viewModel.isLoading)
+            .padding(.horizontal)
+            .frame(height: 44)
+            .background(Color(.systemBackground))
         }
-        .padding(.horizontal)
-        .frame(height: 44)
-        .background(colorScheme == .dark ? Color.black : Color.white)
     }
     
     // MARK: - Messages List View
@@ -437,14 +451,9 @@ struct ChatView: View {
                         .padding(.bottom, 4)
                         
                         EnhancedTypingIndicator()
-                            .padding()
-                            .background(Color.white)
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 16)
-                                    .stroke(Color.gray.opacity(0.2), lineWidth: 1)
-                            )
-                            .cornerRadius(16)
-                            .frame(width: UIScreen.main.bounds.width * 0.8, alignment: .leading)
+                            .padding(.vertical, 8)
+                            .padding(.horizontal, 0)
+                            .frame(maxWidth: UIScreen.main.bounds.width * 0.85, alignment: .leading)
                     }
                     Spacer()
                 }
@@ -471,21 +480,14 @@ struct ChatView: View {
                         
                         VStack(spacing: 8) {
                             StreamingIndicator()
-                                .padding(.horizontal, 16)
                                 .padding(.vertical, 8)
+                                .padding(.horizontal, 0)
                             
                             // Add streaming progress bar
                             StreamingProgressBar(isStreaming: viewModel.isStreaming)
-                                .padding(.horizontal, 16)
+                                .padding(.horizontal, 0)
                         }
-                        .padding()
-                        .background(Color.white)
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 16)
-                                .stroke(Color.blue.opacity(0.3), lineWidth: 1)
-                        )
-                        .cornerRadius(16)
-                        .frame(width: UIScreen.main.bounds.width * 0.8, alignment: .leading)
+                        .frame(maxWidth: UIScreen.main.bounds.width * 0.85, alignment: .leading)
                     }
                     Spacer()
                 }
@@ -821,7 +823,7 @@ struct ChatView: View {
                     .foregroundColor(.gray)
             }
             
-            VStack(spacing: 12) {
+            VStack(spacing: 18) {
                 ForEach(Array(currentSuggestions.enumerated()), id: \.offset) { index, suggestionKey in
                     Button(action: {
                         withAnimation(.easeInOut(duration: 0.2)) {
@@ -830,10 +832,10 @@ struct ChatView: View {
                         sendMessage()
                     }) {
                         Text(suggestionKey.localized)
-                            .font(.subheadline)
+                            .font(.system(size: 17, weight: .medium))
                             .fontWeight(.medium)
-                            .padding(.vertical, 8)
-                            .padding(.horizontal, 16)
+                            .padding(.vertical, 12)
+                            .padding(.horizontal, 20)
                             .background(Color.brandPrimary.opacity(0.2))
                             .foregroundColor(colorScheme == .dark ? .white : .black)
                             .cornerRadius(16)
@@ -1012,7 +1014,9 @@ struct MessageBubble: View {
     // MARK: - AI Message Content
     @ViewBuilder
     private var aiMessageContent: some View {
-        if targetText.isEmpty {
+        // Show streaming indicator only during active streaming
+        // Otherwise, show message content (which includes cards) even if text is empty
+        if isCurrentlyStreaming && targetText.isEmpty {
             streamingIndicatorContent
         } else {
             messageContentWithHabit
@@ -1024,15 +1028,9 @@ struct MessageBubble: View {
         HStack(spacing: 4) {
             StreamingIndicator()
         }
-        .padding(.vertical, 12)
-        .padding(.horizontal, 16)
-        .background(aiBubbleBackground)
-        .cornerRadius(16)
-        .frame(width: UIScreen.main.bounds.width * 0.8, alignment: .leading)
-        .overlay(
-            RoundedRectangle(cornerRadius: 16)
-                .stroke(aiBorderColor, lineWidth: 1)
-        )
+        .padding(.vertical, 8)
+        .padding(.horizontal, 0)
+        .frame(maxWidth: UIScreen.main.bounds.width * 0.85, alignment: .leading)
     }
     
     // MARK: - Message Content with Suggestions
@@ -1042,14 +1040,9 @@ struct MessageBubble: View {
             habitSuggestionContent
             taskSuggestionContent
         }
-        .padding()
-        .background(aiBubbleBackground)
-        .overlay(
-            RoundedRectangle(cornerRadius: 16)
-                .stroke(aiBorderColor, lineWidth: 1)
-        )
-        .cornerRadius(16)
-        .frame(width: UIScreen.main.bounds.width * 0.8, alignment: .leading)
+        .padding(.vertical, 4)
+        .padding(.horizontal, 0)
+        .frame(maxWidth: UIScreen.main.bounds.width * 0.85, alignment: .leading)
         .animation(.easeInOut(duration: 0.15), value: displayedText.count)
     }
     
@@ -1073,7 +1066,11 @@ struct MessageBubble: View {
     // MARK: - Habit Suggestion Content
     @ViewBuilder
     private var habitSuggestionContent: some View {
-        if let habitSuggestion = message.detectedHabitSuggestion, !isCurrentlyStreaming {
+        // Show card if habit is detected and we're not currently streaming this message
+        // Cards should appear immediately after detection completes
+        if let habitSuggestion = message.detectedHabitSuggestion {
+            // Only hide during active streaming of this specific message
+            if !isCurrentlyStreaming {
             HabitSuggestionCard(
                 habit: habitSuggestion,
                 onPushToSchedule: {
@@ -1082,13 +1079,19 @@ struct MessageBubble: View {
                 }
             )
             .padding(.top, 8)
+                .transition(.opacity.combined(with: .scale))
+            }
         }
     }
     
     // MARK: - Task Suggestion Content
     @ViewBuilder
     private var taskSuggestionContent: some View {
-        if let taskSuggestion = message.detectedTaskSuggestion, !isCurrentlyStreaming {
+        // Show card if task is detected and we're not currently streaming this message
+        // Cards should appear immediately after detection completes
+        if let taskSuggestion = message.detectedTaskSuggestion {
+            // Only hide during active streaming of this specific message
+            if !isCurrentlyStreaming {
             TaskSuggestionCard(
                 task: taskSuggestion,
                 onPushToSchedule: {
@@ -1097,6 +1100,8 @@ struct MessageBubble: View {
                 }
             )
             .padding(.top, 8)
+                .transition(.opacity.combined(with: .scale))
+            }
         }
     }
     
@@ -1106,14 +1111,15 @@ struct MessageBubble: View {
         if message.isUser {
             displayedText = message.text
         } else {
-            // While streaming, keep indicator only; after streaming, animate once
+            // While streaming, keep indicator only; after streaming, show content
             if isCurrentlyStreaming {
                 targetText = ""
                 displayedText = ""
             } else {
+                // Always set targetText to displayText (even if empty) so cards can show
                 targetText = message.displayText
                 // If not streaming, show the cleaned display text (no JSON)
-                displayedText = targetText
+                displayedText = targetText.isEmpty ? "" : targetText
             }
         }
     }
@@ -1253,12 +1259,13 @@ struct ChatModeToggle: View {
                 // Track background
                 Group {
                     if isOn {
+                        // Habit mode: brand green
                         RoundedRectangle(cornerRadius: 18)
                             .fill(Color.brandPrimary)
                     } else {
-                        // Transparent subtle background for General mode (no blur)
+                        // Task mode: system background color
                         RoundedRectangle(cornerRadius: 18)
-                            .fill(colorScheme == .dark ? Color.white.opacity(0.08) : Color.black.opacity(0.06))
+                            .fill(Color(.systemBackground))
                             .overlay(
                                 RoundedRectangle(cornerRadius: 18)
                                     .stroke(colorScheme == .dark ? Color.white.opacity(0.15) : Color.black.opacity(0.08), lineWidth: 1)
@@ -1268,16 +1275,18 @@ struct ChatModeToggle: View {
                 .overlay(
                     Group {
                         if isOn {
+                            // Habit: white text on brand green
                             Text("Habit")
                                 .font(.subheadline)
                                 .fontWeight(.bold)
-                                .foregroundColor(.black)
+                                .foregroundColor(.white)
                                 .transition(.opacity)
                         } else {
+                            // Task: adaptive text color - grey in dark mode, black in light mode
                             Text("Task")
                                 .font(.subheadline)
                                 .fontWeight(.bold)
-                                .foregroundColor(colorScheme == .dark ? .white.opacity(0.9) : .black.opacity(0.75))
+                                .foregroundColor(colorScheme == .dark ? .gray : .black)
                                 .transition(.opacity)
                         }
                     }
@@ -1380,6 +1389,14 @@ struct SheetModifiers: ViewModifier {
                     // Handle purchase success
                 })
             }
+    }
+}
+
+// MARK: - Scroll Offset Preference Key
+struct ScrollOffsetPreferenceKey: PreferenceKey {
+    static var defaultValue: CGFloat = 0
+    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
+        value = nextValue()
     }
 }
 

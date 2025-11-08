@@ -281,7 +281,7 @@ struct HabitSuggestionCard: View {
                             .font(.title3)
                     }
                     
-                    Text(isProcessing ? "Creating..." : "Push it")
+                    Text(isProcessing ? "Creating..." : "Activate")
                         .font(.headline)
                         .fontWeight(.bold)
                         .foregroundColor(.white)
@@ -290,9 +290,9 @@ struct HabitSuggestionCard: View {
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 14)
                 .background(isProcessing ? AnyView(Color.gray) : AnyView(buttonGradient))
-                .clipShape(RoundedRectangle(cornerRadius: 12))
+                .clipShape(RoundedRectangle(cornerRadius: 16))
                 .overlay(
-                    RoundedRectangle(cornerRadius: 12)
+                    RoundedRectangle(cornerRadius: 16)
                         .stroke(categoryColor.opacity(0.2), lineWidth: 1)
                 )
                 .shadow(color: categoryColor.opacity(0.3), radius: 4, x: 0, y: 2)
@@ -338,7 +338,7 @@ struct HabitSuggestionCard: View {
     }
     
     private var cardBackground: some View {
-        RoundedRectangle(cornerRadius: 16)
+        RoundedRectangle(cornerRadius: 24)
             .fill(colorScheme == .dark ? Color(.systemGray6) : Color.white)
             .shadow(
                 color: Color.black.opacity(0.1),
@@ -347,7 +347,7 @@ struct HabitSuggestionCard: View {
                 y: 2
             )
             .overlay(
-                RoundedRectangle(cornerRadius: 16)
+                RoundedRectangle(cornerRadius: 24)
                     .stroke(
                         displayCategory.color.opacity(0.3),
                         lineWidth: 1

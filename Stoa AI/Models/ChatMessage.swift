@@ -71,8 +71,28 @@ struct ChatHistory: Identifiable, Codable {
     }
     
     // Computed property for last message
+    // Shows habit/task name if the conversation ends with a suggestion, otherwise shows cleaned text
     var lastMessage: String {
-        return messages.last?.text.prefix(30).appending(messages.last?.text.count ?? 0 > 30 ? "..." : "") ?? "No messages"
+        guard let lastMsg = messages.last else {
+            return "No messages"
+        }
+        
+        // If the last message has a detected habit suggestion, show its name
+        if let habit = lastMsg.detectedHabitSuggestion {
+            return habit.name
+        }
+        
+        // If the last message has a detected task suggestion, show its name
+        if let task = lastMsg.detectedTaskSuggestion {
+            return task.name
+        }
+        
+        // Otherwise, use the cleaned/display text (without JSON) and truncate if needed
+        let displayText = lastMsg.displayText
+        if displayText.count > 30 {
+            return String(displayText.prefix(30)) + "..."
+        }
+        return displayText
     }
     
     // For JSON conversion (manual dictionary for Firestore writes)

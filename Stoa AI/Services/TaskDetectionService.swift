@@ -26,18 +26,48 @@ class TaskDetectionService {
         }
         
         do {
-            // Parse the JSON structure
-            let json = try JSONSerialization.jsonObject(with: jsonData) as? [String: Any]
+            // Parse the JSON structure - handle both array and single object
+            let jsonObject = try JSONSerialization.jsonObject(with: jsonData)
             
-            guard let json = json else {
-                print("❌ [TaskDetection] Could not parse JSON")
-                return nil
+            // Handle array of tasks - take the first one
+            if let jsonArray = jsonObject as? [[String: Any]], let firstTask = jsonArray.first {
+                print("✅ [TaskDetection] Found array of tasks, using first task")
+                return parseTaskFromJSON(json: firstTask, userId: userId)
             }
             
-            // Extract required fields
-            guard let name = json["name"] as? String,
+            // Handle single task object
+            if let json = jsonObject as? [String: Any] {
+                return parseTaskFromJSON(json: json, userId: userId)
+            }
+            
+            print("❌ [TaskDetection] JSON is neither array nor object")
+            return nil
+            
+        } catch {
+            print("❌ [TaskDetection] Could not parse JSON: \(error.localizedDescription)")
+            print("🔍 [TaskDetection] JSON preview: \(String(jsonString.prefix(500)))")
+            return nil
+        }
+    }
+    
+    /// Parses task JSON directly from a dictionary (useful for V3 responses)
+    func detectTaskSuggestion(from json: [String: Any], userId: String?) -> UserTask? {
+        print("🔍 [TaskDetection] Parsing task from dictionary...")
+        return parseTaskFromJSON(json: json, userId: userId)
+    }
+    
+    /// Internal method to parse task from JSON dictionary
+    private func parseTaskFromJSON(json: [String: Any], userId: String?) -> UserTask? {
+        do {
+            // Extract required fields - support both "name" and "task_name" fields
+            let name = json["name"] as? String ?? 
+                      json["task_name"] as? String ?? 
+                      json["taskName"] as? String
+            
+            guard let taskName = name,
                   let description = json["description"] as? String else {
-                print("❌ [TaskDetection] Missing required fields (name, description)")
+                print("❌ [TaskDetection] Missing required fields (name/task_name, description)")
+                print("🔍 [TaskDetection] Available keys: \(json.keys.joined(separator: ", "))")
                 return nil
             }
             
@@ -57,9 +87,24 @@ class TaskDetectionService {
                 let index = stepDict["index"] as? Int ?? (idx + 1)
                 let title = stepDict["title"] as? String
                 let stepDescription = stepDict["description"] as? String
-                let date = stepDict["date"] as? String // YYYY-MM-DD or null
-                let time = stepDict["time"] as? String // HH:MM or null
+                
+                // Handle NSNull values - check if value is NSNull before casting
+                let date: String? = {
+                    if stepDict["date"] is NSNull { return nil }
+                    return stepDict["date"] as? String
+                }()
+                let time: String? = {
+                    if stepDict["time"] is NSNull { return nil }
+                    return stepDict["time"] as? String
+                }()
+                
                 let isCompleted = stepDict["isCompleted"] as? Bool ?? false
+                
+                // Ensure at least title or description is present
+                guard title != nil || stepDescription != nil else {
+                    print("⚠️ [TaskDetection] Step \(index) missing both title and description, skipping")
+                    return nil
+                }
                 
                 // Parse reminders
                 var reminders: [TaskReminder] = []
@@ -69,11 +114,19 @@ class TaskDetectionService {
                               let unitString = offsetDict["unit"] as? String,
                               let unit = ReminderUnit(rawValue: unitString),
                               let value = offsetDict["value"] as? Int else {
-                        return nil
-                    }
+                            print("⚠️ [TaskDetection] Invalid reminder structure, skipping")
+                            return nil
+                        }
                         
-                        let reminderTime = reminderDict["time"] as? String
-                        let message = reminderDict["message"] as? String
+                        // Handle NSNull values from JSON
+                        let reminderTime: String? = {
+                            if reminderDict["time"] is NSNull { return nil }
+                            return reminderDict["time"] as? String
+                        }()
+                        let message: String? = {
+                            if reminderDict["message"] is NSNull { return nil }
+                            return reminderDict["message"] as? String
+                        }()
                         
                         return TaskReminder(
                             offset: ReminderOffset(unit: unit, value: value),
@@ -115,8 +168,11 @@ class TaskDetectionService {
             }
             
             // Parse createdAt (should be ISO8601 string, like habits)
+            // Also check for "createdAt" (camelCase) as fallback
             let createdAt: String?
             if let createdAtString = json["created_at"] as? String {
+                createdAt = createdAtString
+            } else if let createdAtString = json["createdAt"] as? String {
                 createdAt = createdAtString
             } else {
                 // If not provided, use current time as ISO8601 string
@@ -130,7 +186,7 @@ class TaskDetectionService {
             // startDate will be set when user pushes to calendar (like habits)
             let task = UserTask(
                 id: UUID().uuidString,
-                name: name,
+                name: taskName,
                 goal: goal,
                 category: category,
                 description: description,
@@ -143,12 +199,12 @@ class TaskDetectionService {
                 isActive: true // New tasks are active by default
             )
             
-            print("✅ [TaskDetection] Successfully detected task: \(task.name)")
+            print("✅ [TaskDetection] Successfully detected task: \(task.name) with \(taskSteps.count) steps")
             return task
             
         } catch {
             print("❌ [TaskDetection] Failed to parse task: \(error.localizedDescription)")
-            print("🔍 [TaskDetection] JSON that failed to parse: \(jsonString)")
+            print("🔍 [TaskDetection] JSON keys available: \(json.keys.joined(separator: ", "))")
             return nil
         }
     }
@@ -173,52 +229,165 @@ class TaskDetectionService {
         return nil
     }
     
-    /// Extracts JSON from code fence (```json ... ```)
+    /// Extracts JSON from code fence (```json ... ``` or ``` ... ```)
     private func extractCodeFencedJSON(from text: String) -> String? {
-        // Look for ```json ... ``` pattern
-        let pattern = "```json\\s*([\\s\\S]*?)```"
+        print("🔍 [TaskDetection] Looking for code fenced JSON...")
         
-        guard let regex = try? NSRegularExpression(pattern: pattern, options: []) else {
-            return nil
+        // Look for ```json ... ``` or ``` ... ``` pattern
+        let patterns = ["```json", "```"]
+        
+        for pattern in patterns {
+            var searchRange = text.startIndex..<text.endIndex
+            while let startRange = text.range(of: pattern, range: searchRange) {
+                print("🔍 [TaskDetection] Found opening fence: \(pattern)")
+                let afterStart = text.index(startRange.upperBound, offsetBy: 0)
+                let remainingText = String(text[afterStart...])
+                
+                // Find closing ```
+                if let endRange = remainingText.range(of: "```") {
+                    let jsonContent = String(remainingText[..<endRange.lowerBound])
+                    .trimmingCharacters(in: .whitespacesAndNewlines)
+                    
+                    print("🔍 [TaskDetection] Extracted content length: \(jsonContent.count)")
+                    
+                    // Validate it's valid JSON first
+                    if let jsonData = jsonContent.data(using: .utf8),
+                       (try? JSONSerialization.jsonObject(with: jsonData)) != nil {
+                
+                // Check if it looks like task JSON (has task markers)
+                        if jsonContent.contains("\"task_name\"") || 
+                           jsonContent.contains("\"taskName\"") ||
+                           jsonContent.contains("\"task_schedule\"") ||
+                           (jsonContent.contains("\"name\"") && jsonContent.contains("\"description\"") && 
+                            (jsonContent.contains("\"steps\"") || jsonContent.contains("\"task_schedule\""))) {
+                            print("✅ [TaskDetection] Found valid task JSON in code fence")
+                            return jsonContent
+                        } else {
+                            print("❌ [TaskDetection] Code fence content doesn't contain task markers")
+                        }
+                    } else {
+                        print("❌ [TaskDetection] Code fence content is not valid JSON")
+                    }
+                    
+                    // Move search range past this fence
+                    searchRange = text.index(endRange.upperBound, offsetBy: remainingText.distance(from: remainingText.startIndex, to: endRange.upperBound))..<text.endIndex
+                } else {
+                    print("❌ [TaskDetection] No closing fence found")
+                    break
+                }
+            }
         }
         
-        let nsString = text as NSString
-        let results = regex.matches(in: text, options: [], range: NSRange(location: 0, length: nsString.length))
-        
-        guard let match = results.first,
-              match.numberOfRanges > 1 else {
-            return nil
-        }
-        
-        let jsonRange = match.range(at: 1)
-        let jsonString = nsString.substring(with: jsonRange)
-            .trimmingCharacters(in: .whitespacesAndNewlines)
-        
-        print("✅ [TaskDetection] Found JSON in code fence")
-        return jsonString
+        return nil
     }
     
-    /// Extracts raw JSON from text
+    /// Extracts raw JSON from text - handles both arrays and objects
     private func extractRawJSON(from text: String) -> String? {
-        // Look for { ... } pattern with name, description, and steps
-        let pattern = "\\{[\\s\\S]*?\"name\"[\\s\\S]*?\"description\"[\\s\\S]*?\"steps\"[\\s\\S]*?\\}"
+        print("🔍 [TaskDetection] Looking for raw JSON...")
         
-        guard let regex = try? NSRegularExpression(pattern: pattern, options: []) else {
+        // Check if text contains task markers (more comprehensive)
+        let hasTaskMarkers = text.contains("\"task_name\"") || 
+                            text.contains("\"taskName\"") ||
+                            text.contains("\"task_schedule\"") ||
+                            (text.contains("\"name\"") && text.contains("\"description\"") && 
+                             (text.contains("\"steps\"") || text.contains("\"task_schedule\"")))
+        
+        guard hasTaskMarkers else {
+            print("❌ [TaskDetection] No task markers found in text")
             return nil
         }
         
-        let nsString = text as NSString
-        let results = regex.matches(in: text, options: [], range: NSRange(location: 0, length: nsString.length))
+        // Find all potential JSON starts
+        var candidates: [String.Index] = []
         
-        guard let match = results.first else {
-            return nil
+        // Priority markers for tasks
+        let markers = ["\"task_schedule\"", "\"task_name\"", "\"taskName\"", "\"name\""]
+        
+        for marker in markers {
+            if let range = text.range(of: marker) {
+                // Find the opening brace or bracket before this marker
+                let beforeMarker = String(text[..<range.lowerBound])
+                if let openBrace = beforeMarker.lastIndex(where: { $0 == "{" || $0 == "[" }) {
+                    if !candidates.contains(openBrace) {
+                        candidates.append(openBrace)
+                    }
+                }
+            }
         }
         
-        let jsonString = nsString.substring(with: match.range)
-            .trimmingCharacters(in: .whitespacesAndNewlines)
+        // Also try finding the first { or [ if no markers found specific positions
+        if candidates.isEmpty {
+            if let firstOpen = text.firstIndex(where: { $0 == "{" || $0 == "[" }) {
+                candidates.append(firstOpen)
+            }
+        }
         
-        print("✅ [TaskDetection] Found raw JSON")
-        return jsonString
+        // Try each candidate
+        for firstOpen in candidates {
+            // Find matching closing brace/bracket with proper string handling
+        var depth = 0
+            var inString = false
+            var escapeNext = false
+        var endIndex: String.Index?
+        
+        for index in text.indices[firstOpen...] {
+            let char = text[index]
+            
+                if escapeNext {
+                    escapeNext = false
+                    continue
+                }
+                
+                if char == "\\" {
+                    escapeNext = true
+                    continue
+                }
+                
+                if char == "\"" && !escapeNext {
+                    inString.toggle()
+                    continue
+                }
+                
+                if !inString {
+            if char == "{" {
+                depth += 1
+            } else if char == "}" {
+                depth -= 1
+                if depth == 0 {
+                    endIndex = text.index(after: index)
+                    break
+                }
+            } else if char == "[" {
+                depth += 1
+            } else if char == "]" {
+                depth -= 1
+                if depth == 0 {
+                    endIndex = text.index(after: index)
+                    break
+                        }
+                }
+            }
+        }
+        
+        guard let endIdx = endIndex else {
+                continue
+        }
+        
+        let jsonCandidate = String(text[firstOpen..<endIdx])
+                .trimmingCharacters(in: .whitespacesAndNewlines)
+        
+        // Validate it's valid JSON and contains task markers
+        if let data = jsonCandidate.data(using: .utf8),
+           (try? JSONSerialization.jsonObject(with: data)) != nil {
+            print("✅ [TaskDetection] Found raw JSON")
+            return jsonCandidate
+            } else {
+                print("⚠️ [TaskDetection] Extracted string is not valid JSON, trying next candidate")
+            }
+        }
+        
+        print("❌ [TaskDetection] No valid JSON found in text")
+        return nil
     }
     
     /// Removes task JSON and any flags from text for clean display
@@ -237,19 +406,87 @@ class TaskDetectionService {
             options: [.caseInsensitive]
         )
         
-        // Step 2: Remove code-fenced JSON
-        cleanedText = cleanedText.replacingOccurrences(
-            of: "```json[\\s\\S]*?```",
-            with: "",
-            options: .regularExpression
-        )
+        // Step 2: Remove code-fenced JSON (keep text before and after)
+        // Find the first opening fence
+        if let codeStart = cleanedText.range(of: "```") {
+            // Find the closing fence after the opening one
+            let afterStart = cleanedText.index(codeStart.upperBound, offsetBy: 0)
+            let remainingText = String(cleanedText[afterStart...])
+            
+            if let codeEnd = remainingText.range(of: "```") {
+                // We have both opening and closing fences
+                let beforeCode = String(cleanedText[..<codeStart.lowerBound])
+                let afterCode = String(remainingText[codeEnd.upperBound...])
+                
+                // Combine text before and after the code fence
+                let combined = (beforeCode + afterCode).trimmingCharacters(in: .whitespacesAndNewlines)
+                cleanedText = combined
+            } else {
+                // No closing fence found, just remove from opening fence onwards
+                let beforeCode = String(cleanedText[..<codeStart.lowerBound])
+                cleanedText = beforeCode.trimmingCharacters(in: .whitespacesAndNewlines)
+            }
+        }
         
-        // Step 3: Remove raw JSON (both new and legacy structures)
-        cleanedText = cleanedText.replacingOccurrences(
-            of: "\\{[\\s\\S]*?\"name\"[\\s\\S]*?\"description\"[\\s\\S]*?(\"task_schedule\"|\"steps\")[\\s\\S]*?\\}",
-            with: "",
-            options: .regularExpression
-        )
+        // Step 3: Remove raw JSON (both new and legacy structures) - only if no code fence was found
+        // This handles cases where JSON is embedded without code fences
+        if cleanedText.contains("\"task_name\"") || 
+           cleanedText.contains("\"taskName\"") ||
+           cleanedText.contains("\"task_schedule\"") ||
+           (cleanedText.contains("\"name\"") && cleanedText.contains("\"description\"") && 
+            (cleanedText.contains("\"steps\"") || cleanedText.contains("\"task_schedule\""))) {
+            // Find the first opening brace that starts a JSON object
+            if let jsonStart = cleanedText.range(of: "{") {
+                // Try to find the matching closing brace
+                var braceCount = 0
+                var inString = false
+                var escapeNext = false
+                var jsonEnd: String.Index?
+                
+                for index in cleanedText.indices[jsonStart.lowerBound...] {
+                    let char = cleanedText[index]
+                    
+                    if escapeNext {
+                        escapeNext = false
+                        continue
+                    }
+                    
+                    if char == "\\" {
+                        escapeNext = true
+                        continue
+                    }
+                    
+                    if char == "\"" && !escapeNext {
+                        inString.toggle()
+                        continue
+                    }
+                    
+                    if !inString {
+                        if char == "{" {
+                            braceCount += 1
+                        } else if char == "}" {
+                            braceCount -= 1
+                            if braceCount == 0 {
+                                jsonEnd = cleanedText.index(after: index)
+                                break
+                            }
+                        }
+                    }
+                }
+                
+                if let jsonEnd = jsonEnd {
+                    // Remove the JSON object but keep text before and after
+                    let beforeJson = String(cleanedText[..<jsonStart.lowerBound])
+                    let afterJson = String(cleanedText[jsonEnd...])
+                    let combined = (beforeJson + afterJson).trimmingCharacters(in: .whitespacesAndNewlines)
+                    cleanedText = combined
+                } else {
+                    // No matching closing brace, just remove from opening brace
+                    let beforeJson = String(cleanedText[..<jsonStart.lowerBound])
+                    cleanedText = beforeJson.trimmingCharacters(in: .whitespacesAndNewlines)
+                }
+            }
+        }
         
         // Step 4: Clean up extra whitespace
         cleanedText = cleanedText

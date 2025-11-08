@@ -20,6 +20,57 @@ class HabitDetectionService {
         return detectLegacyHabit(in: text, messageId: messageId, userId: userId)
     }
     
+    /// Parses habit JSON directly from a dictionary (useful for V3 responses)
+    func detectHabitSuggestion(from json: [String: Any], messageId: String, userId: String?) -> ComprehensiveHabit? {
+        print("🔍 [HabitDetection] Parsing habit from dictionary...")
+        
+        // Validate that the dictionary can be serialized to JSON
+        guard (try? JSONSerialization.data(withJSONObject: json)) != nil else {
+            print("❌ [HabitDetection] Could not convert dictionary to JSON data")
+            return nil
+        }
+        
+        // Add id field if missing
+        var jsonDict = json
+        if jsonDict["id"] == nil {
+            jsonDict["id"] = UUID().uuidString
+            print("🔍 [HabitDetection] Added missing 'id' field to JSON")
+        }
+        
+        // Re-encode with id
+        guard let updatedJsonData = try? JSONSerialization.data(withJSONObject: jsonDict) else {
+            print("❌ [HabitDetection] Could not re-encode JSON with id")
+            return nil
+        }
+        
+        // Try to decode as comprehensive habit
+        do {
+            let decoder = JSONDecoder()
+            let comprehensiveHabit = try decoder.decode(ComprehensiveHabit.self, from: updatedJsonData)
+            print("✅ [HabitDetection] Successfully parsed habit from dictionary: \(comprehensiveHabit.name)")
+            return comprehensiveHabit
+        } catch {
+            print("❌ [HabitDetection] Failed to parse habit from dictionary: \(error.localizedDescription)")
+            // Fallback to legacy parsing
+            return parseLegacyHabitFromDictionary(jsonDict, messageId: messageId, userId: userId)
+        }
+    }
+    
+    /// Helper to parse legacy habit format from dictionary
+    private func parseLegacyHabitFromDictionary(_ habitData: [String: Any], messageId: String, userId: String?) -> ComprehensiveHabit? {
+        // This is similar to detectLegacyHabit but works with a dictionary directly
+        // For now, convert dictionary to JSON string and use text-based detection
+        // This ensures consistency with the main detection flow
+        guard let jsonData = try? JSONSerialization.data(withJSONObject: habitData),
+              let jsonString = String(data: jsonData, encoding: .utf8) else {
+            print("❌ [HabitDetection] Could not convert dictionary to JSON string")
+            return nil
+        }
+        
+        // Use the text-based detection method which has full implementation
+        return detectLegacyHabit(in: jsonString, messageId: messageId, userId: userId)
+    }
+    
     /// Detects new comprehensive habit format
     private func detectComprehensiveHabit(in text: String, messageId: String, userId: String?) -> ComprehensiveHabit? {
         print("🔍 [HabitDetection] Looking for comprehensive habit format...")
@@ -41,37 +92,54 @@ class HabitDetectionService {
         
         do {
             // First try to parse as dictionary to validate structure
-            let jsonObject = try JSONSerialization.jsonObject(with: jsonData) as? [String: Any]
-            
-            // Check if it has the required structure for comprehensive habit
-            guard jsonObject != nil,
-                  jsonObject?["name"] != nil,
-                  jsonObject?["low_level_schedule"] != nil else {
-                print("❌ [HabitDetection] JSON missing required comprehensive habit fields")
+            guard var jsonDict = try JSONSerialization.jsonObject(with: jsonData) as? [String: Any] else {
+                print("❌ [HabitDetection] JSON is not a dictionary")
                 return nil
             }
             
-            // Parse the comprehensive habit structure using JSONDecoder
-            let decoder = JSONDecoder()
-            let comprehensiveHabit = try decoder.decode(ComprehensiveHabit.self, from: jsonData)
+            // Check if it has basic required fields (name or habitName, description)
+            let hasName = jsonDict["name"] != nil || jsonDict["habitName"] != nil
+            let hasDescription = jsonDict["description"] != nil
             
-            print("✅ [HabitDetection] Successfully detected comprehensive habit: \(comprehensiveHabit.name)")
-            return comprehensiveHabit
+            guard hasName && hasDescription else {
+                print("❌ [HabitDetection] JSON missing basic required fields (name/habitName, description)")
+                return nil
+            }
+            
+            // If it has low_level_schedule, try to parse as comprehensive format
+            // Otherwise, fall through to legacy format which will handle it
+            if jsonDict["low_level_schedule"] != nil {
+                // Add id field if missing (backend-generated JSON doesn't include it)
+                if jsonDict["id"] == nil {
+                    jsonDict["id"] = UUID().uuidString
+                    print("🔍 [HabitDetection] Added missing 'id' field to JSON")
+                }
+                
+                // Re-encode with id field
+                let updatedJsonData = try JSONSerialization.data(withJSONObject: jsonDict)
+                
+                // Parse the comprehensive habit structure using JSONDecoder
+                let decoder = JSONDecoder()
+                let comprehensiveHabit = try decoder.decode(ComprehensiveHabit.self, from: updatedJsonData)
+                
+                print("✅ [HabitDetection] Successfully detected comprehensive habit: \(comprehensiveHabit.name)")
+                return comprehensiveHabit
+            } else {
+                // No low_level_schedule, will be handled by legacy format
+                print("🔍 [HabitDetection] No low_level_schedule found, will use legacy format")
+                return nil
+            }
             
         } catch let DecodingError.keyNotFound(key, context) {
             print("❌ [HabitDetection] Missing key '\(key.stringValue)' in path: \(context.codingPath)")
-            print("🔍 [HabitDetection] JSON that failed to parse: \(String(jsonString.prefix(500)))")
             // Fall through to legacy parsing
             return nil
         } catch let DecodingError.typeMismatch(type, context) {
-            print("❌ [HabitDetection] Type mismatch for '\(context.codingPath)': expected \(type), got \(context.debugDescription)")
-            print("🔍 [HabitDetection] JSON that failed to parse: \(String(jsonString.prefix(500)))")
+            print("❌ [HabitDetection] Type mismatch for '\(context.codingPath)': expected \(type)")
             // Fall through to legacy parsing
             return nil
         } catch {
             print("❌ [HabitDetection] Failed to parse comprehensive habit: \(error.localizedDescription)")
-            print("🔍 [HabitDetection] Error details: \(error)")
-            print("🔍 [HabitDetection] JSON that failed to parse: \(String(jsonString.prefix(500)))")
             // Fall through to legacy parsing
             return nil
         }
@@ -101,8 +169,8 @@ class HabitDetectionService {
             
             // Check if it's the new format (direct habit JSON) or legacy format (with ai_habit_suggestion wrapper)
             let habitData: [String: Any]
-            if let directHabit = json, directHabit["name"] != nil {
-                // New format - direct habit JSON
+            if let directHabit = json, (directHabit["name"] != nil || directHabit["habitName"] != nil) {
+                // New format - direct habit JSON (supports both "name" and "habitName")
                 habitData = directHabit
                 print("✅ [HabitDetection] Detected new format (direct habit JSON)")
             } else if let wrappedHabit = json?["ai_habit_suggestion"] as? [String: Any] {
@@ -114,23 +182,54 @@ class HabitDetectionService {
                 return nil
             }
             
-            // Extract required fields (handle both new and legacy formats)
-            let title = habitData["name"] as? String ?? habitData["title"] as? String ?? "New Habit"
-            guard let description = habitData["description"] as? String,
-                  let categoryString = habitData["category"] as? String else {
-                print("❌ [HabitDetection] Missing required fields in habit suggestion")
+            // Extract required fields (handle both new and legacy formats, including "habitName" variant)
+            let title = habitData["name"] as? String ?? 
+                       habitData["habitName"] as? String ?? 
+                       habitData["title"] as? String ?? 
+                       "New Habit"
+            guard let description = habitData["description"] as? String else {
+                print("❌ [HabitDetection] Missing required 'description' field in habit suggestion")
                 return nil
             }
+            // Category is optional for legacy formats, default to "general"
+            let categoryString = habitData["category"] as? String ?? "general"
             
-            // Extract difficulty from data, default to "beginner" if not present
-            let difficulty = habitData["difficulty"] as? String ?? "beginner"
-            // Validate difficulty is one of the allowed values
-            let validDifficulty = ["beginner", "intermediate", "advanced"].contains(difficulty.lowercased()) 
-                ? difficulty.lowercased() 
+            // Extract difficulty from data - handle both string and numeric values
+            // Numeric scale: 1-2 = beginner, 3-4 = intermediate, 5 = advanced
+            let validDifficulty: String
+            if let difficultyNum = habitData["difficulty"] as? Int {
+                // Map numeric difficulty (1-5 scale) to string
+                switch difficultyNum {
+                case 1, 2:
+                    validDifficulty = "beginner"
+                case 3, 4:
+                    validDifficulty = "intermediate"
+                case 5:
+                    validDifficulty = "advanced"
+                default:
+                    validDifficulty = "beginner"
+                }
+                print("🔍 [HabitDetection] Converted numeric difficulty \(difficultyNum) to \(validDifficulty)")
+            } else if let difficultyStr = habitData["difficulty"] as? String {
+                // Validate string difficulty is one of the allowed values
+                validDifficulty = ["beginner", "intermediate", "advanced"].contains(difficultyStr.lowercased()) 
+                    ? difficultyStr.lowercased() 
                 : "beginner"
+            } else {
+                validDifficulty = "beginner"
+            }
             
             // Create comprehensive habit from legacy data
-            let goal = habitData["goal"] as? String ?? description
+            // Use goal if available, otherwise use description, or try to extract from schedule info
+            let goal: String
+            if let goalStr = habitData["goal"] as? String, !goalStr.isEmpty {
+                goal = goalStr
+            } else if let scheduleStr = habitData["schedule"] as? String, !scheduleStr.isEmpty {
+                // If no goal but schedule exists, use description with schedule info
+                goal = "\(description) - \(scheduleStr)"
+            } else {
+                goal = description
+            }
             
             // Try to parse high_level_schedule from JSON if it exists
             let highLevelSchedule: HabitHighLevelSchedule
@@ -381,29 +480,52 @@ class HabitDetectionService {
         print("🔍 [HabitDetection] Looking for code fenced JSON...")
         
         // Find ```json or ``` followed by JSON
+        // Try more specific patterns first, then fall back to generic
         let patterns = ["```json", "```"]
         
         for pattern in patterns {
-            if let startRange = text.range(of: pattern) {
+            // Find all occurrences of the pattern
+            var searchRange = text.startIndex..<text.endIndex
+            while let startRange = text.range(of: pattern, range: searchRange) {
                 print("🔍 [HabitDetection] Found opening fence: \(pattern)")
                 let afterStart = text.index(startRange.upperBound, offsetBy: 0)
                 let remainingText = String(text[afterStart...])
                 
-                // Find closing ```
+                // Find closing ``` - look for the first one after the opening
                 if let endRange = remainingText.range(of: "```") {
                     let jsonContent = String(remainingText[..<endRange.lowerBound])
+                        .trimmingCharacters(in: .whitespacesAndNewlines)
+                    
                     print("🔍 [HabitDetection] Extracted content length: \(jsonContent.count)")
                     
+                    // Validate it's valid JSON first
+                    if let jsonData = jsonContent.data(using: .utf8),
+                       (try? JSONSerialization.jsonObject(with: jsonData)) != nil {
+                    
                     // Check if it contains our habit suggestion (new format) or legacy format
-                    if jsonContent.contains("ai_habit_suggestion") || jsonContent.contains("\"name\":") {
+                    // Support both "name" and "habitName" fields
+                    if jsonContent.contains("ai_habit_suggestion") || 
+                       jsonContent.contains("\"name\":") || 
+                       jsonContent.contains("\"habitName\":") ||
+                           jsonContent.contains("\"low_level_schedule\"") ||
+                           jsonContent.contains("\"high_level_schedule\"") ||
+                           jsonContent.contains("\"milestones\"") ||
+                       (jsonContent.contains("\"description\":") && (jsonContent.contains("\"goal\":") || jsonContent.contains("\"category\":"))) {
                         print("✅ [HabitDetection] Found valid habit JSON in code fence")
-                        return jsonContent.trimmingCharacters(in: .whitespacesAndNewlines)
+                            return jsonContent
                     } else {
                         print("❌ [HabitDetection] Code fence content doesn't contain habit markers")
                         print("🔍 [HabitDetection] Content preview: \(String(jsonContent.prefix(100)))")
                     }
+                    } else {
+                        print("❌ [HabitDetection] Code fence content is not valid JSON")
+                    }
+                    
+                    // Move search range past this fence to look for more
+                    searchRange = text.index(endRange.upperBound, offsetBy: remainingText.distance(from: remainingText.startIndex, to: endRange.upperBound))..<text.endIndex
                 } else {
                     print("❌ [HabitDetection] No closing fence found")
+                    break
                 }
             }
         }
@@ -414,53 +536,111 @@ class HabitDetectionService {
     private func extractRawJSON(_ text: String) -> String? {
         print("🔍 [HabitDetection] Looking for raw JSON...")
         
-        // Look for { followed by ai_habit_suggestion (legacy) or "name": (new format)
-        guard text.contains("ai_habit_suggestion") || text.contains("\"name\":") else { 
+        // Look for habit markers (more comprehensive)
+        let hasHabitMarkers = text.contains("ai_habit_suggestion") || 
+              text.contains("\"name\":") || 
+              text.contains("\"habitName\":") ||
+                              text.contains("\"low_level_schedule\"") ||
+                              text.contains("\"high_level_schedule\"") ||
+                              text.contains("\"milestones\"") ||
+                              (text.contains("\"description\":") && (text.contains("\"goal\":") || text.contains("\"category\":")))
+        
+        guard hasHabitMarkers else { 
             print("❌ [HabitDetection] No habit markers found in text")
             return nil 
         }
         
-        // Find the first { before the habit key
-        let habitKey = text.contains("ai_habit_suggestion") ? "ai_habit_suggestion" : "\"name\":"
-        guard let habitRange = text.range(of: habitKey) else { 
-            print("❌ [HabitDetection] Habit key not found: \(habitKey)")
-            return nil 
-        }
-        let beforeHabit = String(text[..<habitRange.lowerBound])
+        // Find all potential JSON object starts (opening braces)
+        var candidates: [(start: String.Index, priority: Int)] = []
         
-        // Find the last { in the text before the habit key
-        guard let openBrace = beforeHabit.lastIndex(of: "{") else { 
-            print("❌ [HabitDetection] No opening brace found before habit key")
-            return nil 
+        // Priority order: ai_habit_suggestion > low_level_schedule > high_level_schedule > milestones > name > habitName > description
+        let markers = [
+            ("ai_habit_suggestion", 1),
+            ("\"low_level_schedule\"", 2),
+            ("\"high_level_schedule\"", 3),
+            ("\"milestones\"", 4),
+            ("\"name\":", 5),
+            ("\"habitName\":", 6),
+            ("\"description\":", 7)
+        ]
+        
+        for (marker, priority) in markers {
+            if let range = text.range(of: marker) {
+                // Find the opening brace before this marker
+                let beforeMarker = String(text[..<range.lowerBound])
+                if let openBrace = beforeMarker.lastIndex(of: "{") {
+                    candidates.append((openBrace, priority))
+                }
+            }
         }
         
-        // Now find the matching closing brace
+        // Sort by priority (lower is better) and position (earlier is better)
+        candidates.sort { first, second in
+            if first.priority != second.priority {
+                return first.priority < second.priority
+            }
+            return first.start < second.start
+        }
+        
+        // Try each candidate until we find valid JSON
+        for (openBrace, _) in candidates {
+            // Extract from this brace to the end (we'll find the matching closing brace)
         let fromBrace = text.index(openBrace, offsetBy: 0)
         let afterBrace = String(text[fromBrace...])
         
-        // Simple brace counting
+            // Count braces to find matching closing brace
         var braceCount = 0
+            var inString = false
+            var escapeNext = false
         var endIndex: String.Index?
         
         for (index, char) in afterBrace.enumerated() {
+                let currentIndex = afterBrace.index(afterBrace.startIndex, offsetBy: index)
+                
+                if escapeNext {
+                    escapeNext = false
+                    continue
+                }
+                
+                if char == "\\" {
+                    escapeNext = true
+                    continue
+                }
+                
+                if char == "\"" && !escapeNext {
+                    inString.toggle()
+                    continue
+                }
+                
+                if !inString {
             if char == "{" {
                 braceCount += 1
             } else if char == "}" {
                 braceCount -= 1
                 if braceCount == 0 {
-                    endIndex = afterBrace.index(afterBrace.startIndex, offsetBy: index)
+                            endIndex = afterBrace.index(after: currentIndex)
                     break
+                        }
                 }
             }
         }
         
         if let endIndex = endIndex {
-            let jsonString = String(afterBrace[..<afterBrace.index(after: endIndex)])
+                let jsonString = String(afterBrace[..<endIndex])
+                    .trimmingCharacters(in: .whitespacesAndNewlines)
+                
+                // Validate it's valid JSON
+                if let jsonData = jsonString.data(using: .utf8),
+                   (try? JSONSerialization.jsonObject(with: jsonData)) != nil {
             print("✅ [HabitDetection] Extracted raw JSON of length: \(jsonString.count)")
             return jsonString
+                } else {
+                    print("⚠️ [HabitDetection] Extracted string is not valid JSON, trying next candidate")
+                }
+            }
         }
         
-        print("❌ [HabitDetection] No matching closing brace found")
+        print("❌ [HabitDetection] No valid JSON found in text")
         return nil
     }
 
@@ -628,18 +808,84 @@ class HabitDetectionService {
             options: [.caseInsensitive]
         )
         
-        // Step 2: Remove code fenced JSON
+        // Step 2: Remove code fenced JSON (keep text before and after)
+        // Find the first opening fence
         if let codeStart = cleaned.range(of: "```") {
-            let beforeCode = String(cleaned[..<codeStart.lowerBound])
-            cleaned = beforeCode.trimmingCharacters(in: .whitespacesAndNewlines)
+            // Find the closing fence after the opening one
+            let afterStart = cleaned.index(codeStart.upperBound, offsetBy: 0)
+            let remainingText = String(cleaned[afterStart...])
+            
+            if let codeEnd = remainingText.range(of: "```") {
+                // We have both opening and closing fences
+                let beforeCode = String(cleaned[..<codeStart.lowerBound])
+                let afterCode = String(remainingText[codeEnd.upperBound...])
+                
+                // Combine text before and after the code fence
+                let combined = (beforeCode + afterCode).trimmingCharacters(in: .whitespacesAndNewlines)
+                cleaned = combined
+            } else {
+                // No closing fence found, just remove from opening fence onwards
+                let beforeCode = String(cleaned[..<codeStart.lowerBound])
+                cleaned = beforeCode.trimmingCharacters(in: .whitespacesAndNewlines)
+            }
         }
         
-        // Step 3: Remove raw JSON (look for JSON object start)
-        if cleaned.contains("ai_habit_suggestion") || cleaned.contains("\"name\":") {
-            // Find all JSON objects and remove them
+        // Step 3: Remove raw JSON (look for JSON object start) - only if no code fence was found
+        // This handles cases where JSON is embedded without code fences
+        if cleaned.contains("ai_habit_suggestion") || 
+           cleaned.contains("\"name\":") || 
+           cleaned.contains("\"habitName\":") ||
+           (cleaned.contains("\"description\":") && (cleaned.contains("\"goal\":") || cleaned.contains("\"category\":"))) {
+            // Find the first opening brace that starts a JSON object
             if let jsonStart = cleaned.range(of: "{") {
-                let beforeJson = String(cleaned[..<jsonStart.lowerBound])
-                cleaned = beforeJson.trimmingCharacters(in: .whitespacesAndNewlines)
+                // Try to find the matching closing brace
+                var braceCount = 0
+                var inString = false
+                var escapeNext = false
+                var jsonEnd: String.Index?
+                
+                for index in cleaned.indices[jsonStart.lowerBound...] {
+                    let char = cleaned[index]
+                    
+                    if escapeNext {
+                        escapeNext = false
+                        continue
+                    }
+                    
+                    if char == "\\" {
+                        escapeNext = true
+                        continue
+                    }
+                    
+                    if char == "\"" && !escapeNext {
+                        inString.toggle()
+                        continue
+                    }
+                    
+                    if !inString {
+                        if char == "{" {
+                            braceCount += 1
+                        } else if char == "}" {
+                            braceCount -= 1
+                            if braceCount == 0 {
+                                jsonEnd = cleaned.index(after: index)
+                                break
+                            }
+                        }
+                    }
+                }
+                
+                if let jsonEnd = jsonEnd {
+                    // Remove the JSON object but keep text before and after
+                    let beforeJson = String(cleaned[..<jsonStart.lowerBound])
+                    let afterJson = String(cleaned[jsonEnd...])
+                    let combined = (beforeJson + afterJson).trimmingCharacters(in: .whitespacesAndNewlines)
+                    cleaned = combined
+                } else {
+                    // No matching closing brace, just remove from opening brace
+                    let beforeJson = String(cleaned[..<jsonStart.lowerBound])
+                    cleaned = beforeJson.trimmingCharacters(in: .whitespacesAndNewlines)
+                }
             }
         }
         

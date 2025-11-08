@@ -280,6 +280,50 @@ protocol StreamingResponseDelegate: AnyObject {
         return try await sendMessageWithStreaming(message: message, conversationId: conversationId, enableStreaming: false)
     }
     
+    // MARK: - Send Message with V3 (LangChain) Support
+    func sendMessageV3(message: String, conversationId: String? = nil, enableStreaming: Bool = false, chatMode: String = "task", useFunctionCalling: Bool = false) async throws -> [String: Any] {
+        // Debug log
+        print("🌩️ Sending message via V3 (LangChain) (streaming: \(enableStreaming)): \(message)")
+        
+        // Check authentication
+        guard let user = Auth.auth().currentUser else {
+            print("🌩️ No authenticated user found")
+            throw CloudFunctionError.notAuthenticated
+        }
+        
+        // Debug: Log auth token and user info
+        print("🌩️ User ID: \(user.uid)")
+        
+        // Get auth token
+        let tokenResult = try await user.getIDTokenResult()
+        print("🌩️ User has valid token: \(tokenResult.token.prefix(10))...")
+        
+        // Prepare request data
+        var requestData: [String: Any] = [
+            "message": message,
+            "stream": enableStreaming,
+            "chatMode": chatMode,
+            "useFunctionCalling": useFunctionCalling
+        ]
+        
+        // Add conversation ID if provided
+        if let conversationId = conversationId {
+            requestData["conversationId"] = conversationId
+            print("🌩️ Using conversation ID: \(conversationId)")
+        }
+        
+        print("🌩️ Chat mode: \(chatMode), Function calling: \(useFunctionCalling)")
+        
+        // Debug: Log request data
+        print("🌩️ Request data: \(requestData)")
+        
+        if enableStreaming {
+            return try await performStreamingRequestV3(requestData: requestData, authToken: tokenResult.token)
+        } else {
+            return try await performRegularRequestV3(requestData: requestData, authToken: tokenResult.token)
+        }
+    }
+    
     // MARK: - Send Message with Streaming Support
     func sendMessageWithStreaming(message: String, conversationId: String? = nil, enableStreaming: Bool = false, chatMode: String = "task") async throws -> [String: Any] {
         // Debug log
@@ -320,6 +364,129 @@ protocol StreamingResponseDelegate: AnyObject {
             return try await performStreamingRequest(requestData: requestData, authToken: tokenResult.token)
         } else {
             return try await performRegularRequest(requestData: requestData, authToken: tokenResult.token)
+        }
+    }
+    
+    // MARK: - Regular HTTP Request V3
+    private func performRegularRequestV3(requestData: [String: Any], authToken: String) async throws -> [String: Any] {
+        let url = URL(string: "https://us-central1-\(getProjectId()).cloudfunctions.net/processChatMessageV3")!
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.setValue("Bearer \(authToken)", forHTTPHeaderField: "Authorization")
+        
+        do {
+            request.httpBody = try JSONSerialization.data(withJSONObject: requestData)
+        } catch {
+            print("🌩️ Failed to serialize request data")
+            throw CloudFunctionError.parseError
+        }
+        
+        do {
+            let (data, response) = try await URLSession.shared.data(for: request)
+            
+            guard let httpResponse = response as? HTTPURLResponse else {
+                throw CloudFunctionError.networkError(NSError(domain: "InvalidResponse", code: 0))
+            }
+            
+            print("🌩️ V3 Response status code: \(httpResponse.statusCode)")
+            
+            if httpResponse.statusCode == 429 {
+                // Handle rate limiting
+                if let errorData = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+                   let errorMessage = errorData["error"] as? String {
+                    throw CloudFunctionError.rateLimitExceeded(message: errorMessage)
+                } else {
+                    throw CloudFunctionError.rateLimitExceeded(message: "Rate limit exceeded")
+                }
+            }
+            
+            guard httpResponse.statusCode == 200 else {
+                if let errorData = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+                   let errorMessage = errorData["error"] as? String {
+                    throw CloudFunctionError.serverError(errorMessage)
+                } else {
+                    throw CloudFunctionError.serverError("HTTP \(httpResponse.statusCode)")
+                }
+            }
+            
+            guard let responseData = try JSONSerialization.jsonObject(with: data) as? [String: Any] else {
+                print("🌩️ Failed to parse V3 response")
+                throw CloudFunctionError.parseError
+            }
+            
+            print("🌩️ Successfully received V3 response: \(responseData)")
+            
+            // V3 response format: { response, conversationId, intent, confidence, json, needsClarification }
+            // Map to expected format for compatibility
+            var mappedResponse: [String: Any] = responseData
+            
+            // If there's a 'response' field, also add it as 'message' for backward compatibility
+            if let responseText = responseData["response"] as? String {
+                mappedResponse["message"] = responseText
+            }
+            
+            return mappedResponse
+            
+        } catch {
+            print("🌩️ Network error: \(error.localizedDescription)")
+            throw CloudFunctionError.networkError(error)
+        }
+    }
+    
+    // MARK: - Streaming HTTP Request V3
+    private func performStreamingRequestV3(requestData: [String: Any], authToken: String) async throws -> [String: Any] {
+        let url = URL(string: "https://us-central1-\(getProjectId()).cloudfunctions.net/processChatMessageV3")!
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.setValue("Bearer \(authToken)", forHTTPHeaderField: "Authorization")
+        
+        do {
+            request.httpBody = try JSONSerialization.data(withJSONObject: requestData)
+        } catch {
+            print("🌩️ Failed to serialize request data")
+            throw CloudFunctionError.parseError
+        }
+        
+        return try await withCheckedThrowingContinuation { continuation in
+            let task = URLSession.shared.dataTask(with: request) { [weak self] data, response, error in
+                if let error = error {
+                    print("🌩️ V3 Streaming request failed: \(error.localizedDescription)")
+                    continuation.resume(throwing: CloudFunctionError.networkError(error))
+                    return
+                }
+                
+                guard let httpResponse = response as? HTTPURLResponse else {
+                    continuation.resume(throwing: CloudFunctionError.networkError(NSError(domain: "InvalidResponse", code: 0)))
+                    return
+                }
+                
+                print("🌩️ V3 Streaming response status code: \(httpResponse.statusCode)")
+                
+                if httpResponse.statusCode == 429 {
+                    continuation.resume(throwing: CloudFunctionError.rateLimitExceeded(message: "Rate limit exceeded"))
+                    return
+                }
+                
+                guard httpResponse.statusCode == 200 else {
+                    continuation.resume(throwing: CloudFunctionError.serverError("HTTP \(httpResponse.statusCode)"))
+                    return
+                }
+                
+                guard let data = data else {
+                    continuation.resume(throwing: CloudFunctionError.parseError)
+                    return
+                }
+                
+                // Process streaming data (same format as V2)
+                self?.processStreamingData(data, continuation: continuation)
+            }
+            
+            currentStreamingTask = task
+            task.resume()
         }
     }
     

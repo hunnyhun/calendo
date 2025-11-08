@@ -186,7 +186,7 @@ struct TaskSuggestionCard: View {
                             .font(.title3)
                     }
                     
-                    Text(isProcessing ? "Creating..." : "Push it")
+                    Text(isProcessing ? "Creating..." : "Activate")
                         .font(.headline)
                         .fontWeight(.bold)
                         .foregroundColor(.white)

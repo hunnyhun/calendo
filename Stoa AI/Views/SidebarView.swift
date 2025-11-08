@@ -10,6 +10,7 @@ struct SidebarView: View {
     @State private var showPaywall = false
     @State private var showAccountMenu = false
     @State private var showSubscriptionSuccessAlert = false
+    @Environment(\.colorScheme) private var colorScheme
     
     // MARK: - Body
     var body: some View {
@@ -137,8 +138,8 @@ struct SidebarView: View {
                                         .stroke(
                                             LinearGradient(
                                                 gradient: Gradient(colors: [
-                                                    userStatusManager.state.isPremium ? Color.brandPremium : Color.blue.opacity(0.6),
-                                                    userStatusManager.state.isPremium ? Color.brandPremium.opacity(0.8) : Color.blue.opacity(0.4)
+                                                    colorScheme == .dark ? Color.white.opacity(0.6) : Color.brandBlue.opacity(0.6),
+                                                    colorScheme == .dark ? Color.white.opacity(0.4) : Color.brandBlue.opacity(0.4)
                                                 ]),
                                                 startPoint: .topLeading,
                                                 endPoint: .bottomTrailing
@@ -152,8 +153,8 @@ struct SidebarView: View {
                                         .fill(
                                             LinearGradient(
                                                 gradient: Gradient(colors: [
-                                                    userStatusManager.state.isPremium ? Color.brandPremium.opacity(0.2) : Color.blue.opacity(0.2),
-                                                    userStatusManager.state.isPremium ? Color.brandPremium.opacity(0.1) : Color.blue.opacity(0.1)
+                                                    colorScheme == .dark ? Color.white.opacity(0.2) : Color.brandBlue.opacity(0.2),
+                                                    colorScheme == .dark ? Color.white.opacity(0.1) : Color.brandBlue.opacity(0.1)
                                                 ]),
                                                 startPoint: .topLeading,
                                                 endPoint: .bottomTrailing
@@ -163,7 +164,7 @@ struct SidebarView: View {
                                         .overlay(
                                             Text(userStatusManager.state.userEmail?.prefix(1).uppercased() ?? "U")
                                                 .font(.system(size: 18, weight: .bold))
-                                                .foregroundColor(userStatusManager.state.isPremium ? Color.brandPremium : .blue)
+                                                .foregroundColor(colorScheme == .dark ? .white : Color.brandBlue)
                                         )
                                 }
                                 
@@ -174,25 +175,34 @@ struct SidebarView: View {
                                         Text(email)
                                             .font(.system(size: 14, weight: .medium))
                                             .lineLimit(1)
-                                            .foregroundColor(userStatusManager.state.isPremium ? Color.brandPremium : .primary)
+                                            .foregroundColor(colorScheme == .dark ? .white : Color.brandBlue)
                                     }
                                     
                                     // Enhanced subscription tier with badge
                                     HStack(spacing: 6) {
                                         Text(userStatusManager.state.subscriptionTier.displayText.capitalized)
                                             .font(.system(size: 12, weight: userStatusManager.state.isPremium ? .semibold : .medium))
-                                            .foregroundColor(userStatusManager.state.isPremium ? Color.brandPremium : .secondary)
+                                            .foregroundColor(colorScheme == .dark ? .black : Color.brandBlue)
                                     }
                                     .padding(.horizontal, 8)
                                     .padding(.vertical, 2)
                                     .background(
                                         Capsule()
-                                            .fill(userStatusManager.state.isPremium ? 
-                                                  Color.brandPremium.opacity(0.1) : Color.gray.opacity(0.1))
+                                            .fill(colorScheme == .dark ? Color.white : Color.gray.opacity(0.1))
                                     )
                                 }
                                 
                                 Spacer()
+                                
+                                // Settings Button (three dots)
+                                Button(action: {
+                                    selectedFeature = .settings
+                                }) {
+                                    Image(systemName: "ellipsis")
+                                        .font(.system(size: 18, weight: .medium))
+                                        .foregroundColor(colorScheme == .dark ? .white : Color.brandBlue)
+                                        .frame(width: 32, height: 32)
+                                }
                             }
                             .padding(.horizontal, 16)
                             .padding(.vertical, 16)
@@ -259,7 +269,7 @@ struct SidebarView: View {
                         .lineLimit(1)
                         .font(.subheadline)
                         .fontWeight(.semibold)
-                        .foregroundColor(chatViewModel.currentConversation?.id == history.id ? .blue : .primary)
+                        .foregroundColor(chatViewModel.currentConversation?.id == history.id ? (colorScheme == .dark ? .white : .blue) : .primary)
                     
                     // Last message preview with better styling
                     Text(history.lastMessage)
@@ -281,7 +291,7 @@ struct SidebarView: View {
             .background(
                 RoundedRectangle(cornerRadius: 8)
                     .fill(chatViewModel.currentConversation?.id == history.id ? 
-                          Color.blue.opacity(0.1) : Color.clear)
+                          (colorScheme == .dark ? Color.white.opacity(0.1) : Color.blue.opacity(0.1)) : Color.clear)
             )
         }
         .buttonStyle(PlainButtonStyle())
